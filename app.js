@@ -1,27 +1,11 @@
-// ===== PRODUCT DATA =====
-const products=[
-{id:1,name:"A2 Gir Cow Ghee",cat:"Ghee & Oils",price:899,orig:1099,wt:"500ml",rating:4.8,revs:234,badge:"Best Seller",desc:"Pure A2 Gir cow ghee made using traditional bilona method. Rich in nutrients, golden in color, and full of authentic aroma.",benefits:["Boosts immunity","Improves digestion","Rich in Omega-3"],img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600",inStock:true},
-{id:2,name:"Raw Forest Honey",cat:"Honey & Jaggery",price:549,orig:699,wt:"500g",rating:4.7,revs:189,badge:"Organic",desc:"Unprocessed raw honey from wild forest beehives. No added sugar, no heating — pure goodness.",benefits:["Antioxidant rich","Natural energy booster","Soothes throat"],img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600",inStock:true},
-{id:3,name:"Little Millet",cat:"Millets & Grains",price:189,orig:249,wt:"1kg",rating:4.6,revs:102,badge:"New",desc:"Stone-ground little millet, naturally gluten-free and high in fiber. Perfect for idli, dosa, and porridge.",benefits:["Gluten free","High fiber","Low glycemic index"],img:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600",inStock:true},
-{id:4,name:"Cold Pressed Coconut Oil",cat:"Ghee & Oils",price:449,orig:549,wt:"1 Litre",rating:4.9,revs:312,badge:"Top Rated",desc:"Cold pressed virgin coconut oil extracted without heat to retain all natural nutrients and aroma.",benefits:["Hair & skin nourishment","Healthy cooking","No chemicals"],img:"https://images.unsplash.com/photo-1520763185298-1b434c919102?w=600",inStock:true},
-{id:5,name:"Turmeric Powder",cat:"Spices",price:149,orig:199,wt:"200g",rating:4.7,revs:178,badge:"Organic",desc:"High curcumin Lakadong turmeric from Meghalaya. Sun-dried and stone ground — no additives.",benefits:["Anti-inflammatory","High curcumin 7%+","Pure & natural"],img:"https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600",inStock:true},
-{id:6,name:"Organic Jaggery Powder",cat:"Honey & Jaggery",price:199,orig:259,wt:"500g",rating:4.5,revs:94,badge:"",desc:"Chemical-free sugarcane jaggery powder. Perfect substitute for refined sugar in tea, desserts, and cooking.",benefits:["Iron rich","No chemicals","Natural sweetener"],img:"https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=600",inStock:true},
-{id:7,name:"Ragi Flour",cat:"Flours",price:129,orig:169,wt:"1kg",rating:4.6,revs:143,badge:"Popular",desc:"Stone-milled finger millet flour. Rich in calcium and iron — ideal for rotis, dosas, and baby food.",benefits:["Calcium rich","Good for bones","Gluten free"],img:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600",inStock:true},
-{id:8,name:"Mixed Dry Fruits",cat:"Dry Fruits",price:699,orig:899,wt:"500g",rating:4.8,revs:267,badge:"Best Seller",desc:"Premium mix of almonds, cashews, walnuts, raisins, and pistachios. Sourced directly from farms.",benefits:["Protein packed","Heart healthy","Energy booster"],img:"https://images.unsplash.com/photo-1563412580-e2b8a01e5a60?w=600",inStock:true},
-{id:9,name:"Black Pepper Whole",cat:"Spices",price:229,orig:299,wt:"200g",rating:4.7,revs:88,badge:"Organic",desc:"Sun-dried organic black pepper from Kerala. Bold aroma and strong flavor — perfect for everyday cooking.",benefits:["Aids digestion","Anti-bacterial","Rich in piperine"],img:"https://images.unsplash.com/photo-1606914501449-5a96b6ce24ca?w=600",inStock:false},
-{id:10,name:"Foxtail Millet",cat:"Millets & Grains",price:169,orig:219,wt:"1kg",rating:4.5,revs:76,badge:"",desc:"Naturally grown foxtail millet — great source of complex carbohydrates. Great in upma or rice substitute.",benefits:["Diabetic friendly","High protein","Rich in fiber"],img:"https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=600",inStock:true},
-{id:11,name:"Wheat Flour (Sharbati)",cat:"Flours",price:99,orig:129,wt:"1kg",rating:4.4,revs:201,badge:"",desc:"Stone-ground whole wheat flour from premium Sharbati wheat. Soft texture, perfect for chapatis.",benefits:["High fiber","No maida blend","Farm sourced"],img:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600",inStock:true},
-{id:12,name:"Organic Almonds",cat:"Dry Fruits",price:799,orig:999,wt:"500g",rating:4.9,revs:334,badge:"Top Rated",desc:"California-grade organic almonds with no pesticides. Crunchy, nutrient-dense, and naturally sweet.",benefits:["Brain health","Vitamin E rich","Heart friendly"],img:"https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=600",inStock:true}
-];
+// ===== SUPABASE =====
+const supabaseUrl = 'https://jztreusepxilnfqffwka.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dHJldXNlcHhpbG5mcWZmd2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NzA5OTUsImV4cCI6MjA5MDQ0Njk5NX0.AXaOi_ax6esifM7DzwVjNXQrm3XLNPnzT_0yQWm6ahY';
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-const cats=[
-  {name:'Ghee & Oils', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 3H8L9 3z"/><path d="M7 6h10l-1 14H8L7 6z"/><path d="M10 10h4"/><path d="M10 14h4"/></svg>'},
-  {name:'Honey & Jaggery', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v2h-4z"/><path d="M8 5h8a2 2 0 012 2v10a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2z"/><path d="M12 9v6"/><path d="M9 12h6"/></svg>'},
-  {name:'Millets & Grains', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V9"/><path d="M9 18c1-1.5 2-2 3-2s2 .5 3 2"/><path d="M8 13c1.3-1.5 2.3-2 4-2s2.7.5 4 2"/><path d="M12 9c0-2 1-5 3-7"/><path d="M12 9c0-2-1-5-3-7"/></svg>'},
-  {name:'Spices', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="17" rx="8" ry="4"/><path d="M4 17V9a8 4 0 0116 0v8"/><path d="M12 13V5"/><path d="M9 8c1-2 4-2 6 0"/></svg>'},
-  {name:'Flours', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l2 6H4L6 2z"/><path d="M4 8h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V8z"/><path d="M9 12h6"/><path d="M12 12v4"/></svg>'},
-  {name:'Dry Fruits', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16"/><path d="M5 13c0 4 3.1 7 7 7s7-3 7-7"/><ellipse cx="9" cy="8" rx="2.5" ry="3.5"/><ellipse cx="15" cy="8" rx="2.5" ry="3.5"/></svg>'}
-];
+// ===== DATA =====
+let products = [];
+let cats = [];
 
 // SVG icon helper
 const svgCheck = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
@@ -396,5 +380,51 @@ window.addEventListener('scroll', () => {
 });
 
 // ===== INIT =====
-updateCartCount();
-renderHome();
+const svgMap = {
+  'Ghee & Oils': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 3H8L9 3z"/><path d="M7 6h10l-1 14H8L7 6z"/><path d="M10 10h4"/><path d="M10 14h4"/></svg>',
+  'Honey & Jaggery': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v2h-4z"/><path d="M8 5h8a2 2 0 012 2v10a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2z"/><path d="M12 9v6"/><path d="M9 12h6"/></svg>',
+  'Millets & Grains': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V9"/><path d="M9 18c1-1.5 2-2 3-2s2 .5 3 2"/><path d="M8 13c1.3-1.5 2.3-2 4-2s2.7.5 4 2"/><path d="M12 9c0-2 1-5 3-7"/><path d="M12 9c0-2-1-5-3-7"/></svg>',
+  'Spices': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="17" rx="8" ry="4"/><path d="M4 17V9a8 4 0 0116 0v8"/><path d="M12 13V5"/><path d="M9 8c1-2 4-2 6 0"/></svg>',
+  'Flours': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l2 6H4L6 2z"/><path d="M4 8h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V8z"/><path d="M9 12h6"/><path d="M12 12v4"/></svg>',
+  'Dry Fruits': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16"/><path d="M5 13c0 4 3.1 7 7 7s7-3 7-7"/><ellipse cx="9" cy="8" rx="2.5" ry="3.5"/><ellipse cx="15" cy="8" rx="2.5" ry="3.5"/></svg>'
+};
+
+async function initApp() {
+  updateCartCount();
+  
+  // Load Categories
+  const { data: catData, error: catErr } = await supabaseClient.from('categories').select('*');
+  if (catErr) console.error("Category Error", catErr);
+  if (catData && catData.length > 0) {
+    cats = catData.map(c => ({
+      name: c.name,
+      svg: svgMap[c.name] || svgMap['Spices']
+    }));
+  }
+
+  // Load Products
+  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select(`*, categories (name)`);
+  if (prodErr) console.error("Products Error", prodErr);
+  if (prodData && prodData.length > 0) {
+    products = prodData.map(p => ({
+      id: p.id,
+      name: p.name,
+      cat: p.categories?.name,
+      price: p.price,
+      orig: p.original_price, // Changed to match your real schema
+      wt: p.weight,           // Changed to match your real schema
+      rating: p.rating,
+      revs: p.review_count,   // Changed to match your real schema
+      badge: p.badge || '',
+      desc: p.description,
+      benefits: p.benefits || [],
+      img: p.image_url,
+      inStock: p.in_stock
+    }));
+  }
+
+  renderHome();
+}
+
+// Start
+initApp();
