@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Farmmily Farms — From Our Farm, To Your Family</title>
+<meta name="description" content="Shop certified organic A2 ghee, raw honey, millets, spices. Fresh from farm to your doorstep.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#3A6B35;--secondary:#D4A017;--bg:#FAF7F0;--text:#2C1A0E;--accent:#8BBF6E;--white:#fff;--card-bg:#fff;--border:#e8e0d0;--sh:0 4px 20px rgba(44,26,14,.08);--sh2:0 12px 40px rgba(44,26,14,.16);--r:16px;--tr:all .3s cubic-bezier(.4,0,.2,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Playfair Display',serif;line-height:1.2}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:'Poppins',sans-serif}
+input,select,textarea{font-family:'Poppins',sans-serif;outline:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+.page{display:none;animation:fadeIn .4s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* OFFER BANNER */
+#offer-banner{background:var(--primary);color:#fff;text-align:center;padding:10px 40px 10px 16px;font-size:.82rem;font-weight:500;position:relative;z-index:200}
+#offer-banner button{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;color:#fff;font-size:1rem;cursor:pointer}
+.code{background:var(--secondary);color:var(--text);padding:2px 8px;border-radius:4px;font-weight:700;margin:0 4px}
+
+/* HEADER */
+#header{background:#fff;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.hdr{max-width:1280px;margin:0 auto;padding:0 16px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;cursor:pointer;flex-shrink:0}
+.logo-img{height:32px;width:auto}
+.hamburger{display:none;background:none;width:44px;height:44px;border-radius:10px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:var(--tr)}
+.hamburger:hover{background:var(--bg)}
+.hamburger svg{width:22px;height:22px;color:var(--text)}
+nav.desktop-nav{display:flex;gap:4px;flex:1;justify-content:center}
+nav.desktop-nav a{padding:8px 14px;border-radius:8px;font-size:.88rem;font-weight:500;color:var(--text);transition:var(--tr);cursor:pointer}
+nav.desktop-nav a:hover,nav.desktop-nav a.active{background:var(--bg);color:var(--primary)}
+.hdr-actions{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.icon-btn{background:none;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;transition:var(--tr)}
+.icon-btn:hover{background:var(--bg)}
+.icon-btn svg{width:20px;height:20px;color:#333}
+#cart-count{position:absolute;top:2px;right:2px;background:var(--secondary);color:var(--text);font-size:.58rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center}
+#cart-count.show{display:flex}
+.btn-hdr-login{background:var(--primary);color:#fff;padding:8px 18px;border-radius:24px;font-size:.85rem;font-weight:600;transition:var(--tr)}
+.btn-hdr-login:hover{background:#2d5228}
+
+/* MOBILE NAV */
+#mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:1px solid #e0e0e0;box-shadow:0 -2px 12px rgba(0,0,0,.06);padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
+.mob-nav-inner{display:flex;justify-content:space-around;max-width:400px;margin:0 auto}
+.mob-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 12px;font-size:.68rem;font-weight:600;letter-spacing:.02em;color:#8e8e93;cursor:pointer;transition:color .2s ease;position:relative;-webkit-tap-highlight-color:transparent}
+.mob-item svg{width:22px;height:22px;transition:color .2s ease}
+.mob-item.active{color:var(--primary)}
+.mob-item.active svg{color:var(--primary)}
+.mob-badge{position:absolute;top:0;right:2px;background:#e74c3c;color:#fff;font-size:.55rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center}
+.mob-badge.show{display:flex}
+
+/* BUTTONS */
+.btn{padding:12px 28px;border-radius:50px;font-size:.9rem;font-weight:600;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;min-height:48px;cursor:pointer}
+.btn-green{background:var(--primary);color:#fff}.btn-green:hover{background:#2d5228;transform:translateY(-2px);box-shadow:0 8px 24px rgba(58,107,53,.3)}
+.btn-outline-g{background:transparent;color:var(--primary);border:2px solid var(--primary)}.btn-outline-g:hover{background:var(--primary);color:#fff;transform:translateY(-2px)}
+.btn-amber{background:var(--secondary);color:var(--text)}.btn-amber:hover{background:#c8950e;transform:translateY(-2px)}
+
+/* LAYOUT */
+.sec{padding:60px 20px}
+.inner{max-width:1280px;margin:0 auto}
+.sec-title{text-align:center;margin-bottom:40px}
+.sec-title h2{font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:8px}
+.sec-title p{color:#888;font-size:.92rem;max-width:520px;margin:0 auto}
+.title-bar{width:56px;height:3px;background:var(--secondary);border-radius:2px;margin:12px auto 0}
+
+/* PRODUCT CARD */
+.pcard{background:var(--card-bg);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);transition:var(--tr);cursor:pointer}
+.pcard:hover{transform:translateY(-6px);box-shadow:var(--sh2)}
+.pcard .ci-wrap{overflow:hidden;position:relative}
+.pcard .ci-wrap img{width:100%;aspect-ratio:1;object-fit:cover;transition:transform .4s}
+.pcard:hover .ci-wrap img{transform:scale(1.07)}
+.pbadge{position:absolute;top:10px;left:10px;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:20px;z-index:2}
+.pbadge.amber{background:var(--secondary);color:var(--text)}
+.pbadge.green{background:var(--primary);color:#fff}
+.pbadge.new{background:#e8f5e9;color:var(--primary)}
+.oos-overlay{position:absolute;inset:0;background:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;font-weight:600;color:#888;font-size:.85rem}
+.pbody{padding:14px}
+.pname{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.pwt{font-size:.74rem;color:#aaa;margin-bottom:7px}
+.pstars{display:flex;align-items:center;gap:4px;margin-bottom:8px}
+.pstars .st{color:var(--secondary);font-size:.82rem}
+.pstars .rv{font-size:.7rem;color:#bbb}
+.pprices{display:flex;align-items:baseline;gap:8px;margin-bottom:11px}
+.pp{font-size:1.05rem;font-weight:700;color:var(--primary)}
+.pop{font-size:.8rem;color:#ccc;text-decoration:line-through}
+.pdisc{font-size:.72rem;color:#e74c3c;font-weight:600}
+.btn-add{width:100%;background:var(--primary);color:#fff;padding:9px;border-radius:50px;font-size:.82rem;font-weight:600;transition:var(--tr);min-height:40px}
+.btn-add:hover{background:#2d5228}
+.btn-add.added{background:#27ae60}
+.btn-notify{width:100%;background:#f0ece4;color:#999;padding:9px;border-radius:50px;font-size:.82rem;font-weight:600;min-height:40px}
+
+/* SKELETON */
+.skel{background:linear-gradient(90deg,#f0ece4 25%,#e4ddd0 50%,#f0ece4 75%);background-size:200% 100%;animation:shim 1.4s infinite;border-radius:6px}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--primary);color:#fff;padding:11px 24px;border-radius:50px;font-size:.88rem;font-weight:500;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* INLINE NAV SEARCH */
+.nav-search-wrap{flex:1;display:flex;justify-content:center;align-items:center;position:relative}
+.nav-search-bar{display:none;align-items:center;gap:8px;background:#fff;border:2px solid var(--primary);border-radius:50px;padding:6px 10px 6px 20px;width:100%;max-width:480px;box-shadow:0 4px 20px rgba(58,107,53,.12);animation:srchIn .25s ease}
+@keyframes srchIn{from{opacity:0;transform:translateY(-6px) scaleX(.96)}to{opacity:1;transform:translateY(0) scaleX(1)}}
+.nav-search-bar.open{display:flex}
+.nav-search-bar input{flex:1;border:none;background:none;font-size:.9rem;color:var(--text);min-width:0;outline:none;font-family:'Poppins',sans-serif}
+.nav-search-bar input::placeholder{color:#bbb}
+.nav-search-close{background:none;border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aaa;flex-shrink:0;transition:var(--tr)}
+.nav-search-close:hover{background:var(--bg);color:var(--primary)}
+.nav-search-dropdown{position:absolute;top:calc(100% + 10px);left:0;right:0;background:#fff;border-radius:var(--r);box-shadow:0 16px 48px rgba(44,26,14,.15);border:1px solid var(--border);z-index:9999;display:none;max-height:360px;overflow-y:auto;animation:srchIn .2s ease}
+.nav-search-dropdown.open{display:block}
+.sri{display:flex;gap:12px;align-items:center;padding:11px 14px;cursor:pointer;transition:background .15s}
+.sri:hover{background:var(--bg)}
+.sri img{width:46px;height:46px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.sri-name{font-weight:600;font-size:.88rem}
+.sri-price{color:var(--primary);font-weight:700;font-size:.82rem}
+
+/* WHATSAPP / BACK-TOP */
+#wa-btn{position:fixed;bottom:90px;right:18px;width:52px;height:52px;background:#25D366;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,.4);z-index:90;transition:var(--tr);text-decoration:none}
+#wa-btn svg{width:26px;height:26px;fill:#fff}
+#wa-btn:hover{transform:scale(1.1)}
+#back-top{position:fixed;bottom:28px;left:18px;width:40px;height:40px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:var(--tr);z-index:90;cursor:pointer;border:none}
+#back-top svg{width:18px;height:18px}
+#back-top.show{opacity:1;pointer-events:all}
+.ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico svg{width:1em;height:1em}
+.ico-sm svg{width:16px;height:16px}
+.ico-md svg{width:20px;height:20px}
+.ico-lg svg{width:28px;height:28px}
+.wicon svg{width:42px;height:42px;color:var(--primary)}
+.popt .picon{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:var(--bg);flex-shrink:0}
+.popt .picon svg{width:22px;height:22px;color:var(--primary)}
+.check-anim svg{width:44px;height:44px;color:var(--primary)}
+.fsoc svg{width:18px;height:18px}
+
+/* HOME HERO */
+.hero{position:relative;height:90vh;min-height:500px;max-height:780px;overflow:hidden}
+.hero img{width:100%;height:100%;object-fit:cover}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(135deg,rgba(44,26,14,.72) 0%,rgba(44,26,14,.28) 100%)}
+.hero-c{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(24px,6vw,80px);gap:18px;max-width:680px}
+.hero-eye{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.8rem;font-weight:500;padding:6px 16px;border-radius:50px}
+.hero-c h1{color:#fff;font-size:clamp(2rem,6vw,3.8rem);line-height:1.15;text-shadow:0 2px 20px rgba(0,0,0,.3)}
+.hero-c p{color:rgba(255,255,255,.88);font-size:clamp(.88rem,2vw,1.1rem);line-height:1.7}
+.hero-btns{display:flex;flex-wrap:wrap;gap:12px}
+.btn-ha{background:var(--secondary);color:var(--text)!important;padding:14px 32px;border-radius:50px;font-weight:700;font-size:.95rem;transition:var(--tr);display:inline-flex;min-height:50px;align-items:center;gap:8px}
+.btn-ha:hover{background:#c8950e;transform:translateY(-2px);box-shadow:0 8px 24px rgba(212,160,23,.4)}
+.btn-hb{background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.5);color:#fff!important;padding:14px 32px;border-radius:50px;font-weight:600;font-size:.95rem;transition:var(--tr);display:inline-flex;min-height:50px;align-items:center}
+.btn-hb:hover{background:rgba(255,255,255,.25);transform:translateY(-2px)}
+
+/* TRUST */
+.trust-bar{background:var(--primary);padding:13px 20px;overflow-x:auto}
+.trust-inner{display:flex;gap:28px;align-items:center;justify-content:center;min-width:max-content;margin:0 auto}
+.ti{display:flex;align-items:center;gap:9px;color:#fff;font-size:.84rem;font-weight:500;white-space:nowrap}
+.tdiv{width:1px;height:22px;background:rgba(255,255,255,.28)}
+
+/* CATEGORIES */
+.cats-row{display:flex;gap:16px;overflow-x:auto;padding:4px 4px 12px;scrollbar-width:none;justify-content:flex-start}
+.cats-row::-webkit-scrollbar{display:none}
+.cat-card{flex:0 0 86px;width:86px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:var(--tr);padding:4px 0}
+.cat-card:hover .cat-icon-wrap{background:var(--primary);border-color:var(--primary);transform:translateY(-3px);box-shadow:0 8px 24px rgba(58,107,53,.22)}
+.cat-card:hover .cat-icon-wrap svg{color:#fff}
+.cat-card.active-cat .cat-icon-wrap{background:var(--primary);border-color:var(--primary)}
+.cat-card.active-cat .cat-icon-wrap svg{color:#fff}
+.cat-card.active-cat .cn{color:var(--primary);font-weight:700}
+.cat-icon-wrap{width:68px;height:68px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;transition:var(--tr);box-shadow:0 2px 10px rgba(0,0,0,.06);flex-shrink:0}
+.cat-icon-wrap svg{width:30px;height:30px;color:var(--primary);transition:color .2s}
+.cn{font-size:.72rem;font-weight:600;color:var(--text);text-align:center;white-space:normal;word-break:break-word;line-height:1.3;width:86px}
+
+/* FEATURED SCROLL */
+.prow{display:flex;gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.prow::-webkit-scrollbar{display:none}
+.prow .pcard{flex:0 0 210px}
+
+/* WHY */
+.why-sec{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);padding:60px 20px}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:36px}
+.why-card{background:#fff;border-radius:var(--r);padding:30px 22px;text-align:center;box-shadow:0 4px 20px rgba(58,107,53,.08);transition:var(--tr)}
+.why-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(58,107,53,.12)}
+.wicon{font-size:2.4rem;margin-bottom:14px}
+.why-card h3{font-size:1.1rem;color:var(--primary);margin-bottom:8px}
+.why-card p{font-size:.86rem;color:#666;line-height:1.7}
+
+/* TESTIMONIALS */
+.trow{display:flex;gap:18px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.trow::-webkit-scrollbar{display:none}
+.tcard{flex:0 0 290px;background:var(--card-bg);border-radius:var(--r);padding:22px;box-shadow:var(--sh);border:1px solid var(--border)}
+.ttop{display:flex;gap:13px;align-items:center;margin-bottom:12px}
+.tavatar{width:50px;height:50px;border-radius:50%;object-fit:cover;border:3px solid var(--accent)}
+.tname{font-weight:600;font-size:.92rem}
+.tloc{font-size:.72rem;color:#aaa}
+.tstars{color:var(--secondary);font-size:.88rem;margin-bottom:8px}
+.tquote{font-size:.86rem;color:#555;line-height:1.7;font-style:italic}
+.qm{font-size:1.8rem;color:var(--accent);line-height:1;font-family:Georgia,serif}
+
+/* GALLERY */
+.farm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:28px}
+.farm-grid img{aspect-ratio:1;object-fit:cover;border-radius:8px;transition:var(--tr);cursor:pointer}
+.farm-grid img:hover{opacity:.82;transform:scale(1.02)}
+
+/* FOOTER */
+footer{background:var(--text);color:rgba(255,255,255,.82);padding:46px 20px 28px}
+.ftop{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:36px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,.1)}
+.flogo{font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;margin-bottom:8px}
+.ftag{font-size:.83rem;color:rgba(255,255,255,.55);margin-bottom:18px}
+.fsocials{display:flex;gap:10px}
+.fsoc{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:var(--tr);cursor:pointer}
+.fsoc:hover{background:var(--secondary)}
+.fcol h4{color:#fff;font-size:.92rem;font-weight:600;margin-bottom:14px}
+.fcol ul li{margin-bottom:9px}
+.fcol ul li a{color:rgba(255,255,255,.55);font-size:.83rem;transition:var(--tr);cursor:pointer}
+.fcol ul li a:hover{color:var(--secondary)}
+.fbot{max-width:1280px;margin:0 auto;padding-top:24px;text-align:center;font-size:.78rem;color:rgba(255,255,255,.38)}
+
+/* SHOP */
+.shop-hero{background:linear-gradient(135deg,var(--primary),#4a8a44);padding:38px 20px;text-align:center;color:#fff}
+.shop-hero h1{font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:6px}
+.shop-hero p{opacity:.85;font-size:.92rem}
+.shop-ctrl{padding:18px 20px;max-width:1280px;margin:0 auto}
+.ssearch{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--border);border-radius:50px;padding:7px 16px 7px 20px;margin-bottom:14px}
+.ssearch input{flex:1;border:none;background:none;font-size:.9rem;color:var(--text)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:7px 16px;border-radius:50px;border:2px solid var(--border);font-size:.8rem;font-weight:600;cursor:pointer;transition:var(--tr);white-space:nowrap;background:#fff}
+.chip:hover,.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.sort-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sort-row label{font-size:.8rem;color:#888}
+.sort-sel{border:2px solid var(--border);border-radius:50px;padding:6px 14px;font-size:.8rem;font-weight:500;color:var(--text);background:#fff;cursor:pointer}
+.pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:1280px;margin:0 auto;padding:0 20px 100px}
+.empty-st{text-align:center;padding:60px 20px;color:#aaa;grid-column:1/-1}
+.empty-st .ei{font-size:3rem;margin-bottom:14px}
+
+/* PRODUCT DETAIL */
+.det-wrap{max-width:1100px;margin:0 auto;padding:28px 20px 100px}
+.det-back{display:inline-flex;align-items:center;gap:8px;color:var(--primary);font-weight:500;font-size:.88rem;cursor:pointer;margin-bottom:22px;transition:var(--tr)}
+.det-back:hover{gap:12px}
+.det-layout{display:grid;gap:28px}
+.det-img-wrap{border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.det-img{width:100%;aspect-ratio:1;object-fit:cover}
+.det-badge{display:inline-block;background:var(--secondary);color:var(--text);font-size:.73rem;font-weight:700;padding:4px 13px;border-radius:20px;margin-bottom:10px}
+.det-name{font-size:clamp(1.4rem,4vw,2rem);margin-bottom:9px}
+.det-rating{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.det-rating .st{color:var(--secondary);font-size:.98rem}
+.det-rating .cnt{font-size:.83rem;color:#aaa}
+.det-pricing{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.det-price{font-size:1.7rem;font-weight:700;color:var(--primary)}
+.det-orig{font-size:.95rem;color:#ccc;text-decoration:line-through}
+.det-disc{background:#fff3cd;color:#c8950e;font-size:.76rem;font-weight:700;padding:4px 10px;border-radius:6px}
+.det-desc{font-size:.9rem;color:#555;line-height:1.8;margin-bottom:18px}
+.det-ben h4{font-size:.92rem;font-weight:600;margin-bottom:9px}
+.det-ben ul{display:grid;gap:7px}
+.det-ben ul li{display:flex;align-items:center;gap:9px;font-size:.86rem;color:#444}
+.qty-wrap{display:flex;align-items:center;gap:14px;margin:18px 0}
+.qty-wrap label{font-size:.86rem;font-weight:600}
+.qty-ctrl{display:flex;align-items:center;gap:10px;border:2px solid var(--border);border-radius:50px;padding:4px 14px}
+.qbtn{background:none;font-size:1.2rem;color:var(--primary);font-weight:700;cursor:pointer;padding:0 2px;min-width:24px;min-height:24px}
+.qval{font-size:1rem;font-weight:600;min-width:22px;text-align:center}
+.det-add{width:100%;padding:15px;font-size:.98rem}
+.related-sec{max-width:1100px;margin:0 auto;padding:0 20px 60px}
+.related-sec h3{font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:18px}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+
+/* CART */
+.cart-wrap{max-width:880px;margin:0 auto;padding:28px 20px 100px}
+.cart-wrap h1{font-size:1.75rem;margin-bottom:22px}
+.cart-empty{text-align:center;padding:60px 20px;color:#aaa}
+.cart-empty .eicon{font-size:3.5rem;margin-bottom:14px}
+.cart-empty h3{font-size:1.1rem;color:var(--text);margin-bottom:6px}
+.clist{display:grid;gap:14px;margin-bottom:22px}
+.citem{background:#fff;border-radius:var(--r);padding:14px;display:grid;grid-template-columns:78px 1fr;gap:13px;box-shadow:var(--sh);align-items:center}
+.citem img{width:78px;height:78px;border-radius:10px;object-fit:cover}
+.ci-name{font-weight:600;font-size:.92rem;margin-bottom:3px}
+.ci-wt{font-size:.72rem;color:#aaa;margin-bottom:7px}
+.ci-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ci-price{font-size:.98rem;font-weight:700;color:var(--primary)}
+.ci-qty{display:flex;align-items:center;gap:9px;border:1.5px solid var(--border);border-radius:50px;padding:4px 11px}
+.ci-qbtn{background:none;font-size:1rem;color:var(--primary);font-weight:700;cursor:pointer;padding:0 2px}
+.ci-qval{font-size:.88rem;font-weight:600;min-width:18px;text-align:center}
+.ci-rm{background:none;font-size:.95rem;color:#ddd;transition:var(--tr);cursor:pointer;padding:4px}
+.ci-rm:hover{color:#e74c3c}
+.csummary{background:#fff;border-radius:var(--r);padding:22px;box-shadow:var(--sh)}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.srow:last-child{border:none}
+.srow.total{font-weight:700;font-size:1.02rem;color:var(--primary)}
+.free-del{color:#27ae60;font-weight:600;font-size:.83rem}
+.btn-co{width:100%;margin-top:18px;padding:15px;font-size:.95rem;justify-content:center}
+
+/* CHECKOUT */
+.co-wrap{max-width:980px;margin:0 auto;padding:28px 20px 100px}
+.co-wrap h1{font-size:1.75rem;margin-bottom:22px}
+.steps{display:flex;align-items:center;margin-bottom:32px}
+.step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.snum{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;color:#aaa;transition:var(--tr)}
+.step.active .snum{border-color:var(--primary);background:var(--primary);color:#fff}
+.step.done .snum{border-color:var(--accent);background:var(--accent);color:#fff}
+.slabel{font-size:.7rem;font-weight:600;color:#aaa}
+.step.active .slabel,.step.done .slabel{color:var(--primary)}
+.sline{flex:1;height:2px;background:var(--border);margin-bottom:20px;transition:var(--tr)}
+.sline.done{background:var(--accent)}
+.co-layout{display:grid;gap:22px}
+.co-sec{background:#fff;border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
+.co-sec h3{font-size:1.1rem;margin-bottom:18px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ff{display:flex;flex-direction:column;gap:5px}
+.ff.full{grid-column:1/-1}
+.ff label{font-size:.8rem;font-weight:600}
+.ff input,.ff select{border:2px solid var(--border);border-radius:9px;padding:11px 14px;font-size:.88rem;color:var(--text);transition:var(--tr);background:#fff}
+.ff input:focus,.ff select:focus{border-color:var(--primary)}
+.pay-opts{display:grid;gap:10px;margin-top:4px}
+.popt{display:flex;align-items:center;gap:13px;border:2px solid var(--border);border-radius:11px;padding:14px;cursor:pointer;transition:var(--tr)}
+.popt.sel{border-color:var(--primary);background:#f0f7ef}
+.popt .picon{font-size:1.3rem}
+.popt .ptname{font-weight:600;font-size:.88rem}
+.popt .ptdesc{font-size:.73rem;color:#aaa}
+.btn-nxt{width:100%;margin-top:18px;padding:14px;font-size:.93rem;justify-content:center}
+.co-sidebar{background:#fff;border-radius:var(--r);padding:22px;box-shadow:var(--sh);align-self:start}
+.co-sidebar h3{font-size:1.05rem;margin-bottom:14px}
+.sbi{display:flex;gap:11px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.sbi img{width:50px;height:50px;border-radius:8px;object-fit:cover}
+.sbi .sbi-n{font-size:.83rem;font-weight:600}
+.sbi .sbi-p{font-size:.83rem;color:var(--primary);font-weight:700}
+
+/* SUCCESS */
+.succ-wrap{max-width:540px;margin:0 auto;padding:60px 20px;text-align:center}
+.check-anim{width:78px;height:78px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:2.1rem;margin:0 auto 22px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.succ-wrap h2{font-size:1.75rem;color:var(--primary);margin-bottom:7px}
+.succ-sub{font-size:.9rem;color:#777;line-height:1.7;margin-bottom:26px}
+.oid-box{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:18px;margin-bottom:22px}
+.oid-lbl{font-size:.78rem;color:#aaa;margin-bottom:5px}
+.oid{font-size:1.05rem;font-weight:700;color:var(--primary);font-family:monospace}
+.oid-del{font-size:.83rem;color:#555;margin-top:7px}
+
+/* LOGIN */
+.login-wrap{max-width:420px;margin:0 auto;padding:38px 20px 80px}
+.lcard{background:#fff;border-radius:var(--r);padding:34px 26px;box-shadow:var(--sh2)}
+.llogo{text-align:center;font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--primary);margin-bottom:22px}
+.tab-tog{display:flex;border:2px solid var(--border);border-radius:50px;padding:4px;margin-bottom:26px}
+.tbtn{flex:1;padding:9px;border-radius:50px;font-size:.86rem;font-weight:600;background:none;color:#888;transition:var(--tr);cursor:pointer}
+.tbtn.active{background:var(--primary);color:#fff}
+.lform{display:grid;gap:14px}
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:11px;padding:12px;border:2px solid var(--border);border-radius:50px;font-size:.86rem;font-weight:600;color:var(--text);background:#fff;transition:var(--tr);cursor:pointer;margin-top:3px}
+.btn-google:hover{border-color:var(--primary);background:var(--bg)}
+.divider{display:flex;align-items:center;gap:12px;color:#ccc;font-size:.78rem;margin:2px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.lsubmit{width:100%;padding:13px;font-size:.92rem;justify-content:center}
+
+/* RESPONSIVE */
+@media(min-width:640px){.pgrid{grid-template-columns:repeat(3,1fr)}.rgrid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:900px){.pgrid{grid-template-columns:repeat(4,1fr)}.det-layout{grid-template-columns:1fr 1fr}.co-layout{grid-template-columns:1fr 320px}.cats-row{justify-content:center;gap:20px}.prow{display:grid;grid-template-columns:repeat(4,1fr)}.prow .pcard{flex:none}}
+@media(min-width:1024px){.hamburger{display:none!important}nav.desktop-nav{display:flex!important}#mob-nav{display:none!important}#wa-btn{bottom:28px}#back-top{bottom:28px;left:18px}.logo-img{height:38px}.hdr{padding:0 24px;height:68px}}
+@media(max-width:1023px){nav.desktop-nav{display:none}.hamburger{display:flex}#mob-nav{display:block}body{padding-bottom:62px}#toast{bottom:130px}#wa-btn{bottom:88px}#back-top{bottom:88px;left:18px}.btn-hdr-login{display:none}.hdr{padding:0 12px}.logo{position:absolute;left:50%;transform:translateX(-50%)}}
+@media(max-width:480px){.hero{height:84vh}.hero-c{padding:20px}.fgrid{grid-template-columns:1fr}.ftop{grid-template-columns:1fr 1fr}}
+@media(max-width:380px){.ftop{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- OFFER BANNER -->
+<div id="offer-banner"><span>Use code <span class="code">FARM10</span> for 10% off your first order!</span><button onclick="this.parentElement.style.display='none'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+<!-- HEADER -->
+<header id="header"><div class="hdr">
+<button class="hamburger" onclick="toggleMob()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+<div class="logo" onclick="showPage('home')"><img src="assets/farmmily logo.png" alt="Farmmily" class="logo-img"></div>
+<div class="nav-search-wrap" id="nav-search-wrap">
+<nav class="desktop-nav" id="desktop-nav"><a data-page="home" onclick="showPage('home')" class="active">Home</a><a data-page="shop" onclick="showPage('shop')">Shop</a></nav>
+<div class="nav-search-bar" id="nav-search-bar"><input id="srch-in" type="text" placeholder="Search organic products..." oninput="liveSearch(this.value)" autocomplete="off"><button class="nav-search-close" onclick="closeSearch()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+<div class="nav-search-dropdown" id="srch-res"></div>
+</div>
+<div class="hdr-actions">
+<button class="icon-btn" id="search-icon-btn" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+<button class="icon-btn" onclick="showPage('cart')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span id="cart-count"></span></button>
+<button class="btn-hdr-login" onclick="showPage('login')">Login</button>
+</div>
+</div></header>
+<!-- MOBILE MENU -->
+<div id="mob-menu" style="display:none;position:fixed;top:60px;left:0;right:0;background:#fff;z-index:99;border-bottom:1px solid var(--border);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.1)">
+<a style="display:block;padding:14px 16px;border-radius:10px;font-weight:500;margin-bottom:4px;font-size:.95rem" onclick="showPage('home');closeMob()">Home</a>
+<a style="display:block;padding:14px 16px;border-radius:10px;font-weight:500;margin-bottom:4px;font-size:.95rem" onclick="showPage('shop');closeMob()">Shop</a>
+
+<a style="display:block;padding:14px 16px;border-radius:10px;font-weight:500;font-size:.95rem" onclick="showPage('login');closeMob()">Account</a>
+</div>
+<!-- BOTTOM NAV -->
+<nav id="mob-nav"><div class="mob-nav-inner">
+<div class="mob-item active" data-mob="home" onclick="showPage('home')">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg><span>Home</span></div>
+<div class="mob-item" data-mob="shop" onclick="showPage('shop')">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 14H6V8h2v2h2V8h4v2h2V8h2v10z"/></svg><span>Shop</span></div>
+<div class="mob-item" data-mob="cart" onclick="showPage('cart')" style="position:relative">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020.01 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Cart</span><span class="mob-badge" id="mob-cnt"></span></div>
+<div class="mob-item" data-mob="login" onclick="showPage('login')">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Account</span></div>
+</div></nav>
+<!-- TOAST -->
+<div id="toast">Added to cart!</div>
+
+
+<!-- ========== HOME ========== -->
+<div id="page-home" class="page active">
+<section class="hero"><img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400" alt="Fresh organic farm"><div class="hero-ov"></div><div class="hero-c"><div class="hero-eye"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z"/><path d="M12 2c0 4 4 6 4 10"/><path d="M12 2c0 4-4 6-4 10"/></svg> Certified Organic Products</div><h1>Pure. Natural.<br>Straight From The Farm.</h1><p>Certified organic products delivered fresh to your doorstep — trusted by 50,000+ families.</p><div class="hero-btns"><a class="btn-ha" onclick="showPage('shop')">Shop Now →</a><a class="btn-hb" onclick="document.getElementById('about-sec').scrollIntoView({behavior:'smooth'})">Our Story</a></div></div></section>
+<div class="trust-bar"><div class="trust-inner"><div class="ti"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z"/><path d="M12 2c0 4 4 6 4 10"/><path d="M12 2c0 4-4 6-4 10"/></svg> 100% Organic</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Free Delivery ₹499+</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Lab Tested</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Easy Returns</div></div></div>
+<section class="sec"><div class="inner"><div class="sec-title"><h2>Shop By Category</h2><p>Explore our range of farm-fresh organic products</p><div class="title-bar"></div></div><div class="cats-row" id="cats-row"></div></div></section>
+<section class="sec" style="padding-top:0"><div class="inner"><div class="sec-title"><h2>Our Best Sellers</h2><p>Top picks loved by thousands of families</p><div class="title-bar"></div></div><div class="prow" id="feat-row"></div></div></section>
+<section class="why-sec" id="about-sec"><div class="inner"><div class="sec-title"><h2>Why Farmmily?</h2><p>We stand for purity, integrity, and your family's well-being</p><div class="title-bar"></div></div><div class="why-grid"><div class="why-card"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z"/><path d="M12 2c0 4 4 6 4 10"/><path d="M12 2c0 4-4 6-4 10"/></svg></div><h3>Farm Fresh</h3><p>Harvested directly from our partner farms — no middlemen, maximum freshness guaranteed.</p></div><div class="why-card"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 7H8L9 3z"/><path d="M8 10c0 5 3 8 4 11 1-3 4-6 4-11"/><line x1="12" y1="3" x2="12" y2="21"/></svg></div><h3>Lab Certified</h3><p>Every batch tested in NABL-accredited labs for purity, pesticides, and nutritional content.</p></div><div class="why-card"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><h3>No Chemicals</h3><p>100% natural farming. No synthetic fertilizers, no pesticides, no artificial additives — ever.</p></div></div></div></section>
+<section class="sec"><div class="inner"><div class="sec-title"><h2>What Families Are Saying</h2><div class="title-bar"></div></div><div class="trow">
+<div class="tcard"><div class="ttop"><img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=100" class="tavatar" alt=""><div><div class="tname">Priya Sharma</div><div class="tloc"><svg viewBox="0 0 24 24" width="12" height="12" fill="var(--primary)" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Bengaluru</div></div></div><div class="tstars">★★★★★</div><div class="qm">"</div><div class="tquote">The A2 ghee is absolutely divine. You can smell the difference — so aromatic and rich. Worth every rupee!</div></div>
+<div class="tcard"><div class="ttop"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100" class="tavatar" alt=""><div><div class="tname">Rajesh Kumar</div><div class="tloc"><svg viewBox="0 0 24 24" width="12" height="12" fill="var(--primary)" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Chennai</div></div></div><div class="tstars">★★★★★</div><div class="qm">"</div><div class="tquote">Ordered the millet pack and raw honey. Delivery was super fast. The honey crystallizes naturally — you know it's real!</div></div>
+<div class="tcard"><div class="ttop"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100" class="tavatar" alt=""><div><div class="tname">Anita Reddy</div><div class="tloc"><svg viewBox="0 0 24 24" width="12" height="12" fill="var(--primary)" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Hyderabad</div></div></div><div class="tstars">★★★★☆</div><div class="qm">"</div><div class="tquote">Lakadong turmeric changed my golden milk routine forever. 7%+ curcumin — the color and aroma are incredible!</div></div>
+</div></div></section>
+<section class="sec" style="padding-top:0"><div class="inner"><div class="sec-title"><h2>Life At The Farm</h2><p>Real farm, real people, real food</p><div class="title-bar"></div></div><div class="farm-grid"><img src="https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=400" alt="Farm" loading="lazy"></div></div></section>
+<footer id="contact-sec"><div class="ftop">
+<div><div class="flogo"><img src="assets/farmmily logo.png" alt="Farmmily" style="height:34px;width:auto"></div><div class="ftag">From Our Farm, To Your Family</div><div class="fsocials"><div class="fsoc"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5"/></svg></div><div class="fsoc"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="fsoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></div></div></div>
+<div class="fcol"><h4>Shop</h4><ul><li><a onclick="showPage('shop')">All Products</a></li><li><a onclick="showPage('shop')">Ghee &amp; Oils</a></li><li><a onclick="showPage('shop')">Millets</a></li><li><a onclick="showPage('shop')">Spices</a></li></ul></div>
+<div class="fcol"><h4>Company</h4><ul><li><a>About Us</a></li><li><a>Blog</a></li><li><a>Farmer Stories</a></li><li><a>Careers</a></li></ul></div>
+<div class="fcol"><h4>Support</h4><ul><li><a>Privacy Policy</a></li><li><a>Refund Policy</a></li><li><a href="https://wa.me/919999999999" target="_blank">WhatsApp Us</a></li><li><a>FAQ</a></li></ul></div>
+</div><div class="fbot">© 2024 Farmmily Farms. Made with <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--accent)" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> for healthy families across India.</div></footer>
+</div>
+<!-- ========== SHOP ========== -->
+<div id="page-shop" class="page"><div class="shop-hero"><h1>Our Products</h1><p>Pure organic goodness — from farm fields to your kitchen</p></div><div class="shop-ctrl"><div class="ssearch"><input id="shop-srch" type="text" placeholder="Search products..." oninput="filterProds()"><span style="color:#bbb;cursor:pointer" onclick="document.getElementById('shop-srch').value='';filterProds()">✕</span></div><div class="chips" id="chips"></div><div class="sort-row"><label>Showing <strong id="prod-cnt">0</strong> products</label><select class="sort-sel" id="sort-sel" onchange="filterProds()"><option value="">Featured</option><option value="asc">Price: Low–High</option><option value="desc">Price: High–Low</option><option value="rating">Top Rated</option></select></div></div><div class="pgrid" id="pgrid"></div></div>
+<!-- ========== PRODUCT DETAIL ========== -->
+<div id="page-product" class="page"><div class="det-wrap"><div class="det-back" onclick="goBack()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back</div><div class="det-layout"><div class="det-img-wrap"><img class="det-img" id="det-img" src="" alt=""></div><div><div class="det-badge" id="det-badge"></div><h1 class="det-name" id="det-name"></h1><div class="det-rating"><span class="st" id="det-stars"></span><span class="cnt" id="det-rev"></span></div><div class="det-pricing"><span class="det-price" id="det-price"></span><span class="det-orig" id="det-orig"></span><span class="det-disc" id="det-disc"></span></div><div class="det-desc" id="det-desc"></div><div class="det-ben"><h4>Key Benefits</h4><ul id="det-ben"></ul></div><div class="qty-wrap"><label>Qty:</label><div class="qty-ctrl"><button class="qbtn" onclick="chQty(-1)">−</button><span class="qval" id="det-qty">1</span><button class="qbtn" onclick="chQty(1)">+</button></div></div><button class="btn btn-green det-add" id="det-add-btn" onclick="addDetToCart()">Add to Cart</button></div></div></div><div class="related-sec"><h3>You May Also Like</h3><div class="rgrid" id="rgrid"></div></div></div>
+<!-- ========== CART ========== -->
+<div id="page-cart" class="page"><div class="cart-wrap"><h1>Your Cart</h1><div id="cart-content"></div></div></div>
+<!-- ========== CHECKOUT ========== -->
+<div id="page-checkout" class="page"><div class="co-wrap"><h1>Checkout</h1><div class="steps"><div class="step active" id="si1"><div class="snum">1</div><div class="slabel">Address</div></div><div class="sline" id="sl1"></div><div class="step" id="si2"><div class="snum">2</div><div class="slabel">Payment</div></div><div class="sline" id="sl2"></div><div class="step" id="si3"><div class="snum">3</div><div class="slabel">Done</div></div></div><div class="co-layout"><div>
+<div id="co-s1"><div class="co-sec"><h3>Delivery Address</h3><div class="fgrid"><div class="ff"><label>Full Name *</label><input id="cn" placeholder="Your name"></div><div class="ff"><label>Phone *</label><input id="cp" type="tel" placeholder="10-digit number"></div><div class="ff full"><label>Email</label><input id="ce" type="email" placeholder="you@example.com"></div><div class="ff full"><label>Address *</label><input id="ca" placeholder="House no, Street, Area"></div><div class="ff"><label>City *</label><input id="cc" placeholder="Bengaluru"></div><div class="ff"><label>State</label><select id="cs"><option>Karnataka</option><option>Tamil Nadu</option><option>Maharashtra</option><option>Telangana</option><option>Kerala</option><option>Delhi</option></select></div><div class="ff"><label>Pincode *</label><input id="cz" placeholder="560001"></div></div><button class="btn btn-green btn-nxt" onclick="goStep2()">Continue to Payment →</button></div></div>
+<div id="co-s2" style="display:none"><div class="co-sec"><h3>Payment Method</h3><div class="pay-opts"><div class="popt sel" onclick="selPay(this)"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></span><div><div class="ptname">UPI / QR Code</div><div class="ptdesc">Google Pay, PhonePe, Paytm</div></div></div><div class="popt" onclick="selPay(this)"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span><div><div class="ptname">Credit / Debit Card</div><div class="ptdesc">Visa, Mastercard, RuPay</div></div></div><div class="popt" onclick="selPay(this)"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><div><div class="ptname">Cash on Delivery</div><div class="ptdesc">Pay when order arrives</div></div></div></div><button class="btn btn-green btn-nxt" onclick="placeOrder()">Place Order</button></div></div>
+</div><div class="co-sidebar"><h3>Order Summary</h3><div id="co-items"></div><div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px"><div class="srow"><span>Subtotal</span><span id="co-sub">₹0</span></div><div class="srow"><span>Delivery</span><span class="free-del" id="co-del">Free</span></div><div class="srow total"><span>Total</span><span id="co-tot">₹0</span></div></div></div></div></div></div>
+<!-- ========== SUCCESS ========== -->
+<div id="page-success" class="page"><div class="succ-wrap"><div class="check-anim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h2>Order Placed Successfully!</h2><p class="succ-sub">Thank you for choosing Farmmily Farms! Your order is confirmed and will be packed with love.</p><div class="oid-box"><div class="oid-lbl">Order ID</div><div class="oid" id="succ-oid">#FF-000000</div><div class="oid-del"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Estimated delivery: <strong>3–5 business days</strong></div></div><button class="btn btn-green" onclick="showPage('shop')">Continue Shopping →</button></div></div>
+<!-- ========== LOGIN ========== -->
+<div id="page-login" class="page"><div class="login-wrap"><div class="lcard"><div class="llogo"><img src="assets/farmmily logo.png" alt="Farmmily" style="height:30px;width:auto;margin:0 auto;display:block"></div><div class="tab-tog"><button class="tbtn active" onclick="switchTab('login')">Login</button><button class="tbtn" onclick="switchTab('signup')">Sign Up</button></div>
+<div id="lf-login" class="lform"><div class="ff"><label>Email / Phone</label><input type="text" placeholder="you@example.com"></div><div class="ff"><label>Password</label><input type="password" placeholder="••••••••"></div><button class="btn btn-green lsubmit" onclick="showPage('home')">Login →</button><div class="divider">or</div><button class="btn-google" onclick="showPage('home')"><span style="font-size:1.15rem;font-weight:700;color:#4285F4">G</span> Continue with Google</button></div>
+<div id="lf-signup" class="lform" style="display:none"><div class="ff"><label>Full Name</label><input type="text" placeholder="Your name"></div><div class="ff"><label>Phone</label><input type="tel" placeholder="10-digit number"></div><div class="ff"><label>Email</label><input type="email" placeholder="you@example.com"></div><div class="ff"><label>Password</label><input type="password" placeholder="Create a strong password"></div><button class="btn btn-green lsubmit" onclick="showPage('home')">Create Account →</button><div class="divider">or</div><button class="btn-google" onclick="showPage('home')"><span style="font-size:1.15rem;font-weight:700;color:#4285F4">G</span> Continue with Google</button></div>
+</div></div></div>
+<a id="wa-btn" href="https://wa.me/919999999999" target="_blank" title="Chat on WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
+<script src="app.js"></script>
+</body>
+</html>
