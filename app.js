@@ -373,7 +373,7 @@ function liveSearch(q) {
       '<div class="sri" onclick="closeSearch();openProduct(' + p.id + ')">' +
       '<img src="' + p.img + '" alt="' + p.name + '"><div>' +
       '<div class="sri-name">' + p.name + '</div>' +
-      '<div class="sri-price">' + R + p.price + ' · ' + p.wt + '</div></div></div>'
+      '<div class="sri-price">' + R + p.price + ' Â· ' + p.wt + '</div></div></div>'
     ).join('')
     : '<div style="text-align:center;color:#aaa;padding:20px;font-size:.88rem">No results found</div>';
   res.classList.add('open');
@@ -480,7 +480,7 @@ async function initApp() {
   }
 
   // Load Products
-  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select(`*, categories (name)`);
+  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)').eq('in_stock', true);
   if (prodErr) console.error("Products Error", prodErr);
   if (prodData && prodData.length > 0) {
     products = prodData.map(p => ({
@@ -524,7 +524,7 @@ async function loadCategories() {
 }
 
 async function loadProducts() {
-  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select(`*, categories (name)`);
+  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)').eq('in_stock', true);
   if (prodErr) return;
   if (prodData) {
     products = prodData.map(p => ({
@@ -601,3 +601,4 @@ supabaseClient
   .channel('coupons-changes')
   .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => { loadCoupons() })
   .subscribe()
+
