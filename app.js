@@ -480,7 +480,7 @@ async function initApp() {
   }
 
   // Load Products
-  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)').eq('in_stock', true);
+  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)');
   if (prodErr) console.error("Products Error", prodErr);
   if (prodData && prodData.length > 0) {
     products = prodData.map(p => ({
@@ -523,7 +523,7 @@ async function loadCategories() {
 }
 
 async function loadProducts() {
-  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)').eq('in_stock', true);
+  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)');
   if (prodErr) return;
   if (prodData) {
     products = prodData.map(p => ({
