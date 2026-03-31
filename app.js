@@ -505,3 +505,99 @@ async function initApp() {
 
 // Start
 initApp();
+
+// ===== REALTIME & DYNAMIC UPDATES =====
+async function loadCategories() {
+  const { data: catData, error: catErr } = await supabaseClient.from('categories').select('*');
+  if (catErr) return;
+  if (catData && catData.length > 0) {
+    cats = catData.map(c => ({
+      name: c.name,
+      svg: svgMap[c.name] || svgMap['Spices']
+    }));
+    const dc = document.getElementById('desk-cat-drop');
+    if (dc) dc.innerHTML = cats.map(c => '<a style="display:block;padding:10px 16px;font-size:.85rem;color:var(--text);border-radius:0;margin:0;cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeDeskCat()">' + c.name + '</a>').join('');
+    const mc = document.getElementById('mob-cat-list');
+    if (mc) mc.innerHTML = cats.map(c => '<a style="display:block;padding:8px 0;font-size:.88rem;color:#666;cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeMobCatAndMenu()">' + c.name + '</a>').join('');
+    refreshCurrentView();
+  }
+}
+
+async function loadProducts() {
+  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select(`*, categories (name)`);
+  if (prodErr) return;
+  if (prodData) {
+    products = prodData.map(p => ({
+      id: p.id,
+      name: p.name,
+      cat: p.categories?.name,
+      price: p.price,
+      orig: p.original_price, 
+      wt: p.weight,           
+      rating: p.rating,
+      revs: p.review_count,   
+      badge: p.badge || '',
+      desc: p.description,
+      benefits: p.benefits || [],
+      img: p.image_url,
+      inStock: p.in_stock
+    }));
+    refreshCurrentView();
+  }
+}
+
+async function loadBanners() {
+  const { data } = await supabaseClient.from('banners').select('*').eq('active', true).limit(1);
+  if (data && data.length > 0) {
+    const b = data[0];
+    const heroImg = document.querySelector('.hero img');
+    if (heroImg && b.image_url) heroImg.src = b.image_url;
+    const heroH1 = document.querySelector('.hero-c h1');
+    if (heroH1 && b.title) heroH1.innerHTML = b.title;
+    const heroP = document.querySelector('.hero-c p');
+    if (heroP && b.subtitle) heroP.innerHTML = b.subtitle;
+  }
+}
+
+async function loadCoupons() {
+  const { data } = await supabaseClient.from('coupons').select('*').eq('active', true).limit(1);
+  if (data && data.length > 0) {
+    const c = data[0];
+    const ob = document.getElementById('offer-banner');
+    if (ob) {
+      const codeSpan = ob.querySelector('.code');
+      if (codeSpan) codeSpan.textContent = c.code;
+      ob.style.display = 'flex';
+      // If we want to replace the whole text safely:
+      ob.querySelector('span').innerHTML = `Use code <span class="code">${c.code}</span> for ${c.discount_text || 'discount'}!`;
+    }
+  }
+}
+
+// Initial fetch for banners and coupons (not handled in initApp)
+loadBanners();
+loadCoupons();
+
+// Products Realtime
+supabaseClient
+  .channel('products-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => { loadProducts() })
+  .subscribe()
+
+// Banners Realtime
+supabaseClient
+  .channel('banners-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, () => { loadBanners() })
+  .subscribe()
+
+// Categories Realtime
+supabaseClient
+  .channel('categories-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => { loadCategories() })
+  .subscribe()
+
+// Coupons Realtime
+supabaseClient
+  .channel('coupons-changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => { loadCoupons() })
+  .subscribe()
