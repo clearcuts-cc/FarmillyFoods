@@ -504,7 +504,6 @@ async function initApp() {
 }
 
 // Start
-initApp();
 
 // ===== REALTIME & DYNAMIC UPDATES =====
 async function loadCategories() {
@@ -574,31 +573,37 @@ async function loadCoupons() {
   }
 }
 
-// Initial fetch for banners and coupons (not handled in initApp)
-loadBanners();
-loadCoupons();
+// ===== START =====
+// Wait for app data to load, then start realtime
+initApp().then(() => {
+  loadBanners();
+  loadCoupons();
 
-// Products Realtime
-supabaseClient
-  .channel('products-changes')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => { loadProducts() })
-  .subscribe()
+  // Realtime WebSocket listeners
+  supabaseClient
+    .channel('products-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+      console.log('[Realtime] product change:', payload.eventType);
+      loadProducts();
+    })
+    .subscribe((s) => console.log('[Realtime] products:', s));
 
-// Banners Realtime
-supabaseClient
-  .channel('banners-changes')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, () => { loadBanners() })
-  .subscribe()
+  supabaseClient
+    .channel('banners-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, () => loadBanners())
+    .subscribe((s) => console.log('[Realtime] banners:', s));
 
-// Categories Realtime
-supabaseClient
-  .channel('categories-changes')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => { loadCategories() })
-  .subscribe()
+  supabaseClient
+    .channel('categories-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => loadCategories())
+    .subscribe((s) => console.log('[Realtime] categories:', s));
 
-// Coupons Realtime
-supabaseClient
-  .channel('coupons-changes')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => { loadCoupons() })
-  .subscribe()
+  supabaseClient
+    .channel('coupons-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => loadCoupons())
+    .subscribe((s) => console.log('[Realtime] coupons:', s));
 
+  // Fallback polling every 5 seconds (catches updates if WebSocket fails)
+  setInterval(loadProducts, 5000);
+  console.log('[Farmily] Realtime + 5s polling active');
+});
