@@ -90,7 +90,7 @@ function pcardHTML(p) {
   
   let btnHTML = '';
   if (!p.inStock) {
-    btnHTML = '<button class="btn-notify" disabled>Notify Me</button>';
+    btnHTML = '<button class="btn-notify" disabled>Out of Stock</button>';
   } else if (inCart) {
     btnHTML = '<button class="btn-add" style="background:#fff;color:#e74c3c;border:1px solid #e74c3c" onclick="event.stopPropagation();rmCart(' + p.id + ')">Remove from Cart</button>';
   } else {
@@ -101,7 +101,6 @@ function pcardHTML(p) {
     '<div class="ci-wrap">' +
     '<img src="' + p.img + '" alt="' + p.name + '" loading="lazy">' +
     (p.badge ? '<span class="pbadge ' + bClass + '">' + p.badge + '</span>' : '') +
-    (!p.inStock ? '<div class="oos-overlay">Out of Stock</div>' : '') +
     '</div><div class="pbody">' +
     '<div class="pname">' + p.name + '</div>' +
     '<div class="pwt">' + p.wt + '</div>' +
