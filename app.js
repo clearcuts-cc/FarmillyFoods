@@ -13,6 +13,8 @@ const svgCheck = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" st
 // ===== STATE =====
 let cart = JSON.parse(localStorage.getItem('ff_cart') || '[]');
 let curPage = 'home', prevPage = 'home', curProd = null, detQty = 1, activeFilter = 'All';
+let user = null, profile = null, userAddresses = [], userOrders = [], editingAddrId = null;
+let redirAfterLogin = null;
 
 // ===== CART HELPERS =====
 function saveCart() {
@@ -46,6 +48,12 @@ function showToast(msg) {
 
 // ===== ROUTING =====
 function showPage(page) {
+  if (page === 'checkout' && !user) {
+    showToast('Please login to place order');
+    redirAfterLogin = 'checkout';
+    showPage('login');
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const el = document.getElementById('page-' + page);
   if (el) { el.classList.add('active'); prevPage = curPage; curPage = page; window.scrollTo(0, 0); }
@@ -53,6 +61,7 @@ function showPage(page) {
   if (page === 'shop') renderShop();
   if (page === 'cart') renderCart();
   if (page === 'checkout') renderCheckout();
+  if (page === 'account') initAccount();
   closeMob();
 }
 
@@ -463,6 +472,23 @@ const svgMap = {
 async function initApp() {
   updateCartCount();
   
+  // Auth state listener
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    user = session?.user || null;
+    if (user) {
+      await fetchUserProfile();
+      updateUserState('in');
+      if (curPage === 'login') {
+        const target = redirAfterLogin || 'home';
+        redirAfterLogin = null;
+        showPage(target);
+      }
+    } else {
+      profile = null;
+      updateUserState('out');
+    }
+  });
+
   // Load Categories
   const { data: catData, error: catErr } = await supabaseClient.from('categories').select('*');
   if (catErr) console.error("Category Error", catErr);
@@ -586,24 +612,273 @@ initApp().then(() => {
       console.log('[Realtime] product change:', payload.eventType);
       loadProducts();
     })
-    .subscribe((s) => console.log('[Realtime] products:', s));
+    .subscribe();
 
   supabaseClient
     .channel('banners-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, () => loadBanners())
-    .subscribe((s) => console.log('[Realtime] banners:', s));
+    .subscribe();
 
   supabaseClient
     .channel('categories-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => loadCategories())
-    .subscribe((s) => console.log('[Realtime] categories:', s));
+    .subscribe();
 
   supabaseClient
     .channel('coupons-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => loadCoupons())
-    .subscribe((s) => console.log('[Realtime] coupons:', s));
+    .subscribe();
 
-  // Fallback polling every 5 seconds (catches updates if WebSocket fails)
-  setInterval(loadProducts, 5000);
-  console.log('[Farmily] Realtime + 5s polling active');
+  // Watch for real-time order updates for the logged-in user
+  supabaseClient
+    .channel('user-orders')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, (p) => {
+      if (user && p.new.user_id === user.id) {
+        showToast('Order #' + p.new.id.slice(0,8) + ' status updated to ' + p.new.status);
+        if (curPage === 'account') initAccount();
+      }
+    })
+    .subscribe();
+
+  setInterval(loadProducts, 20000); // Polling as fallback
 });
+
+// ===== AUTH LOGIC =====
+function showLoading(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+
+function switchAuth(tab) {
+  document.getElementById('auth-main').style.display = (tab === 'login' || tab === 'signup') ? 'block' : 'none';
+  document.getElementById('auth-forgot').style.display = tab === 'forgot' ? 'block' : 'none';
+  if (tab !== 'forgot') {
+    document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.tbtn-' + tab).classList.add('active');
+    document.getElementById('lf-login').style.display = tab === 'login' ? 'grid' : 'none';
+    document.getElementById('lf-signup').style.display = tab === 'signup' ? 'grid' : 'none';
+  }
+}
+
+async function handleLogin() {
+  const email = document.getElementById('le').value;
+  const pass = document.getElementById('lp').value;
+  if (!email || !pass) return showToast('Please fill all fields');
+  showLoading(true);
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+  showLoading(false);
+  if (error) showToast(error.message);
+}
+
+async function handleSignup() {
+  const name = document.getElementById('sn').value;
+  const phone = document.getElementById('sp').value;
+  const email = document.getElementById('se').value;
+  const pass = document.getElementById('sw').value;
+  const conf = document.getElementById('sc').value;
+  if (!name || !phone || !email || !pass) return showToast('Please fill all fields');
+  if (pass !== conf) return showToast('Passwords do not match');
+  showLoading(true);
+  const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
+  if (error) { showLoading(false); return showToast(error.message); }
+  if (data.user) {
+    const { error: pErr } = await supabaseClient.from('profiles').insert([{ id: data.user.id, full_name: name, phone, email }]);
+    showLoading(false);
+    if (pErr) showToast('Error saving profile: ' + pErr.message);
+    else {
+      showToast('Account created! Please verify your email.');
+      switchAuth('login');
+    }
+  }
+}
+
+async function handleForgot() {
+  const email = document.getElementById('fe').value;
+  if (!email) return showToast('Please enter your email');
+  showLoading(true);
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+  showLoading(false);
+  if (error) showToast(error.message); else showToast('Check your email for reset link');
+}
+
+async function handleLogout() {
+  showLoading(true);
+  await supabaseClient.auth.signOut();
+  showLoading(false);
+  showPage('home');
+}
+
+function updateUserState(state) {
+  const container = document.getElementById('hdr-user-state');
+  if (!container) return;
+  if (state === 'in') {
+    container.innerHTML = `<div class="usr-drop-wrap" onmouseleave="toggleUsrDrop(false)">
+      <div class="usr-btn" onclick="toggleUsrDrop(true)"><div class="usr-name">Hi, ${profile?.full_name?.split(' ')[0] || 'User'}</div><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="usr-drop" id="usr-drop">
+        <div class="usr-link" onclick="showPage('account')">My Account</div>
+        <div class="usr-link" onclick="setAccTab('orders');showPage('account')">My Orders</div>
+        <div class="usr-link logout" onclick="handleLogout()">Logout</div>
+      </div>
+    </div>`;
+  } else {
+    container.innerHTML = `<button class="btn-hdr-login" onclick="showPage('login')">Login</button>`;
+  }
+}
+
+function toggleUsrDrop(show = null) {
+  const d = document.getElementById('usr-drop');
+  if (!d) return;
+  if (show === null) d.classList.toggle('show');
+  else d.classList.toggle('show', show);
+}
+
+// ===== ACCOUNT FEATURES =====
+async function fetchUserProfile() {
+  if (!user) return;
+  const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
+  if (!error) profile = data;
+}
+
+function initAccount() {
+  if (!user) return showPage('login');
+  document.getElementById('prof-name').value = profile?.full_name || '';
+  document.getElementById('prof-email').value = profile?.email || '';
+  document.getElementById('prof-phone').value = profile?.phone || '';
+  renderOrders();
+  renderAddresses();
+}
+
+function setAccTab(tab) {
+  document.querySelectorAll('.acc-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.acc-tab[data-tab="${tab}"]`)?.classList.add('active');
+  document.querySelectorAll('.acc-sec').forEach(s => s.classList.remove('active'));
+  document.getElementById('acc-' + tab).classList.add('active');
+  if (tab === 'orders') renderOrders();
+  if (tab === 'addresses') renderAddresses();
+}
+
+async function saveProfile() {
+  const name = document.getElementById('prof-name').value;
+  const phone = document.getElementById('prof-phone').value;
+  showLoading(true);
+  const { error } = await supabaseClient.from('profiles').update({ full_name: name, phone }).eq('id', user.id);
+  showLoading(false);
+  if (error) showToast(error.message); else { showToast('Profile updated!'); profile.full_name = name; profile.phone = phone; updateUserState('in'); }
+}
+
+async function renderOrders() {
+  const container = document.getElementById('orders-list');
+  container.innerHTML = '<p style="text-align:center;padding:40px;color:#888">Loading orders...</p>';
+  const { data, error } = await supabaseClient.from('orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+  if (error) return container.innerHTML = '<p>Error loading orders.</p>';
+  userOrders = data;
+  if (!data.length) return container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#aaa;margin-bottom:15px">No orders found.</p><button class="btn btn-green" onclick="showPage(\'shop\')">Go to Shop</button></div>';
+  container.innerHTML = data.map(o => {
+    const date = new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    return `<div class="order-card">
+      <div class="ohdr">
+        <div><div class="oid-tag">#${o.id.slice(0, 8).toUpperCase()}</div><div class="odate">Placed on ${date}</div></div>
+        <div class="ostat ${o.status}">${o.status}</div>
+      </div>
+      <div class="oitems-sum">${o.items_count} items · Total: ₹${o.total_amount}</div>
+      <button class="oview-btn" onclick="viewOrderDetails('${o.id}')">View Details →</button>
+    </div>`;
+  }).join('');
+}
+
+async function viewOrderDetails(oid) {
+  const o = userOrders.find(x => x.id === oid);
+  if (!o) return;
+  const stages = ['placed', 'confirmed', 'packed', 'shipped', 'delivered'];
+  const curIdx = stages.indexOf(o.status);
+  const timelineHTML = stages.map((s, i) => `<div class="step ${i <= curIdx ? 'done' : ''} ${i === curIdx ? 'active' : ''}"><div class="snum">${i + 1}</div><div class="slabel">${s}</div></div>`).join('<div class="sline ' + (curIdx > i ? 'done' : '') + '"></div>');
+
+  document.getElementById('order-details-content').innerHTML = `
+    <div class="steps" style="margin-bottom:30px;justify-content:center">${timelineHTML}</div>
+    <div style="font-size:.9rem;line-height:1.6">
+      <div style="margin-bottom:15px"><strong>Delivery Address:</strong><br>${o.full_name || ''}<br>${o.address_line || ''}, ${o.city || ''}, ${o.state || ''} - ${o.pincode || ''}</div>
+      <div style="margin-bottom:15px"><strong>Payment Method:</strong> ${o.payment_method || 'Online'}</div>
+      <div style="border-top:1px solid #eee;padding-top:15px"><strong>Summary:</strong><br>Total: ₹${o.total_amount}</div>
+    </div>
+  `;
+  document.getElementById('modal-order').style.display = 'flex';
+}
+
+async function renderAddresses() {
+  const container = document.getElementById('address-list');
+  const { data, error } = await supabaseClient.from('addresses').select('*').eq('user_id', user.id).order('is_default', { ascending: false });
+  if (error) return;
+  userAddresses = data;
+  container.innerHTML = data.map(a => `<div class="addr-card ${a.is_default ? 'default' : ''}">
+    ${a.is_default ? '<span class="def-badge">DEFAULT</span>' : ''}
+    <div class="aname">${a.full_name}</div><div class="aphone">${a.phone}</div>
+    <div class="atext">${a.address_line}<br>${a.city}, ${a.state} - ${a.pincode}</div>
+    <div class="actns">
+      <button class="actn-btn btn-edit" onclick="openAddrModal('${a.id}')">Edit</button>
+      <button class="actn-btn btn-del" onclick="deleteAddress('${a.id}')">Delete</button>
+      ${!a.is_default ? `<button class="actn-btn" style="color:#888" onclick="setDefaultAddress('${a.id}')">Set Default</button>` : ''}
+    </div>
+  </div>`).join('');
+}
+
+function openAddrModal(id = null) {
+  editingAddrId = id;
+  const modal = document.getElementById('modal-addr');
+  const title = document.getElementById('addr-modal-title');
+  if (id) {
+    const a = userAddresses.find(x => x.id === id);
+    title.textContent = 'Edit Address';
+    document.getElementById('an').value = a.full_name;
+    document.getElementById('ap').value = a.phone;
+    document.getElementById('al').value = a.address_line;
+    document.getElementById('ac').value = a.city;
+    document.getElementById('as').value = a.state;
+    document.getElementById('az').value = a.pincode;
+    document.getElementById('ad').checked = a.is_default;
+  } else {
+    title.textContent = 'Add New Address';
+    document.querySelectorAll('#modal-addr input').forEach(i => i.type === 'checkbox' ? i.checked = false : i.value = '');
+  }
+  modal.style.display = 'flex';
+}
+
+function closeModals() { document.querySelectorAll('.modal-ov').forEach(m => m.style.display = 'none'); }
+
+async function saveAddress() {
+  const payload = {
+    user_id: user.id,
+    full_name: document.getElementById('an').value,
+    phone: document.getElementById('ap').value,
+    address_line: document.getElementById('al').value,
+    city: document.getElementById('ac').value,
+    state: document.getElementById('as').value,
+    pincode: document.getElementById('az').value,
+    is_default: document.getElementById('ad').checked
+  };
+  if (!payload.full_name || !payload.phone || !payload.address_line) return showToast('Please fill required fields');
+  showLoading(true);
+  if (payload.is_default) await supabaseClient.from('addresses').update({ is_default: false }).eq('user_id', user.id);
+  const { error } = editingAddrId
+    ? await supabaseClient.from('addresses').update(payload).eq('id', editingAddrId)
+    : await supabaseClient.from('addresses').insert([payload]);
+  showLoading(false);
+  if (error) showToast(error.message); else { showToast('Address saved!'); closeModals(); renderAddresses(); }
+}
+
+async function deleteAddress(id) {
+  if (!confirm('Are you sure you want to delete this address?')) return;
+  showLoading(true);
+  await supabaseClient.from('addresses').delete().eq('id', id);
+  showLoading(false);
+  renderAddresses();
+}
+
+async function setDefaultAddress(id) {
+  showLoading(true);
+  await supabaseClient.from('addresses').update({ is_default: false }).eq('user_id', user.id);
+  await supabaseClient.from('addresses').update({ is_default: true }).eq('id', id);
+  showLoading(false);
+  renderAddresses();
+}
+
+async function handleGoogleLogin() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+  if (error) showToast(error.message);
+}
