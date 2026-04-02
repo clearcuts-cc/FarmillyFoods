@@ -242,18 +242,34 @@ nav.desktop-nav a:hover,nav.desktop-nav a.active{background:var(--bg);color:var(
 .farm-grid img:hover{opacity:.82;transform:scale(1.02)}
 
 /* FOOTER */
-footer{background:var(--text);color:rgba(255,255,255,.82);padding:46px 20px 28px}
-.ftop{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:36px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,.1)}
-.flogo{font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;margin-bottom:8px}
-.ftag{font-size:.83rem;color:rgba(255,255,255,.55);margin-bottom:18px}
-.fsocials{display:flex;gap:10px}
-.fsoc{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:var(--tr);cursor:pointer}
-.fsoc:hover{background:var(--secondary)}
-.fcol h4{color:#fff;font-size:.92rem;font-weight:600;margin-bottom:14px}
-.fcol ul li{margin-bottom:9px}
-.fcol ul li a{color:rgba(255,255,255,.55);font-size:.83rem;transition:var(--tr);cursor:pointer}
-.fcol ul li a:hover{color:var(--secondary)}
-.fbot{max-width:1280px;margin:0 auto;padding-top:24px;text-align:center;font-size:.78rem;color:rgba(255,255,255,.38)}
+footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
+.ftop{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,.1)}
+.finfo{display:grid;gap:20px}
+.flogo img{height:38px;width:auto;margin-bottom:6px}
+.ftag{font-size:.88rem;color:var(--secondary);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.f-contacts{display:grid;gap:14px;margin-bottom:20px}
+.f-con{display:flex;gap:12px;font-size:.82rem;line-height:1.6;color:rgba(255,255,255,.65)}
+.f-con strong{color:#fff;font-weight:600}
+.f-con svg{width:18px;height:18px;color:var(--secondary);flex-shrink:0;margin-top:2px}
+.fsocials{display:flex;gap:12px}
+.fsoc{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;transition:var(--tr);color:#fff}
+.fsoc:hover{background:var(--secondary);transform:translateY(-3px);color:var(--text)}
+.fcol h4{color:#fff;font-size:.95rem;font-weight:700;margin-bottom:22px;position:relative}
+.fcol h4::after{content:'';position:absolute;bottom:-8px;left:0;width:24px;height:2px;background:var(--secondary)}
+.fcol ul{list-style:none}
+.fcol ul li{margin-bottom:12px}
+.fcol ul li a{color:rgba(255,255,255,.55);font-size:.85rem;transition:var(--tr);cursor:pointer;display:inline-block}
+.fcol ul li a:hover{color:#fff;transform:translateX(5px)}
+.fbot{max-width:1280px;margin:0 auto;padding-top:30px;text-align:center;font-size:.78rem;color:rgba(255,255,255,.35)}
+@media(max-width:1023px){
+  .ftop{grid-template-columns:1fr 1fr;gap:30px}
+  .finfo{grid-column:1/-1;margin-bottom:20px}
+  footer{padding-top:50px}
+}
+@media(max-width:500px){
+  .ftop{grid-template-columns:1fr}
+  .fcol h4{margin-bottom:16px}
+}
 
 /* SHOP */
 .shop-hero{background:linear-gradient(135deg,var(--primary),#4a8a44);padding:38px 20px;text-align:center;color:#fff}
@@ -534,11 +550,25 @@ footer{background:var(--text);color:rgba(255,255,255,.82);padding:46px 20px 28px
 <section class="sec" style="padding-top:0"><div class="inner"><div class="sec-title"><h2>Life at Our Farm</h2><p>From our estates to your table</p><div class="title-bar"></div></div><div class="farm-grid"><img src="https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?w=400" alt="Farm" loading="lazy"><img src="https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=400" alt="Farm" loading="lazy"></div><p style="text-align:center;color:#888;font-size:.85rem;margin-top:15px">Photos from our farms, solar dryers, and value-added production units</p></div></section>
 <section class="sec" id="brand-sec" style="background:#fdfcf0;"><div class="inner"><div class="sec-title"><h2>About Farmmily</h2><div class="title-bar"></div></div><div style="max-width:750px;margin:0 auto;text-align:center;line-height:1.8;"><p style="font-size:1.15rem;margin-bottom:40px;color:var(--text);font-weight:600;">Farmmily Farms and Foods is the value-added harvest of <br><span style="color:var(--primary);">FARMMILY AGRO INFRA DEVELOPERS PVT. LTD.</span></p><div style="background:#fff;padding:60px 40px;border-radius:var(--r);box-shadow:var(--sh2);border-top:6px solid var(--primary);position:relative;margin-top:20px;"><div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:.65rem;text-transform:uppercase;letter-spacing:.25em;padding:6px 20px;border-radius:4px;font-weight:800;z-index:5;box-shadow:0 3px 10px rgba(58,107,53,.2);">Our Vision</div><div style="font-size:3.5rem;color:rgba(139,191,110,.1);position:absolute;top:15px;left:25px;font-family:serif;font-weight:900;">“</div><p style="font-size:1.08rem;color:#444;font-style:italic;margin:0;line-height:1.85;position:relative;z-index:2;">We don't just sell food; we develop the very ecosystems that produce it—transforming barren landscapes into thriving estates managed by our community of new farmers.</p><div style="font-size:3.5rem;color:rgba(139,191,110,.1);position:absolute;bottom:0px;right:25px;font-family:serif;font-weight:900;">”</div></div></div></div></section>
 <footer id="contact-sec"><div class="ftop">
-<div><div class="flogo"><img src="assets/farmmily logo.png" alt="Farmmily" style="height:34px;width:auto"></div><div class="ftag">Farmmily Farms and Foods</div><div style="font-size:.8rem;color:rgba(255,255,255,.55);margin-bottom:18px;line-height:1.6;"><strong>Corporate Office:</strong> 57, CK Colony, New Siddhapudur, Coimbatore - 641044<br><strong>Production Unit:</strong> 1401, Kamatchipuram, Sendamangalam West Village, Pallapatti Via, Aravakurichi Taluk, Karur – 639205, Tamil Nadu, India<br><strong>Phone:</strong> +91 77088 47977<br><strong>Email:</strong> contact@farmmily.com<br><strong>FSSAI License:</strong> 12425010000120</div><div class="fsocials"><a href="https://instagram.com/farmmily_foods" target="_blank" class="fsoc"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5"/></svg></a><a href="https://instagram.com/farmmily_" target="_blank" class="fsoc"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5"/></svg></a></div></div>
-<div class="fcol"><h4>Shop</h4><ul><li><a onclick="showPage('shop')">All Products</a></li><li><a onclick="showPage('shop')">Ghee &amp; Oils</a></li><li><a onclick="showPage('shop')">Millets</a></li><li><a onclick="showPage('shop')">Spices</a></li></ul></div>
-<div class="fcol"><h4>Company</h4><ul><li><a>Our Story</a></li><li><a>Farmer Stories</a></li><li><a>Blog</a></li><li><a>Terms &amp; Privacy</a></li></ul></div>
-<div class="fcol"><h4>Support</h4><ul><li><a>Privacy Policy</a></li><li><a>Refund Policy</a></li><li><a href="https://wa.me/917708847977" target="_blank">WhatsApp Us</a></li><li><a>FAQ</a></li></ul></div>
-</div><div class="fbot">© 2024 Farmmily Agro Infra Developers Pvt. Ltd. Made with <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--accent)" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> for healthy families across India.</div></footer>
+<div class="finfo">
+  <div class="flogo"><img src="assets/farmmily logo.png" alt="Farmmily"></div>
+  <div class="ftag">Farm to Family · Pure Organic</div>
+  <div class="f-contacts">
+    <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><div><strong>Corporate Office:</strong> 57, CK Colony, Coimbatore - 641044</div></div>
+    <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M3 7v1a3 3 0 006 0V7m0 1a3 3 0 006 0V7m0 1a3 3 0 006 0V7M4 21V4a2 2 0 012-2h12a2 2 0 012 2v17"/></svg><div><strong>Production Unit:</strong> 1401, Kamatchipuram, Sendamangalam West, Karur – 639205</div></div>
+    <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.81 12.81 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg><div><strong>Phone:</strong> +91 77088 47977</div></div>
+    <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><div><strong>Email:</strong> contact@farmmily.com</div></div>
+    <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><div><strong>FSSAI License:</strong> 12425010000120</div></div>
+  </div>
+  <div class="fsocials">
+    <a href="https://instagram.com/farmmily_foods" target="_blank" class="fsoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+    <a href="https://instagram.com/farmmily_" target="_blank" class="fsoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+  </div>
+</div>
+<div class="fcol"><h4>Shop</h4><ul><li><a onclick="showPage('shop')">A2 Ghee & Oils</a></li><li><a onclick="showPage('shop')">Raw Honey</a></li><li><a onclick="showPage('shop')">Native Millets</a></li><li><a onclick="showPage('shop')">Estate Coffee</a></li></ul></div>
+<div class="fcol"><h4>Company</h4><ul><li><a onclick="document.getElementById('about-sec').scrollIntoView({behavior:'smooth'})">Our Vision</a></li><li><a>Sustainability</a></li><li><a>Our Farms</a></li><li><a>Certifications</a></li></ul></div>
+<div class="fcol"><h4>Help Center</h4><ul><li><a>Order Tracking</a></li><li><a>Return Policy</a></li><li><a href="https://wa.me/917708847977" target="_blank">WhatsApp Chat</a></li><li><a>Contact Support</a></li></ul></div>
+</div><div class="fbot">© 2024 Farmmily Agro Infra Developers Pvt. Ltd. · Handcrafted with <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--secondary)" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> from Coimbatore</div></footer>
 </div>
 <!-- ========== SHOP ========== -->
 <div id="page-shop" class="page"><div class="shop-hero"><h1>Our Products</h1><p>Pure organic goodness — from farm fields to your kitchen</p></div><div class="shop-ctrl"><div class="ssearch"><input id="shop-srch" type="text" placeholder="Search products..." oninput="filterProds()"><span style="color:#bbb;cursor:pointer" onclick="document.getElementById('shop-srch').value='';filterProds()">✕</span></div><div class="chips" id="chips"></div><div class="sort-row"><label>Showing <strong id="prod-cnt">0</strong> products</label><select class="sort-sel" id="sort-sel" onchange="filterProds()"><option value="">Featured</option><option value="asc">Price: Low–High</option><option value="desc">Price: High–Low</option><option value="rating">Top Rated</option></select></div></div><div class="pgrid" id="pgrid"></div></div>
