@@ -594,18 +594,26 @@ async function loadBanners() {
   }
 }
 
+let activeCoupon = null;
 async function loadCoupons() {
   const { data } = await supabaseClient.from('coupons').select('*').eq('active', true).limit(1);
   if (data && data.length > 0) {
-    const c = data[0];
+    activeCoupon = data[0];
     const ob = document.getElementById('offer-banner');
-    if (ob) {
-      const codeSpan = ob.querySelector('.code');
-      if (codeSpan) codeSpan.textContent = c.code;
+    const bts = document.querySelectorAll('.banner-msg');
+    if (ob && bts.length) {
       ob.style.display = 'flex';
-      // If we want to replace the whole text safely:
-      ob.querySelector('span').innerHTML = `🌿 Pure. Natural. Honest. — From Our Farm To Your Family` + (c.code ? ` (Use code <span class="code">${c.code}</span>)` : '');
+      bts.forEach(bt => {
+        bt.innerHTML = `Pure. Natural. Honest. — From Our Farm To Your Family` + (activeCoupon.code ? ` (Use code <span class="promo-code" onclick="showCouponInfo()">${activeCoupon.code}</span> )` : '');
+      });
     }
+  }
+}
+
+function showCouponInfo() {
+  if (activeCoupon) {
+    const msg = activeCoupon.description || `${activeCoupon.code}: Enjoy special discount on your order!`;
+    showToast(msg);
   }
 }
 

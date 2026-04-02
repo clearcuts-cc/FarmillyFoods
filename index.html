@@ -24,9 +24,14 @@ input,select,textarea{font-family:'Poppins',sans-serif;outline:none}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 /* OFFER BANNER */
-#offer-banner{background:var(--primary);color:#fff;text-align:center;padding:10px 40px 10px 16px;font-size:.82rem;font-weight:500;position:relative;z-index:200}
-#offer-banner button{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;color:#fff;font-size:1rem;cursor:pointer}
-.code{background:var(--secondary);color:var(--text);padding:2px 8px;border-radius:4px;font-weight:700;margin:0 4px}
+#offer-banner{background:#1b391b;color:#fff;padding:0;font-size:11px;font-weight:700;position:relative;z-index:200;display:flex;align-items:center;height:28px;overflow:hidden;line-height:28px}
+#offer-banner .marquee-wrap{display:flex;white-space:nowrap;animation:marquee 15s linear infinite;width:max-content}
+#offer-banner .m-item{display:flex;align-items:center;padding-right:60px;padding-left:10px}
+#offer-banner .leaf-icon{width:14px;height:14px;color:#9ce09c;margin-right:6px;flex-shrink:0}
+#offer-banner .promo-code{background:#f1b418;color:#1b391b;padding:0 6px;border-radius:3px;font-weight:900;text-transform:uppercase;font-size:10px;margin:0 4px;height:18px;line-height:18px;display:inline-block;cursor:pointer;transition:var(--tr)}
+#offer-banner .promo-code:hover{transform:scale(1.05);background:#fff}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+#offer-banner .close-banner{position:absolute;right:0;top:0;background:linear-gradient(90deg,transparent,#1b391b 20%);color:#fff;font-size:18px;font-weight:300;cursor:pointer;width:35px;height:28px;display:flex;align-items:center;justify-content:center;z-index:10;border:none}
 
 /* HEADER */
 #header{background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05);box-shadow:0 2px 15px rgba(0,0,0,.03)}
@@ -495,7 +500,20 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 </head>
 <body>
 <!-- OFFER BANNER -->
-<div id="offer-banner"><span>🌿 Pure. Natural. Honest. — From Our Farm To Your Family</span><button onclick="this.parentElement.style.display='none'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+<div id="offer-banner">
+  <div class="marquee-wrap">
+    <div class="m-item banner-msg">
+      <svg class="leaf-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/></svg>
+      Pure. Natural. Honest. — From Our Farm To Your Family (Use code <span class="promo-code" onclick="showCouponInfo()">FARM10</span> )
+    </div>
+    <!-- Duplicate for seamless loop -->
+    <div class="m-item banner-msg">
+      <svg class="leaf-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/></svg>
+      Pure. Natural. Honest. — From Our Farm To Your Family (Use code <span class="promo-code" onclick="showCouponInfo()">FARM10</span> )
+    </div>
+  </div>
+  <button class="close-banner" onclick="this.parentElement.style.display='none'">&times;</button>
+</div>
 <!-- HEADER -->
 <header id="header"><div class="hdr">
 <button class="hamburger" onclick="toggleMob()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
