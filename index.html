@@ -7,6 +7,7 @@
 <meta name="description" content="Shop certified organic A2 ghee, raw honey, millets, spices. Fresh from farm to your doorstep.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 :root{--primary:#3A6B35;--secondary:#D4A017;--bg:#FAF7F0;--text:#2C1A0E;--accent:#8BBF6E;--white:#fff;--card-bg:#fff;--border:#e8e0d0;--sh:0 4px 20px rgba(44,26,14,.08);--sh2:0 12px 40px rgba(44,26,14,.16);--r:16px;--tr:all .3s cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -74,7 +75,9 @@ nav.desktop-nav a:hover,nav.desktop-nav a.active{background:var(--bg);color:var(
 .btn-hdr-login{background:var(--primary);color:#fff;padding:8px 18px;border-radius:24px;font-size:.85rem;font-weight:600;transition:var(--tr)}
 .btn-hdr-login:hover{background:#2d5228}
 
-/* MOBILE NAV */
+/* HEADER */
+#header{background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05);box-shadow:0 2px 15px rgba(0,0,0,.03);transition:transform .4s cubic-bezier(.4,0,.2,1)}
+#header.hdr-hidden{transform:translateY(-100%)}
 #mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:1px solid #e0e0e0;box-shadow:0 -2px 12px rgba(0,0,0,.06);padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
 .mob-nav-inner{display:flex;justify-content:space-around;max-width:400px;margin:0 auto}
 .mob-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 12px;font-size:.68rem;font-weight:600;letter-spacing:.02em;color:#8e8e93;cursor:pointer;transition:color .2s ease;position:relative;-webkit-tap-highlight-color:transparent}
@@ -83,6 +86,17 @@ nav.desktop-nav a:hover,nav.desktop-nav a.active{background:var(--bg);color:var(
 .mob-item.active svg{color:var(--primary)}
 .mob-badge{position:absolute;top:0;right:2px;background:#e74c3c;color:#fff;font-size:.55rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center}
 .mob-badge.show{display:flex}
+
+/* SLIDE TO CHECKOUT */
+.slide-wrap{width:100%;background:#f0ece4;height:56px;border-radius:50px;position:relative;overflow:hidden;margin-top:20px;user-select:none;touch-action:none}
+.slide-bg{position:absolute;inset:0;background:var(--primary);width:0;transition:none}
+.slide-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:700;letter-spacing:.02em;z-index:2;pointer-events:none;transition:opacity .2s;text-shadow:0 1px 2px rgba(0,0,0,0.1)}
+.slide-wrap .slide-text{color:var(--text);opacity:.6}
+.slide-handle{position:absolute;left:4px;top:4px;width:48px;height:48px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:3;cursor:grab}
+.slide-handle:active{cursor:grabbing}
+.slide-handle svg{width:20px;height:20px;color:var(--primary)}
+.slide-wrap.completed .slide-text{opacity:0}
+.slide-wrap.completed .slide-handle{display:none}
 
 /* BUTTONS */
 .btn{padding:12px 28px;border-radius:50px;font-size:.9rem;font-weight:600;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;min-height:48px;cursor:pointer}
@@ -526,9 +540,6 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 <div class="hdr-actions">
 <button class="icon-btn" id="search-icon-btn" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
 <button class="icon-btn" onclick="showPage('cart')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span id="cart-count"></span></button>
-<div id="hdr-user-state">
-  <button class="btn-hdr-login" onclick="showPage('login')">Login</button>
-</div>
 </div>
 <!-- MOBILE MENU -->
 <div id="mob-menu" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;z-index:99;border-bottom:1px solid var(--border);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.1)">
@@ -546,8 +557,6 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 14H6V8h2v2h2V8h4v2h2V8h2v10z"/></svg><span>Shop</span></div>
 <div class="mob-item" data-mob="cart" onclick="showPage('cart')" style="position:relative">
 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020.01 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Cart</span><span class="mob-badge" id="mob-cnt"></span></div>
-<div class="mob-item" data-mob="login" onclick="showPage('login')">
-<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Account</span></div>
 </div></nav>
 <!-- TOAST -->
 <div id="toast">Added to cart!</div>
@@ -556,7 +565,7 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 <!-- ========== HOME ========== -->
 <div id="page-home" class="page active">
 <section class="hero"><img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400" alt="Fresh organic farm"><div class="hero-ov"></div><div class="hero-c"><div class="hero-eye"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z"/><path d="M12 2c0 4 4 6 4 10"/><path d="M12 2c0 4-4 6-4 10"/></svg> Certified organic products</div><h1>Purely Natural.<br>Deeply Rooted.</h1><p>From the soil we nurture to the family table you cherish—authentic, hand-harvested food grown by our community of new farmers.</p><div class="hero-btns"><a class="btn-ha" onclick="showPage('shop')">Explore the Harvest →</a><a class="btn-hb" onclick="document.getElementById('about-sec').scrollIntoView({behavior:'smooth'})">Our Story</a></div></div></section>
-<div class="trust-bar"><div class="trust-inner"><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z"/><path d="M12 2c0 4 4 6 4 10"/><path d="M12 2c0 4-4 6-4 10"/></svg> 100% Organic Content</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Free Express Delivery</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Lab Tested Purity</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Direct From Farm</div></div></div>
+<div class="trust-bar"><div class="trust-inner"><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z"/><path d="M12 2c0 4 4 6 4 10"/><path d="M12 2c0 4-4 6-4 10"/></svg> 100% Organic Content</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Free Express Delivery</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Lab Tested Purity</div><div class="tdiv"></div><div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Direct From Farm</div></div></div>
 <section class="sec" id="categories-sec"><div class="inner"><div class="sec-title"><h2>Shop By Category</h2><p>Explore our range of farm-fresh organic products</p><div class="title-bar"></div></div><div class="cats-row" id="cats-row"></div></div></section>
 <section class="sec" style="padding-top:0"><div class="inner"><div class="sec-title"><h2>The Harvest</h2><p>Top picks loved by thousands of families</p><div class="title-bar"></div></div><div class="prow" id="feat-row"></div></div></section>
 <section class="why-sec" id="about-sec"><div class="inner"><div class="sec-title"><h2>Why Farmmily?</h2><p>We stand for purity, integrity, and your family's well-being</p><div class="title-bar"></div></div><div class="why-grid"><div class="why-card"><div class="wicon">🌱</div><h3>New Farmer Community</h3><p>We empower a new generation of growers with the infrastructure to produce honest, clean food.</p></div><div class="why-card"><div class="wicon">🌿</div><h3>Barren to Bountiful</h3><p>Our products come from land we have personally transformed into thriving, green agricultural assets.</p></div><div class="why-card"><div class="wicon">🤝</div><h3>Direct & Transparent</h3><p>No middlemen; we own and manage the estates, ensuring a direct link from our home to yours.</p></div></div></div></section>
@@ -594,80 +603,13 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 <div id="page-product" class="page"><div class="det-wrap"><div class="det-back" onclick="goBack()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back</div><div class="det-layout"><div class="det-img-wrap"><img class="det-img" id="det-img" src="" alt=""></div><div><div class="det-badge" id="det-badge"></div><h1 class="det-name" id="det-name"></h1><div class="det-rating"><span class="st" id="det-stars"></span><span class="cnt" id="det-rev"></span></div><div class="det-pricing"><span class="det-price" id="det-price"></span><span class="det-orig" id="det-orig"></span><span class="det-disc" id="det-disc"></span></div><div class="det-desc" id="det-desc"></div><div class="det-ben"><h4>Key Benefits</h4><ul id="det-ben"></ul></div><div class="qty-wrap"><label>Qty:</label><div class="qty-ctrl"><button class="qbtn" onclick="chQty(-1)">−</button><span class="qval" id="det-qty">1</span><button class="qbtn" onclick="chQty(1)">+</button></div></div><button class="btn btn-green det-add" id="det-add-btn" onclick="addDetToCart()">Add to Cart</button></div></div></div><div class="related-sec"><h3>You May Also Like</h3><div class="rgrid" id="rgrid"></div></div></div>
 <!-- ========== CART ========== -->
 <div id="page-cart" class="page"><div class="cart-wrap"><h1>Your Cart</h1><div id="cart-content"></div></div></div>
-<!-- ========== CHECKOUT ========== -->
-<div id="page-checkout" class="page"><div class="co-wrap"><h1>Checkout</h1><div class="steps"><div class="step active" id="si1"><div class="snum">1</div><div class="slabel">Address</div></div><div class="sline" id="sl1"></div><div class="step" id="si2"><div class="snum">2</div><div class="slabel">Payment</div></div><div class="sline" id="sl2"></div><div class="step" id="si3"><div class="snum">3</div><div class="slabel">Done</div></div></div><div class="co-layout"><div>
-<div id="co-s1"><div class="co-sec"><h3>Delivery Address</h3><div class="fgrid"><div class="ff"><label>Full Name *</label><input id="cn" placeholder="Your name"></div><div class="ff"><label>Phone *</label><input id="cp" type="tel" placeholder="10-digit number"></div><div class="ff full"><label>Email</label><input id="ce" type="email" placeholder="you@example.com"></div><div class="ff full"><label>Address *</label><input id="ca" placeholder="House no, Street, Area"></div><div class="ff"><label>City *</label><input id="cc" placeholder="Bengaluru"></div><div class="ff"><label>State</label><select id="cs"><option>Karnataka</option><option>Tamil Nadu</option><option>Maharashtra</option><option>Telangana</option><option>Kerala</option><option>Delhi</option></select></div><div class="ff"><label>Pincode *</label><input id="cz" placeholder="560001"></div></div><button class="btn btn-green btn-nxt" onclick="goStep2()">Continue to Payment →</button></div></div>
-<div id="co-s2" style="display:none"><div class="co-sec"><h3>Payment Method</h3><div class="pay-opts"><div class="popt sel" onclick="selPay(this)"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></span><div><div class="ptname">UPI / QR Code</div><div class="ptdesc">Google Pay, PhonePe, Paytm</div></div></div><div class="popt" onclick="selPay(this)"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span><div><div class="ptname">Credit / Debit Card</div><div class="ptdesc">Visa, Mastercard, RuPay</div></div></div><div class="popt" onclick="selPay(this)"><span class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><div><div class="ptname">Cash on Delivery</div><div class="ptdesc">Pay when order arrives</div></div></div></div><button class="btn btn-green btn-nxt" onclick="placeOrder()">Place Order</button></div></div>
-</div><div class="co-sidebar"><h3>Order Summary</h3><div id="co-items"></div><div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px"><div class="srow"><span>Subtotal</span><span id="co-sub">₹0</span></div><div class="srow"><span>Delivery</span><span class="free-del" id="co-del">Free</span></div><div class="srow total"><span>Total</span><span id="co-tot">₹0</span></div></div></div></div></div></div>
 <!-- ========== SUCCESS ========== -->
 <div id="page-success" class="page"><div class="succ-wrap"><div class="check-anim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h2>Order Placed Successfully!</h2><p class="succ-sub">Thank you for choosing Farmmily Farms! Your order is confirmed and will be packed with love.</p><div class="oid-box"><div class="oid-lbl">Order ID</div><div class="oid" id="succ-oid">#FF-000000</div><div class="oid-del"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Estimated delivery: <strong>3–5 business days</strong></div></div><button class="btn btn-green" onclick="showPage('shop')">Continue Shopping →</button></div></div>
-<!-- ========== LOGIN ========== -->
-<div id="page-login" class="page"><div class="login-wrap"><div class="lcard"><div class="llogo"><img src="assets/farmmily logo.png" alt="Farmmily" style="height:30px;width:auto;margin:0 auto;display:block"></div>
-<div id="auth-main">
-  <div class="tab-tog"><button class="tbtn tbtn-login active" onclick="switchAuth('login')">Login</button><button class="tbtn tbtn-signup" onclick="switchAuth('signup')">Sign Up</button></div>
-  <div id="lf-login" class="lform">
-    <div class="ff"><label>Email address</label><input type="email" id="le" placeholder="you@example.com"></div>
-    <div class="ff"><label>Password</label><input type="password" id="lp" placeholder="••••••••"></div>
-    <div class="fpass-link" onclick="switchAuth('forgot')">Forgot Password?</div>
-    <button class="btn btn-green lsubmit" id="btn-login-exec" onclick="handleLogin()">Login →</button>
-    <div class="divider">or</div>
-    <button class="btn-google" onclick="handleGoogleLogin()"><span style="font-size:1.15rem;font-weight:700;color:#4285F4">G</span> Continue with Google</button>
-  </div>
-  <div id="lf-signup" class="lform" style="display:none">
-    <div class="ff"><label>Full Name</label><input type="text" id="sn" placeholder="Your name"></div>
-    <div class="ff"><label>Phone Number</label><input type="tel" id="sp" placeholder="10-digit number"></div>
-    <div class="ff"><label>Email address</label><input type="email" id="se" placeholder="you@example.com"></div>
-    <div class="ff"><label>Password</label><input type="password" id="sw" placeholder="Create a password"></div>
-    <div class="ff"><label>Confirm Password</label><input type="password" id="sc" placeholder="Repeat password"></div>
-    <button class="btn btn-green lsubmit" id="btn-signup-exec" onclick="handleSignup()">Create Account →</button>
-  </div>
-</div>
-<div id="auth-forgot" style="display:none" class="lform">
-  <h3 style="text-align:center;margin-bottom:10px">Reset Password</h3>
-  <p style="font-size:.8rem;color:#888;text-align:center;margin-bottom:15px">Enter your email and we'll send you a link to reset your password.</p>
-  <div class="ff"><label>Email address</label><input type="email" id="fe" placeholder="you@example.com"></div>
-  <button class="btn btn-green lsubmit" id="btn-forgot-exec" onclick="handleForgot()">Send Reset Link →</button>
-  <div style="text-align:center;margin-top:15px"><a class="fpass-link" onclick="switchAuth('login')">← Back to Login</a></div>
 </div>
 </div></div></div>
 
 <!-- ========== ACCOUNT ========== -->
 <div id="page-account" class="page">
-<div class="acc-grid">
-  <div class="acc-side" id="acc-tabs">
-    <div class="acc-tab active" data-tab="profile" onclick="setAccTab('profile')">My Profile</div>
-    <div class="acc-tab" data-tab="orders" onclick="setAccTab('orders')">My Orders</div>
-    <div class="acc-tab" data-tab="addresses" onclick="setAccTab('addresses')">My Addresses</div>
-    <div class="acc-tab logout" style="color:#e74c3c;margin-top:auto" onclick="handleLogout()">Logout</div>
-  </div>
-  <div class="acc-cont">
-    <!-- Profile -->
-    <div id="acc-profile" class="acc-sec active">
-      <h2>Profile Settings</h2>
-      <div class="lform" style="max-width:480px">
-        <div class="ff"><label>Full Name</label><input type="text" id="prof-name"></div>
-        <div class="ff"><label>Email Address</label><input type="email" id="prof-email" disabled></div>
-        <div class="ff"><label>Phone Number</label><input type="tel" id="prof-phone"></div>
-        <button class="btn btn-green" id="btn-prof-save" onclick="saveProfile()" style="margin-top:10px">Save Changes</button>
-      </div>
-    </div>
-    <!-- Orders -->
-    <div id="acc-orders" class="acc-sec">
-      <h2>Order History</h2>
-      <div id="orders-list"></div>
-    </div>
-    <!-- Addresses -->
-    <div id="acc-addresses" class="acc-sec">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <h2 style="margin:0">Saved Addresses</h2>
-        <button class="btn btn-outline-g" style="min-height:36px;height:36px;padding:0 15px;font-size:.8rem" onclick="openAddrModal()">+ Add New</button>
-      </div>
-      <div id="address-list" class="addr-grid"></div>
-    </div>
-  </div>
-</div>
-</div>
-
 <!-- ========== MODALS ========== -->
 <div class="modal-ov" id="modal-addr">
   <div class="modal-c">
