@@ -13,8 +13,6 @@ const svgCheck = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" st
 // ===== STATE =====
 let cart = JSON.parse(localStorage.getItem('ff_cart') || '[]');
 let curPage = 'home', prevPage = 'home', curProd = null, detQty = 1, activeFilter = 'All';
-let user = null, profile = null, userAddresses = [], userOrders = [], editingAddrId = null;
-let redirAfterLogin = null;
 
 // ===== CART HELPERS =====
 function saveCart() {
@@ -41,27 +39,21 @@ function addToCart(id) {
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  if (t) {
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
 }
 
 // ===== ROUTING =====
 function showPage(page) {
-  if (page === 'checkout' && !user) {
-    showToast('Please login to place order');
-    redirAfterLogin = 'checkout';
-    showPage('login');
-    return;
-  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const el = document.getElementById('page-' + page);
   if (el) { el.classList.add('active'); prevPage = curPage; curPage = page; window.scrollTo(0, 0); }
   updateNav(page);
   if (page === 'shop') renderShop();
   if (page === 'cart') renderCart();
-  if (page === 'checkout') renderCheckout();
-  if (page === 'account') initAccount();
   closeMob();
 }
 
@@ -80,7 +72,6 @@ function refreshCurrentView() {
   if (curPage === 'home') renderHome();
   else if (curPage === 'shop') filterProds();
   else if (curPage === 'cart') renderCart();
-  else if (curPage === 'checkout') renderCheckout();
   else if (curPage === 'product') {
     if (curProd) openProduct(curProd.id);
   }
@@ -349,65 +340,6 @@ function rmCart(id) {
   refreshCurrentView(); 
 }
 
-// ===== CHECKOUT =====
-function renderCheckout() {
-  let sub = 0;
-  const R = String.fromCharCode(8377);
-  const items = cart.map(ci => {
-    const p = products.find(x => x.id === ci.id);
-    if (!p) return '';
-    sub += p.price * ci.qty;
-    return '<div class="sbi"><img src="' + p.img + '" alt="' + p.name + '"><div>' +
-      '<div class="sbi-n">' + p.name + ' x' + ci.qty + '</div>' +
-      '<div class="sbi-p">' + R + (p.price * ci.qty) + '</div></div></div>';
-  }).join('');
-  const el = document.getElementById('co-items');
-  if (el) el.innerHTML = items;
-  const del = sub >= 499 ? 'Free' : R + '49';
-  const tot = sub >= 499 ? sub : sub + 49;
-  const subEl = document.getElementById('co-sub');
-  const delEl = document.getElementById('co-del');
-  const totEl = document.getElementById('co-tot');
-  if (subEl) subEl.textContent = R + sub;
-  if (delEl) delEl.textContent = del;
-  if (totEl) totEl.textContent = R + tot;
-  document.getElementById('co-s1').style.display = 'block';
-  document.getElementById('co-s2').style.display = 'none';
-  ['si1', 'si2', 'si3'].forEach(id => { const e = document.getElementById(id); if (e) { e.classList.remove('active', 'done'); } });
-  ['sl1', 'sl2'].forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove('done'); });
-  document.getElementById('si1')?.classList.add('active');
-  const btn = document.querySelector('#co-s2 .btn-nxt');
-  if(btn) btn.remove(); // Remove old static button
-}
-
-function goStep2() {
-  const name = document.getElementById('cn').value;
-  const phone = document.getElementById('cp').value;
-  const addr = document.getElementById('ca').value;
-  if (!name || !phone || !addr) { showToast('Please fill required fields'); return; }
-  document.getElementById('co-s1').style.display = 'none';
-  document.getElementById('co-s2').style.display = 'block';
-  document.getElementById('si1').classList.remove('active');
-  document.getElementById('si1').classList.add('done');
-  document.getElementById('sl1').classList.add('done');
-  document.getElementById('si2').classList.add('active');
-  
-  const c2 = document.getElementById('co-s2');
-  if(!c2.querySelector('.slide-wrap')) {
-    const sw = document.createElement('div');
-    sw.className = 'slide-wrap';
-    sw.id = 'checkout-slider';
-    sw.innerHTML = '<div class="slide-bg"></div><div class="slide-text">Slide to Pay</div><div class="slide-handle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>';
-    c2.querySelector('.co-sec').appendChild(sw);
-    initSlider('checkout-slider', placeOrder);
-  }
-}
-
-function selPay(el) {
-  document.querySelectorAll('.popt').forEach(p => p.classList.remove('sel'));
-  el.classList.add('sel');
-}
-
 function placeOrder() {
   const totText = document.getElementById('co-tot')?.textContent || '0';
   const tot = parseInt(totText.replace(/[^0-9]/g, ''));
@@ -437,13 +369,9 @@ function placeOrder() {
 let _srchOpen = false;
 function openSearch() {
   const bar = document.getElementById('nav-search-bar');
-  const nav = document.getElementById('desktop-nav');
-  const btn = document.getElementById('search-icon-btn');
   const hdr = document.getElementById('header');
-  bar.classList.add('open');
-  hdr.classList.add('search-open');
-  if(nav) nav.style.display = 'none';
-  if(btn) btn.style.display = 'none';
+  if(bar) bar.classList.add('open');
+  if(hdr) hdr.classList.add('search-open');
   setTimeout(() => { _srchOpen = true; }, 150);
   document.getElementById('srch-in').focus();
 }
@@ -451,17 +379,12 @@ function openSearch() {
 function closeSearch() {
   _srchOpen = false;
   const bar = document.getElementById('nav-search-bar');
-  const nav = document.getElementById('desktop-nav');
-  const btn = document.getElementById('search-icon-btn');
   const hdr = document.getElementById('header');
-  bar.classList.remove('open');
-  hdr.classList.remove('search-open');
-  if(nav) nav.style.display = '';
-  if(btn) btn.style.display = '';
+  if(bar) bar.classList.remove('open');
+  if(hdr) hdr.classList.remove('search-open');
   document.getElementById('srch-in').value = '';
   const res = document.getElementById('srch-res');
-  res.innerHTML = '';
-  res.classList.remove('open');
+  if(res) { res.innerHTML = ''; res.classList.remove('open'); }
 }
 
 function liveSearch(q) {
@@ -470,14 +393,14 @@ function liveSearch(q) {
   const R = String.fromCharCode(8377);
   if (!q) { res.innerHTML = ''; res.classList.remove('open'); return; }
   const list = products.filter(p =>
-    p.name.toLowerCase().includes(q.toLowerCase()) || p.cat.toLowerCase().includes(q.toLowerCase())
+    p.name.toLowerCase().includes(q.toLowerCase()) || (p.cat && p.cat.toLowerCase().includes(q.toLowerCase()))
   ).slice(0, 6);
   res.innerHTML = list.length
     ? list.map(p =>
       '<div class="sri" onclick="closeSearch();openProduct(' + p.id + ')">' +
       '<img src="' + p.img + '" alt="' + p.name + '"><div>' +
       '<div class="sri-name">' + p.name + '</div>' +
-      '<div class="sri-price">' + R + p.price + ' Â· ' + p.wt + '</div></div></div>'
+      '<div class="sri-price">' + R + p.price + ' · ' + p.wt + '</div></div></div>'
     ).join('')
     : '<div style="text-align:center;color:#aaa;padding:20px;font-size:.88rem">No results found</div>';
   res.classList.add('open');
@@ -493,9 +416,12 @@ document.addEventListener('click', e => {
 // ===== MOBILE MENU & DROPDOWNS =====
 function toggleMob() {
   const m = document.getElementById('mob-menu');
-  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  if(m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
 }
-function closeMob() { document.getElementById('mob-menu').style.display = 'none'; }
+function closeMob() { 
+  const m = document.getElementById('mob-menu');
+  if(m) m.style.display = 'none'; 
+}
 
 function toggleDeskCat() {
   const dc = document.getElementById('desk-cat-drop');
@@ -522,14 +448,6 @@ function closeMobCatAndMenu() {
   closeMob();
 }
 
-// ===== LOGIN TABS =====
-function switchTab(t) {
-  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('lf-login').style.display = t === 'login' ? 'grid' : 'none';
-  document.getElementById('lf-signup').style.display = t === 'signup' ? 'grid' : 'none';
-}
-
 // ===== SCROLL EVENTS =====
 function scrollToSection(id) {
   showPage('home');
@@ -538,13 +456,7 @@ function scrollToSection(id) {
     if(el) {
       const headerHeight = document.getElementById('header').offsetHeight || 60;
       const elTop = el.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({
-        top: elTop - headerHeight,
-        behavior: 'smooth'
-      });
-      if (id === 'categories-sec') {
-        updateNav('categories');
-      }
+      window.scrollTo({ top: elTop - headerHeight, behavior: 'smooth' });
     }
   }, 100);
 }
@@ -554,7 +466,7 @@ window.addEventListener('scroll', () => {
   if (bt) window.scrollY > 300 ? bt.classList.add('show') : bt.classList.remove('show');
 });
 
-// ===== INIT =====
+// ===== INIT & DATA FETCH =====
 const svgMap = {
   'Ghee & Oils': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 3H8L9 3z"/><path d="M7 6h10l-1 14H8L7 6z"/><path d="M10 10h4"/><path d="M10 14h4"/></svg>',
   'Honey & Jaggery': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v2h-4z"/><path d="M8 5h8a2 2 0 012 2v10a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2z"/><path d="M12 9v6"/><path d="M9 12h6"/></svg>',
@@ -564,105 +476,26 @@ const svgMap = {
   'Dry Fruits': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16"/><path d="M5 13c0 4 3.1 7 7 7s7-3 7-7"/><ellipse cx="9" cy="8" rx="2.5" ry="3.5"/><ellipse cx="15" cy="8" rx="2.5" ry="3.5"/></svg>'
 };
 
-async function initApp() {
-  updateCartCount();
-  
-  // Auth state listener
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    user = session?.user || null;
-    if (user) {
-      await fetchUserProfile();
-      updateUserState('in');
-      if (curPage === 'login') {
-        const target = redirAfterLogin || 'home';
-        redirAfterLogin = null;
-        showPage(target);
-      }
-    } else {
-      profile = null;
-      updateUserState('out');
-    }
-  });
-
-  // Load Categories
-  const { data: catData, error: catErr } = await supabaseClient.from('categories').select('*');
-  if (catErr) console.error("Category Error", catErr);
-  if (catData && catData.length > 0) {
-    cats = catData.map(c => ({
-      name: c.name,
-      svg: svgMap[c.name] || svgMap['Spices']
-    }));
-    
-    // Populate Dropdowns
-    const dc = document.getElementById('desk-cat-drop');
-    if (dc) dc.innerHTML = cats.map(c => '<a style="display:block;padding:10px 16px;font-size:.85rem;color:var(--text);border-radius:0;margin:0;cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeDeskCat()">' + c.name + '</a>').join('');
-    const mc = document.getElementById('mob-cat-list');
-    if (mc) mc.innerHTML = cats.map(c => '<a style="display:block;padding:8px 0;font-size:.88rem;color:#666;cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeMobCatAndMenu()">' + c.name + '</a>').join('');
-  }
-
-  // Load Products
-  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)');
-  if (prodErr) console.error("Products Error", prodErr);
-  if (prodData && prodData.length > 0) {
-    products = prodData.map(p => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      cat: p.categories?.name,
-      price: p.price,
-      orig: p.original_price,
-      wt: p.weight,
-      rating: p.rating,
-      revs: p.review_count,
-      badge: p.badge || '',
-      desc: p.description,
-      benefits: p.benefits || [],
-      img: p.image_url,
-      inStock: p.in_stock
-    }));
-  }
-
-  renderHome();
-}
-
-// Start
-
-// ===== REALTIME & DYNAMIC UPDATES =====
 async function loadCategories() {
-  const { data: catData, error: catErr } = await supabaseClient.from('categories').select('*');
-  if (catErr) return;
-  if (catData && catData.length > 0) {
-    cats = catData.map(c => ({
-      name: c.name,
-      svg: svgMap[c.name] || svgMap['Spices']
-    }));
+  const { data } = await supabaseClient.from('categories').select('*');
+  if (data) {
+    cats = data.map(c => ({ name: c.name, svg: svgMap[c.name] || svgMap['Spices'] }));
     const dc = document.getElementById('desk-cat-drop');
-    if (dc) dc.innerHTML = cats.map(c => '<a style="display:block;padding:10px 16px;font-size:.85rem;color:var(--text);border-radius:0;margin:0;cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeDeskCat()">' + c.name + '</a>').join('');
+    if (dc) dc.innerHTML = cats.map(c => '<a style="display:block;padding:10px 16px;font-size:.85rem;color:var(--text);cursor:pointer;" onclick="filterBycat(\'' + c.name + '\')">' + c.name + '</a>').join('');
     const mc = document.getElementById('mob-cat-list');
     if (mc) mc.innerHTML = cats.map(c => '<a style="display:block;padding:8px 0;font-size:.88rem;color:#666;cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeMobCatAndMenu()">' + c.name + '</a>').join('');
-    refreshCurrentView();
+    renderHome();
   }
 }
 
 async function loadProducts() {
-  const { data: prodData, error: prodErr } = await supabaseClient.from('products').select('*, categories (name)');
-  if (prodErr) return;
-  if (prodData) {
-    products = prodData.map(p => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      cat: p.categories?.name,
-      price: p.price,
-      orig: p.original_price, 
-      wt: p.weight,           
-      rating: p.rating,
-      revs: p.review_count,   
-      badge: p.badge || '',
-      desc: p.description,
-      benefits: p.benefits || [],
-      img: p.image_url,
-      inStock: p.in_stock
+  const { data } = await supabaseClient.from('products').select('*, categories (name)');
+  if (data) {
+    products = data.map(p => ({
+      id: p.id, name: p.name, slug: p.slug, cat: p.categories?.name,
+      price: p.price, orig: p.original_price, wt: p.weight, rating: p.rating,
+      revs: p.review_count, badge: p.badge || '', desc: p.description,
+      benefits: p.benefits || [], img: p.image_url, inStock: p.in_stock
     }));
     refreshCurrentView();
   }
@@ -698,36 +531,19 @@ async function loadCoupons() {
 }
 
 function showCouponInfo() {
-  if (activeCoupon) {
-    const msg = activeCoupon.description || `${activeCoupon.code}: Enjoy special discount on your order!`;
-    showToast(msg);
-  }
+  if (activeCoupon) showToast(activeCoupon.description || `${activeCoupon.code}: Active discount on your order!`);
 }
 
-// ===// ===== START =====
 async function initApp() {
-  const { data: catData } = await supabaseClient.from('categories').select('*').order('name');
-  if (catData) categories = catData;
-  const { data: prodData } = await supabaseClient.from('products').select('*');
-  if (prodData) products = prodData;
-  renderCats();
+  updateCartCount();
+  await loadCategories();
+  await loadProducts();
+  await loadBanners();
+  await loadCoupons();
 }
 
 initApp().then(() => {
-  loadBanners();
-  loadCoupons();
-
-  // Realtime WebSocket listeners
-  supabaseClient
-    .channel('public-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => loadProducts())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, () => loadBanners())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => loadCategories())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => loadCoupons())
-    .subscribe();
-
-  setInterval(loadProducts, 30000); // Polling as fallback
+  // Realtime listeners
+  supabaseClient.channel('public-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts).on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, loadBanners).on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories).on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, loadCoupons).subscribe();
+  setInterval(loadProducts, 30000);
 });
-
-function toggleUsrDrop() { /* UI placeholder - can be removed */ }
-function closeModals() { document.querySelectorAll('.modal-ov').forEach(m => m.style.display = 'none'); }
