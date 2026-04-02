@@ -136,7 +136,11 @@ function renderHome() {
   ).join('');
 
   const fr = document.getElementById('feat-row');
-  if (fr) fr.innerHTML = products.slice(0, 8).map(pcardHTML).join('');
+  if (fr) {
+    const harvestSlugs = ['wild-forest-honey-500g', 'dry-fig-honey-infusion-500g', 'royal-estate-coffee-100g', 'traditional-cow-ghee-500ml', 'bold-black-pepper-100g', 'pure-turmeric-powder-250g'];
+    const harvestProds = harvestSlugs.map(s => products.find(p => p.slug === s)).filter(Boolean);
+    fr.innerHTML = harvestProds.length ? harvestProds.map(pcardHTML).join('') : products.slice(0, 6).map(pcardHTML).join('');
+  }
 }
 
 function filterBycat(cat) { activeFilter = cat; showPage('shop'); }
@@ -512,12 +516,13 @@ async function initApp() {
     products = prodData.map(p => ({
       id: p.id,
       name: p.name,
+      slug: p.slug,
       cat: p.categories?.name,
       price: p.price,
-      orig: p.original_price, // Changed to match your real schema
-      wt: p.weight,           // Changed to match your real schema
+      orig: p.original_price,
+      wt: p.weight,
       rating: p.rating,
-      revs: p.review_count,   // Changed to match your real schema
+      revs: p.review_count,
       badge: p.badge || '',
       desc: p.description,
       benefits: p.benefits || [],
@@ -555,6 +560,7 @@ async function loadProducts() {
     products = prodData.map(p => ({
       id: p.id,
       name: p.name,
+      slug: p.slug,
       cat: p.categories?.name,
       price: p.price,
       orig: p.original_price, 
@@ -594,7 +600,7 @@ async function loadCoupons() {
       if (codeSpan) codeSpan.textContent = c.code;
       ob.style.display = 'flex';
       // If we want to replace the whole text safely:
-      ob.querySelector('span').innerHTML = `Use code <span class="code">${c.code}</span> for ${c.discount_text || 'discount'}!`;
+      ob.querySelector('span').innerHTML = `🌿 Pure. Natural. Honest. — From Our Farm To Your Family` + (c.code ? ` (Use code <span class="code">${c.code}</span>)` : '');
     }
   }
 }
