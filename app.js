@@ -352,9 +352,11 @@ function openSearch() {
   const bar = document.getElementById('nav-search-bar');
   const nav = document.getElementById('desktop-nav');
   const btn = document.getElementById('search-icon-btn');
+  const hdr = document.getElementById('header');
   bar.classList.add('open');
-  nav.style.display = 'none';
-  btn.style.display = 'none';
+  hdr.classList.add('search-open');
+  if(nav) nav.style.display = 'none';
+  if(btn) btn.style.display = 'none';
   setTimeout(() => { _srchOpen = true; }, 150);
   document.getElementById('srch-in').focus();
 }
@@ -364,9 +366,11 @@ function closeSearch() {
   const bar = document.getElementById('nav-search-bar');
   const nav = document.getElementById('desktop-nav');
   const btn = document.getElementById('search-icon-btn');
+  const hdr = document.getElementById('header');
   bar.classList.remove('open');
-  nav.style.display = '';
-  btn.style.display = '';
+  hdr.classList.remove('search-open');
+  if(nav) nav.style.display = '';
+  if(btn) btn.style.display = '';
   document.getElementById('srch-in').value = '';
   const res = document.getElementById('srch-res');
   res.innerHTML = '';

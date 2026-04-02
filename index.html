@@ -30,10 +30,31 @@ input,select,textarea{font-family:'Poppins',sans-serif;outline:none}
 
 /* HEADER */
 #header{background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.05);box-shadow:0 2px 15px rgba(0,0,0,.03)}
-.hdr{max-width:1280px;margin:0 auto;padding:0 16px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.hdr{max-width:1280px;margin:0 auto;padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;position:relative}
 .logo{display:flex;align-items:center;cursor:pointer;flex-shrink:0}
 .logo-img{height:32px;width:auto}
 .hamburger{display:none;background:none;width:44px;height:44px;border-radius:10px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:var(--tr)}
+@media(max-width:750px){
+  .hdr{display:flex;justify-content:center;position:relative;padding:0 8px}
+  .logo{margin:0;z-index:10}
+  .hamburger{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;margin:0;z-index:5}
+  .hdr-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;margin:0;z-index:5}
+  .nav-search-wrap{display:none}
+  #header.search-open .logo, 
+  #header.search-open .hamburger, 
+  #header.search-open .hdr-actions {display:none !important}
+  #header.search-open .nav-search-wrap {
+    display:flex !important; 
+    position:absolute; 
+    left:0; right:0; top:0; bottom:0; 
+    padding:0 12px; 
+    background:#fff; 
+    z-index:1001; 
+    justify-content:center;
+    align-items:center;
+  }
+  #header.search-open .nav-search-bar {display:flex; width:100%; max-width:none; border:none; box-shadow:none; padding:0}
+}
 .hamburger:hover{background:var(--bg)}
 .hamburger svg{width:22px;height:22px;color:var(--text)}
 nav.desktop-nav{display:flex;gap:4px;flex:1;justify-content:center}
@@ -441,9 +462,7 @@ footer{background:var(--text);color:rgba(255,255,255,.82);padding:46px 20px 28px
   .usr-name{max-width:120px}
 }
 @media(max-width:1023px){
-  .logo{position:static;transform:none;margin-left:auto;margin-right:auto}
-  .hdr-actions{flex:1;justify-content:flex-end}
-  .hamburger{flex:1;justify-content:flex-start}
+  .logo-img{height:28px}
 }
 @media(max-width:480px){
   .acc-cont{padding:20px 16px}
