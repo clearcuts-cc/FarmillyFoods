@@ -24,6 +24,16 @@ function updateCartCount() {
   const n = cart.reduce((s, i) => s + i.qty, 0);
   const el = document.getElementById('cart-count');
   const m = document.getElementById('mob-cnt');
+  const btns = [document.getElementById('cart-btn'), document.getElementById('mob-cart-btn')].filter(Boolean);
+  
+  if (n > 0) {
+    btns.forEach(b => {
+      b.classList.remove('cart-pop');
+      void b.offsetWidth;
+      b.classList.add('cart-pop');
+    });
+  }
+
   if (el) { el.textContent = n; n > 0 ? el.classList.add('show') : el.classList.remove('show'); }
   if (m) { m.textContent = n; n > 0 ? m.classList.add('show') : m.classList.remove('show'); }
 }

@@ -35,13 +35,14 @@ input,select,textarea{font-family:'Poppins',sans-serif;outline:none}
 #offer-banner .close-banner{position:absolute;right:0;top:0;background:linear-gradient(90deg,transparent,#1b391b 20%);color:#fff;font-size:18px;font-weight:300;cursor:pointer;width:35px;height:28px;display:flex;align-items:center;justify-content:center;z-index:10;border:none}
 
 /* GLASSMORPHISM UTILS */
-.glass{background:rgba(255,255,255,0.72) !important;backdrop-filter:blur(16px) saturate(180%) !important;-webkit-backdrop-filter:blur(16px) saturate(180%) !important;border:1px solid rgba(255,255,255,0.4) !important;position:relative;overflow:hidden}
-.glass::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 45%,rgba(255,255,255,0.05) 50%,transparent 55%);animation:glass-shimmer 8s infinite linear;pointer-events:none}
-@keyframes glass-shimmer { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+.glass{background:rgba(255,255,255,0.78) !important;backdrop-filter:blur(25px) saturate(190%) !important;-webkit-backdrop-filter:blur(25px) saturate(190%) !important;border:1px solid rgba(255,255,255,0.45) !important;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(31,38,135,0.07) !important}
+.glass::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:shine-sweep 4.5s infinite ease-in-out;z-index:2;pointer-events:none}
 
-.glass-dark{background:rgba(27,57,27,0.85) !important;backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;border:1px solid rgba(255,255,255,0.1) !important}
+.glass-dark{background:rgba(27,57,27,0.85) !important;backdrop-filter:blur(15px) saturate(160%) !important;-webkit-backdrop-filter:blur(15px) saturate(160%) !important;border:1px solid rgba(255,255,255,0.15) !important}
 
 @keyframes glass-in { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+@keyframes cart-bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.4); filter: drop-shadow(0 0 15px var(--secondary)); } }
+.cart-pop { animation: cart-bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .page{animation:glass-in 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards}
 
 /* HEADER */
@@ -88,7 +89,7 @@ nav.desktop-nav a:hover,nav.desktop-nav a.active{background:var(--bg);color:var(
 /* HEADER */
 #header{background:rgba(255,255,255,0.75);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(44,26,14,0.04);transition:transform .4s cubic-bezier(.4,0,.2,1)}
 #header.hdr-hidden{transform:translateY(-100%)}
-#mob-nav{display:none;position:fixed;bottom:20px;left:20px;right:20px;z-index:100;background:rgba(255,255,255,0.8);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,0.4);border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,0.12);padding:8px 0}
+#mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.85);backdrop-filter:blur(25px) saturate(180%);-webkit-backdrop-filter:blur(25px) saturate(180%);border-top:1px solid rgba(255,255,255,0.4);padding:8px 0 calc(8px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,0.06)}
 .mob-nav-inner{display:flex;justify-content:space-around;max-width:400px;margin:0 auto}
 .mob-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 12px;font-size:.68rem;font-weight:600;letter-spacing:.02em;color:#8e8e93;cursor:pointer;transition:color .2s ease;position:relative;-webkit-tap-highlight-color:transparent}
 .mob-item svg{width:22px;height:22px;transition:color .2s ease}
@@ -97,20 +98,27 @@ nav.desktop-nav a:hover,nav.desktop-nav a.active{background:var(--bg);color:var(
 .mob-badge{position:absolute;top:0;right:2px;background:#e74c3c;color:#fff;font-size:.55rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center}
 .mob-badge.show{display:flex}
 
-/* SLIDE TO CHECKOUT ENHANCED */
-.slide-wrap{width:100%;background:rgba(255,255,255,0.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1.5px solid rgba(255,255,255,0.25);height:60px;border-radius:50px;position:relative;overflow:hidden;margin-top:20px;user-select:none;touch-action:none;box-shadow:inset 0 4px 15px rgba(0,0,0,0.1)}
-.slide-bg{position:absolute;inset:0;background:linear-gradient(90deg, #2D5228, #4ca644, #2D5228);background-size:200% 100%;animation:bg-move 3s infinite linear;width:0;transition:none;z-index:1;box-shadow:0 0 20px rgba(76,166,68,0.3)}
+/* SLIDE TO CHECKOUT RE-DESIGNED */
+.slide-wrap{width:100%;background:rgba(255,255,255,0.06);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:2px solid rgba(255,255,255,0.4);height:68px;border-radius:20px;position:relative;overflow:hidden;margin-top:20px;user-select:none;touch-action:none;box-shadow:inset 0 4px 15px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.05)}
+.slide-bg{position:absolute;inset:0;background:linear-gradient(90deg, #0A220A, #2D5228, #0A220A);background-size:200% 100%;animation:bg-move 3s infinite linear;width:0;transition:none;z-index:1;box-shadow:0 0 30px rgba(58,107,53,0.4)}
 @keyframes bg-move { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
-.slide-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.45),transparent);animation:shine-sweep 2.5s infinite ease-in-out;z-index:2}
-.slide-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;font-weight:800;letter-spacing:.08em;z-index:3;pointer-events:none;transition:opacity .2s;text-transform:uppercase;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2))}
-.slide-wrap .slide-text{color:var(--text);opacity:.45;animation:glass-pulse 2s infinite ease-in-out}
-@keyframes glass-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; text-shadow: 0 0 12px rgba(255,255,255,1); } }
-.slide-handle{position:absolute;left:5px;top:5px;width:50px;height:50px;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);border:1px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.18);z-index:4;cursor:grab}
-.slide-handle::after{content:'';position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,0.8),transparent 70%);animation:shine-sweep 1.5s infinite linear;pointer-events:none}
-.slide-handle:active{cursor:grabbing}
-.slide-handle svg{width:22px;height:22px;color:#2D5228;z-index:5}
+.slide-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent);animation:shine-sweep 2s infinite ease-in-out;z-index:2}
+.slide-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.05rem;font-weight:900;letter-spacing:.15em;z-index:3;pointer-events:none;transition:opacity .2s;text-transform:uppercase;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4))}
+.slide-wrap .slide-text{color:var(--text);opacity:.5;animation:glass-pulse 2s infinite ease-in-out}
+@keyframes glass-pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; text-shadow: 0 0 20px rgba(255,255,255,1); } }
+.slide-handle{position:absolute;left:8px;top:8px;width:52px;height:52px;background:rgba(255,255,255,1);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.25);z-index:4;cursor:grab;transition:transform .2s}
+.slide-handle:hover{transform:scale(1.08)}
+.slide-handle::after{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,1),transparent 70%);animation:shine-sweep 1.2s infinite linear;pointer-events:none}
+.slide-handle:active{cursor:grabbing;transform:scale(0.92)}
+.slide-handle svg{width:26px;height:26px;color:#0A220A;z-index:5}
 .slide-wrap.completed .slide-text{opacity:0}
 .slide-wrap.completed .slide-handle{display:none}
+
+/* FLOAT WHATSAPP */
+#wa-btn{position:fixed;bottom:100px;right:22px;z-index:99;background:rgba(37,211,102,0.82);backdrop-filter:blur(15px) saturate(160%);-webkit-backdrop-filter:blur(15px) saturate(160%);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(37,211,102,0.3);border:1px solid rgba(255,255,255,0.4);transition:var(--tr);cursor:pointer;animation:glass-in 0.8s ease}
+#wa-btn:hover{transform:scale(1.1) translateY(-6px);rotate:15deg;box-shadow:0 16px 48px rgba(37,211,102,0.4)}
+#wa-btn svg{width:29px;height:29px;color:#fff;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1))}
+#wa-btn::after{content:'';position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.7),transparent 60%);animation:shine-sweep 3s infinite linear;pointer-events:none}
 
 /* BUTTON SHINE ANIMATION */
 @keyframes shine-sweep {
@@ -594,7 +602,7 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 </div>
 <div class="hdr-actions">
 <button class="icon-btn" id="search-icon-btn" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
-<button class="icon-btn" onclick="showPage('cart')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span id="cart-count"></span></button>
+<button class="icon-btn" id="cart-btn" onclick="showPage('cart')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span id="cart-count"></span></button>
 </div>
 <!-- MOBILE MENU -->
 <div id="mob-menu" style="display:none;position:absolute;top:100%;left:0;right:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);z-index:99;border-bottom:1px solid rgba(255,255,255,0.3);padding:24px 16px;box-shadow:0 12px 40px rgba(0,0,0,0.15)">
@@ -612,7 +620,7 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 14H6V8h2v2h2V8h4v2h2V8h2v10z"/></svg><span>Shop</span></div>
 <div class="mob-item" data-mob="track" onclick="showPage('track')">
 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg><span>Track</span></div>
-<div class="mob-item" data-mob="cart" onclick="showPage('cart')" style="position:relative">
+<div class="mob-item" id="mob-cart-btn" data-mob="cart" onclick="showPage('cart')" style="position:relative">
 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020.01 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Cart</span><span class="mob-badge" id="mob-cnt"></span></div>
 </div></nav>
 <!-- TOAST -->
@@ -664,23 +672,12 @@ footer{background:#1a2f17;color:rgba(255,255,255,.8);padding:70px 20px 30px}
 <div id="page-success" class="page"><div class="succ-wrap"><div class="check-anim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h2>Order Placed Successfully!</h2><p style="font-size:.78rem;color:#777;margin:4px 0 16px;opacity:0.8;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Take a screenshot or copy this ID for tracking.</p>
 <p class="succ-sub">Thank you for choosing Farmmily Farms! Your order is confirmed and will be packed with love.</p><div class="oid-box"><div class="oid-lbl">Order ID</div><div style="display:flex;align-items:center;justify-content:center;gap:10px;"><div class="oid" id="succ-oid">#FF-000000</div><button class="copy-btn" onclick="copyOrderId()" title="Copy Order ID"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><div class="oid-del"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Estimated delivery: <strong>3–5 business days</strong></div></div><button class="btn btn-green" onclick="showPage('shop')">Continue Shopping →</button></div></div>
 <!-- ========== TRACK ========== -->
-<div id="page-track" class="page">
-  <div class="track-wrap">
-    <h1>Track Your Order</h1>
-    <p>Enter your Order ID to see where your organic goodness is!</p>
-    <div class="track-input-wrap">
-      <input type="text" id="track-id" placeholder="e.g. FM-1000001">
-      <button class="btn btn-green" style="justify-content:center" onclick="handleTrack()">Track Order</button>
-    </div>
-    <div id="track-recent" class="track-recent" style="display:none">
-      <h4>Recent Orders</h4>
-      <div class="recent-list" id="recent-list"></div>
-    </div>
-    <div id="track-res" style="display:none"></div>
-  </div>
-</div>
-</div>
-</div></div></div>
+<div id="page-track" class="page"><div class="track-wrap"><div class="track-h"><h1>Track Your Order</h1><p>Enter your Order ID to see real-time updates from our estates to your home.</p></div><div class="track-input-wrap"><input id="tr-oid" type="text" placeholder="#FF-000000" maxlength="15" autocomplete="off"><button class="btn btn-green btn-nxt" onclick="trackOrder()">Track Now</button></div><div id="tr-res" class="track-res" style="display:none"></div><div id="tr-recent" class="track-recent" style="display:none"><h4>Recently Tracked</h4><div class="recent-list" id="recent-list"></div></div></div></div>
+
+<!-- FLOAT WHATSAPP -->
+<a href="https://wa.me/917708847977" id="wa-btn" target="_blank" aria-label="WhatsApp Support">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
 
 <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
