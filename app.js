@@ -88,6 +88,13 @@ function showPage(page) {
   updateNav(page);
   if (page === 'shop') renderShop();
   if (page === 'cart') renderCart();
+  if (page === 'corporate') {
+    // Reset the live preview to defaults when visiting the corporate page
+    const prevLogo = document.getElementById('corp-prev-logo');
+    const prevMsg = document.getElementById('corp-prev-msg');
+    if (prevLogo && !document.getElementById('corp-company-name')?.value) prevLogo.innerText = 'YOUR BRAND';
+    if (prevMsg && !document.getElementById('corp-heritage-msg')?.value) prevMsg.innerText = '"Your personalized message will appear here, printed on 350 GSM archival paper with a hand-pressed gold foil borders..."';
+  }
   closeMob();
 }
 
@@ -105,8 +112,8 @@ function updateNav(page) {
   
   // Clear tracking search if leaving track page
   if (page !== 'track') {
-    const ti = document.getElementById('track-id');
-    const tr = document.getElementById('track-res');
+    const ti = document.getElementById('tr-oid') || document.getElementById('track-id');
+    const tr = document.getElementById('tr-res') || document.getElementById('track-res');
     if (ti) ti.value = '';
     if (tr) { tr.innerHTML = ''; tr.style.display = 'none'; }
   }
@@ -491,8 +498,8 @@ function copyOrderId() {
 }
 
 async function handleTrack() {
-  const idInput = document.getElementById('track-id');
-  const res = document.getElementById('track-res');
+  const idInput = document.getElementById('tr-oid') || document.getElementById('track-id');
+  const res = document.getElementById('tr-res') || document.getElementById('track-res');
   if (!idInput || !res) return;
   
   const id = idInput.value.trim().toUpperCase();
@@ -579,7 +586,7 @@ function saveToHistory(id) {
 
 function renderRecentHistory() {
   const listEl = document.getElementById('recent-list');
-  const wrap = document.getElementById('track-recent');
+  const wrap = document.getElementById('tr-recent') || document.getElementById('track-recent');
   if (!listEl || !wrap) return;
   
   const hist = JSON.parse(localStorage.getItem('ff_track_hist') || '[]');
@@ -777,6 +784,7 @@ async function initApp() {
   updateCartCount();
   await loadCategories();
   await loadProducts();
+  updateCartCount(); // refresh price now that products are loaded
   await loadBanners();
   await loadCoupons();
 }
@@ -786,3 +794,158 @@ initApp().then(() => {
   supabaseClient.channel('public-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts).on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, loadBanners).on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories).on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, loadCoupons).subscribe();
   setInterval(loadProducts, 30000);
 });
+
+// ===== CORPORATE ORDER SUBMISSION WITH RAZORPAY =====
+async function submitCorpOrder() {
+  const companyName = (document.getElementById('corp-company-name')?.value || '').trim();
+  const heritageMsg = (document.getElementById('corp-heritage-msg')?.value || '').trim();
+  const totalUnits  = Math.max(15, parseInt(document.getElementById('corp-total-units')?.value || 15));
+  const contactEmail = (document.getElementById('corp-email')?.value || '').trim();
+  const contactPhone = (document.getElementById('corp-phone')?.value || '').trim();
+
+  if (!companyName) { showToast('Please enter your company name.'); return; }
+  if (!contactPhone) { showToast('Please enter a contact phone number.'); return; }
+
+  // ---- Price calculation ----
+  const rates = { imam: 349, alph: 299, bang: 259, sent: 239 };
+  const crateSize = corpLimit || 3;
+  let pricePerCrate = 0;
+  let totalKg = 0;
+  for (const v of ['imam','alph','bang','sent']) {
+    const qty = corpCounts?.[v] || 0;
+    pricePerCrate += qty * rates[v];
+    totalKg += qty;
+  }
+  // If user hasn't selected a mix yet, use the per-kg rate of crate_size × avg ₹299
+  if (totalKg === 0) pricePerCrate = crateSize * 299;
+
+  const totalAmount = pricePerCrate * totalUnits; // total for all crates
+
+  // ---- Open Razorpay TEST checkout ----
+  const options = {
+    key: 'rzp_test_SYaf8btoC5VUyk',        // TEST key
+    amount: totalAmount * 100,              // paise
+    currency: 'INR',
+    name: 'Farmmily Executive B2B',
+    description: `${totalUnits} × ${crateSize}KG Corporate Mango Crates`,
+    image: 'assets/farmmily logo.png',
+    prefill: { contact: contactPhone, email: contactEmail },
+    theme: { color: '#1b391b' },
+    handler: async function(response) {
+      // ---- Save to Supabase after successful payment ----
+      const obj = {
+        company_name: companyName,
+        crate_size:   crateSize,
+        imam_qty:     corpCounts?.imam || 0,
+        alph_qty:     corpCounts?.alph || 0,
+        bang_qty:     corpCounts?.bang || 0,
+        sent_qty:     corpCounts?.sent || 0,
+        total_units:  totalUnits,
+        heritage_message: heritageMsg,
+        total_amount: totalAmount,
+        contact_phone: contactPhone,
+        contact_email: contactEmail,
+        razorpay_payment_id: response.razorpay_payment_id || '',
+        razorpay_order_id: response.razorpay_order_id || '',
+        status: 'confirmed'
+      };
+      try {
+        const { data, error } = await supabaseClient
+          .from('corporate_orders').insert([obj]).select();
+        if (error) throw error;
+
+        const ref = data[0]?.enquiry_ref || ('CE-' + Math.floor(1000000 + Math.random() * 9000000));
+
+        // Show success overlay
+        const overlay = document.getElementById('corp-success-overlay');
+        const refEl   = document.getElementById('corp-enquiry-ref');
+        if (overlay) overlay.style.display = 'flex';
+        if (refEl)   refEl.textContent = ref;
+
+        // Reset form
+        document.getElementById('corp-company-name').value = '';
+        document.getElementById('corp-heritage-msg').value = '';
+        document.getElementById('corp-total-units').value  = 15;
+        if (document.getElementById('corp-phone')) document.getElementById('corp-phone').value = '';
+        if (document.getElementById('corp-email')) document.getElementById('corp-email').value = '';
+        resetCorpCounts();
+
+      } catch(err) {
+        console.error('Corp order DB error:', err);
+        showToast('Payment received but record failed. Call +91 77088 47977 with your payment ID: ' + response.razorpay_payment_id);
+      }
+    },
+    modal: {
+      ondismiss: () => showToast('Payment cancelled. You can try again anytime.')
+    }
+  };
+  try {
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch(e) {
+    console.error('Razorpay error:', e);
+    showToast('Payment gateway error. Please try WhatsApp instead.');
+  }
+}
+
+// ===== CHECK CORPORATE ENQUIRY STATUS =====
+async function checkCorpStatus() {
+  const inp = document.getElementById('corp-status-inp');
+  const res = document.getElementById('corp-status-res');
+  if (!inp || !res) return;
+  const ref = inp.value.trim().toUpperCase();
+  if (!ref) { showToast('Please enter your Enquiry Reference number (e.g. CE-1234567)'); return; }
+
+  res.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div><p style="margin-top:12px;color:#888;font-size:.85rem">Looking up ' + ref + '...</p></div>';
+  res.style.display = 'block';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('corporate_orders')
+      .select('enquiry_ref, company_name, status, total_units, crate_size, total_amount, created_at')
+      .eq('enquiry_ref', ref)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) {
+      res.innerHTML = '<div style="text-align:center;padding:20px;color:#e74c3c"><p>Enquiry not found. Please check your reference number.</p></div>';
+      return;
+    }
+
+    const statusColors = { new:'#888', contacted:'#D4A017', confirmed:'#3A6B35', fulfilled:'#1b6b5b', cancelled:'#e74c3c' };
+    const statusLabels = { new:'🕐 Received — Our team will contact you within 2 hours', contacted:'📞 Contacted — Our agent has reached out to you', confirmed:'✅ Confirmed — Your crate order is confirmed', fulfilled:'🎁 Fulfilled — Shipped & Delivered', cancelled:'❌ Cancelled' };
+    const sc = statusColors[data.status] || '#888';
+    const sl = statusLabels[data.status] || data.status;
+    const date = new Date(data.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+
+    res.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.07);border:1px solid #f0ece4;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+          <div>
+            <div style="font-size:.7rem;font-weight:800;letter-spacing:3px;color:#aaa;text-transform:uppercase;margin-bottom:4px;">Enquiry Reference</div>
+            <div style="font-size:1.4rem;font-family:'Playfair Display',serif;font-weight:700;color:#1b391b;">${data.enquiry_ref}</div>
+          </div>
+          <div style="background:${sc}18;border:1px solid ${sc};color:${sc};padding:6px 14px;border-radius:20px;font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;">${data.status}</div>
+        </div>
+        <div style="font-size:.85rem;color:#555;line-height:1.8;border-top:1px solid #f5f0e8;padding-top:16px;">
+          <div><strong>Company:</strong> ${data.company_name}</div>
+          <div><strong>Order:</strong> ${data.total_units} × ${data.crate_size}KG Crates</div>
+          ${data.total_amount ? `<div><strong>Amount Paid:</strong> ₹${data.total_amount.toLocaleString('en-IN')}</div>` : ''}
+          <div><strong>Submitted:</strong> ${date}</div>
+        </div>
+        <div style="margin-top:16px;padding:14px;background:${sc}0d;border-radius:12px;font-size:.82rem;font-weight:600;color:${sc};">${sl}</div>
+        <div style="margin-top:16px;text-align:center;">
+          <a href="https://wa.me/917708847977?text=Hi%2C%20my%20Corporate%20Enquiry%20ref%20is%20${data.enquiry_ref}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;color:#25D366;font-size:.8rem;font-weight:700;text-decoration:none;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Chat on WhatsApp with your ref
+          </a>
+        </div>
+      </div>`;
+  } catch(err) {
+    console.error('Corp status error:', err);
+    res.innerHTML = '<div style="text-align:center;padding:20px;color:#e74c3c"><p>Error fetching status. Please try again.</p></div>';
+  }
+}
+
+// Alias so the HTML button onclick="trackOrder()" works
+const trackOrder = handleTrack;
