@@ -909,7 +909,7 @@ async function checkCorpStatus() {
   try {
     const { data, error } = await supabaseClient
       .from('corporate_orders')
-      .select('enquiry_ref, company_name, status, total_units, crate_size, total_amount, created_at')
+      .select('enquiry_ref, company_name, status, total_units, crate_size, total_amount, created_at, imam_qty, alph_qty, bang_qty, sent_qty')
       .eq('enquiry_ref', ref)
       .maybeSingle();
 
@@ -925,6 +925,13 @@ async function checkCorpStatus() {
     const sl = statusLabels[data.status] || data.status;
     const date = new Date(data.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 
+    const mixArr = [];
+    if (data.imam_qty) mixArr.push(`Imam: ${data.imam_qty}kg`);
+    if (data.alph_qty) mixArr.push(`Alph: ${data.alph_qty}kg`);
+    if (data.bang_qty) mixArr.push(`Bang: ${data.bang_qty}kg`);
+    if (data.sent_qty) mixArr.push(`Sent: ${data.sent_qty}kg`);
+    const mixString = mixArr.join(' • ');
+
     res.innerHTML = `
       <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.07);border:1px solid #f0ece4;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -937,7 +944,8 @@ async function checkCorpStatus() {
         <div style="font-size:.85rem;color:#555;line-height:1.8;border-top:1px solid #f5f0e8;padding-top:16px;">
           <div><strong>Company:</strong> ${data.company_name}</div>
           <div><strong>Order:</strong> ${data.total_units} × ${data.crate_size}KG Crates</div>
-          ${data.total_amount ? `<div><strong>Amount Paid:</strong> ₹${data.total_amount.toLocaleString('en-IN')}</div>` : ''}
+          ${mixString ? `<div style="margin-top:6px;padding-left:12px;border-left:2px solid #e0dfd5;font-size:0.8rem;color:#777">Mix: ${mixString}</div>` : ''}
+          ${data.total_amount ? `<div style="margin-top:6px"><strong>Amount Paid:</strong> ₹${data.total_amount.toLocaleString('en-IN')}</div>` : ''}
           <div><strong>Submitted:</strong> ${date}</div>
         </div>
         <div style="margin-top:16px;padding:14px;background:${sc}0d;border-radius:12px;font-size:.82rem;font-weight:600;color:${sc};">${sl}</div>
