@@ -816,10 +816,16 @@ async function submitCorpOrder() {
     pricePerCrate += qty * rates[v];
     totalKg += qty;
   }
-  // If user hasn't selected a mix yet, use the per-kg rate of crate_size × avg ₹299
-  if (totalKg === 0) pricePerCrate = crateSize * 299;
+  
+  if (totalKg !== crateSize) {
+    showToast(`Your mix total (${totalKg}kg) must exactly match the selected crate size (${crateSize}kg)!`, 'error');
+    return;
+  }
 
   const totalAmount = pricePerCrate * totalUnits; // total for all crates
+
+  // Generate enquiry reference number
+  const enquiryRef = 'CE-' + Math.floor(1000000 + Math.random() * 9000000);
 
   // ---- Open Razorpay TEST checkout ----
   const options = {
@@ -847,6 +853,7 @@ async function submitCorpOrder() {
         contact_email: contactEmail,
         razorpay_payment_id: response.razorpay_payment_id || '',
         razorpay_order_id: response.razorpay_order_id || '',
+        enquiry_ref: enquiryRef,
         status: 'confirmed'
       };
       try {
@@ -854,7 +861,7 @@ async function submitCorpOrder() {
           .from('corporate_orders').insert([obj]).select();
         if (error) throw error;
 
-        const ref = data[0]?.enquiry_ref || ('CE-' + Math.floor(1000000 + Math.random() * 9000000));
+        const ref = data[0]?.enquiry_ref || enquiryRef;
 
         // Show success overlay
         const overlay = document.getElementById('corp-success-overlay');
