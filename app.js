@@ -22,20 +22,44 @@ function saveCart() {
 
 function updateCartCount() {
   const n = cart.reduce((s, i) => s + i.qty, 0);
+  const totalPrice = cart.reduce((s, i) => {
+    const p = products.find(x => x.id === i.id);
+    return s + (p ? p.price * i.qty : 0);
+  }, 0);
+
   const el = document.getElementById('cart-count');
   const m = document.getElementById('mob-cnt');
+  const fBar = document.getElementById('floating-cart-bar');
+  const fCount = document.getElementById('f-cart-count');
+  const fPrice = document.getElementById('f-cart-price');
+  
   const btns = [document.getElementById('cart-btn'), document.getElementById('mob-cart-btn')].filter(Boolean);
   
   if (n > 0) {
+    if (fBar) fBar.classList.add('show');
+    if (fCount) fCount.textContent = `${n} item${n > 1 ? 's' : ''}`;
+    if (fPrice) fPrice.textContent = `₹${totalPrice}`;
     btns.forEach(b => {
       b.classList.remove('cart-pop');
       void b.offsetWidth;
       b.classList.add('cart-pop');
     });
+  } else {
+    if (fBar) fBar.classList.remove('show');
   }
 
   if (el) { el.textContent = n; n > 0 ? el.classList.add('show') : el.classList.remove('show'); }
   if (m) { m.textContent = n; n > 0 ? m.classList.add('show') : m.classList.remove('show'); }
+  refreshCurrentView();
+}
+
+function rmCart(id) {
+  const ex = cart.find(x => x.id === id);
+  if (ex) {
+    ex.qty--;
+    if (ex.qty <= 0) cart = cart.filter(x => x.id !== id);
+    saveCart();
+  }
 }
 
 function addToCart(id) {
@@ -102,32 +126,38 @@ function goBack() { showPage(prevPage === 'product' ? 'shop' : prevPage); }
 // ===== STARS =====
 function stars(r) { return '<span style="color:var(--secondary)">' + String.fromCharCode(9733).repeat(Math.floor(r)) + String.fromCharCode(9734).repeat(5 - Math.floor(r)) + '</span>'; }
 
-// ===== PRODUCT CARD HTML =====
+// ===== PRODUCT CARD HTML ====
 function pcardHTML(p) {
-  const inCart = !!cart.find(x => x.id === p.id);
+  const ex = cart.find(x => x.id === p.id);
+  const qty = ex ? ex.qty : 0;
+  const inCartClass = qty > 0 ? 'in-cart' : '';
   const disc = Math.round((1 - p.price / p.orig) * 100);
-  const bClass = p.badge === 'New' ? 'new' : (p.badge ? 'amber' : '');
-  
-  let btnHTML = '';
-  if (!p.inStock) {
-    btnHTML = '<button class="btn-notify" disabled>Out of Stock</button>';
-  } else if (inCart) {
-    btnHTML = '<button class="btn-add" style="background:#fff;color:#e74c3c;border:1px solid #e74c3c" onclick="event.stopPropagation();rmCart(' + p.id + ')">Remove from Cart</button>';
-  } else {
-    btnHTML = '<button class="btn-add" onclick="event.stopPropagation();addToCartAnim(this,' + p.id + ')">Add to Cart</button>';
-  }
+  const bClass = p.badge === 'New Harvest' ? 'bn' : (p.badge === 'Best Seller' ? 'bb' : 'bo');
 
-  return '<div class="pcard" onclick="openProduct(' + p.id + ')">' +
-    '<div class="ci-wrap">' +
-    '<img src="' + p.img + '" alt="' + p.name + '" loading="lazy">' +
-    (p.badge ? '<span class="pbadge ' + bClass + '">' + p.badge + '</span>' : '') +
-    '</div><div class="pbody">' +
-    '<div class="pname">' + p.name + '</div>' +
-    '<div class="pwt">' + p.wt + '</div>' +
-    '<div class="pstars">' + stars(p.rating) + '<span class="rv">(' + p.revs + ')</span></div>' +
-    '<div class="pprices"><span class="pp">' + String.fromCharCode(8377) + p.price + '</span><span class="pop">' + String.fromCharCode(8377) + p.orig + '</span><span class="pdisc">' + disc + '% off</span></div>' +
-    btnHTML +
-    '</div></div>';
+  return `<div class="pcard glass" onclick="openProduct(${p.id})">
+    <div class="ci-wrap">
+      <img src="${p.img}" alt="${p.name}" loading="lazy">
+      ${p.badge ? `<span class="pbadge ${bClass}">${p.badge}</span>` : ''}
+    </div>
+    <div class="pbody">
+      <div class="pname">${p.name}</div>
+      <div class="pwt">${p.wt}</div>
+      <div class="pstars">${stars(p.rating)}<span class="rv">(${p.revs})</span></div>
+      <div class="pprices">
+        <span class="pp">₹${p.price}</span>
+        <span class="pop">₹${p.orig}</span>
+        <span class="pdisc">${disc}% off</span>
+      </div>
+      <div class="btn-add-wrap ${inCartClass}" onclick="event.stopPropagation()">
+        <button class="btn-add" onclick="addToCart(${p.id})">ADD</button>
+        <div class="btn-qty-ctrl">
+          <button class="qty-btn" onclick="rmCart(${p.id})">−</button>
+          <span class="qty-num">${qty}</span>
+          <button class="qty-btn" onclick="addToCart(${p.id})">+</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
 }
 
 function addToCartAnim(btn, id) {
