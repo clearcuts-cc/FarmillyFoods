@@ -4441,6 +4441,9 @@
               <input type="text" onkeyup="updateBrand(this.value)" placeholder="Enter Brand Name..." class="w-full bg-white border-b-2 border-gray-100 py-4 px-2 outline-none focus:border-amber-500 transition-all font-serif text-3xl">
               <span class="absolute top-1/2 -translate-y-1/2 right-4 text-xs font-bold text-gray-300 pointer-events-none">MIN 15 BOXES</span>
             </div>
+            <div class="relative">
+              <textarea onkeyup="updateCrateMessage(this.value)" placeholder="Enter Heritage Message (Inside Card)..." class="w-full bg-white border-b-2 border-gray-100 py-4 px-2 outline-none focus:border-amber-500 transition-all font-serif text-lg resize-none h-24" maxlength="150"></textarea>
+            </div>
             <button onclick="showToast('Collection Quotation Request Sent!')" class="w-full bg-emerald-950 text-white py-6 rounded-2xl font-black uppercase tracking-[4px] text-xs hover:bg-emerald-900 transition-all shadow-xl hover:shadow-2xl shadow-emerald-900/10 active:scale-95">Request Collection Quote</button>
           </div>
         </div>
@@ -4480,7 +4483,7 @@
               <div class="w-12 h-[1px] bg-amber-200 mb-4"></div>
               <p class="text-[10px] font-black tracking-[4px] text-amber-800/60 uppercase mb-2">Warm Greetings</p>
               <h4 class="text-2xl font-serif text-emerald-950 mb-4">From Our Farm<br>To Your Crate</h4>
-              <p class="text-[11px] text-gray-500 font-medium leading-relaxed italic">"May this harvest bring the essence of nature back to your table."</p>
+              <p id="crate-message-inner" class="text-[11px] text-gray-500 font-medium leading-relaxed italic">"May this harvest bring the essence of nature back to your table."</p>
               <div class="w-12 h-[1px] bg-amber-200 mt-6"></div>
               <div class="mt-4 pt-4 flex justify-between w-full items-center text-[8px] font-black text-amber-900/30 tracking-widest">
                 <span>ESTATE SERIES NO. 1</span>
@@ -5134,6 +5137,10 @@
         if(document.getElementById('corp-logo')) document.getElementById('corp-logo').innerText = name;
         if(document.getElementById('crate-logo')) document.getElementById('crate-logo').innerText = name;
         if(document.getElementById('crate-logo-top')) document.getElementById('crate-logo-top').innerText = name;
+    }
+    function updateCrateMessage(val) {
+        const msg = val || "May this harvest bring the essence of nature back to your table.";
+        if(document.getElementById('crate-message-inner')) document.getElementById('crate-message-inner').innerText = `"${msg}"`;
     }
     let isDragging3D = false;
     let wasDragged = false;
