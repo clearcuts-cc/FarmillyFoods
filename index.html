@@ -40,7 +40,6 @@
       justify-content: center;
       background: radial-gradient(circle at 50% 50%, #fff 0%, #fdfcf8 100%);
       border-radius: 40px;
-      overflow: hidden;
       position: relative;
       cursor: crosshair;
       border: 1px solid rgba(0, 0, 0, 0.05)
@@ -70,66 +69,105 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      backface-visibility: visible
+      backface-visibility: visible;
+      outline: 1.5px solid #1a1a1a;
     }
 
     /* SIDE FACES (300px tall) */
     .face-front {
       width: 400px;
       height: 300px;
-      transform: translateZ(152px)
+      left: 0;
+      top: 0;
+      transform: translateZ(152px);
     }
 
     .face-back {
       width: 400px;
       height: 300px;
-      transform: rotateY(180deg) translateZ(152px)
+      left: 0;
+      top: 0;
+      transform: rotateY(180deg) translateZ(152px);
     }
 
     .face-left {
       width: 304px;
       height: 300px;
-      transform: rotateY(-90deg) translateZ(200px)
+      left: 48px;
+      top: 0;
+      transform: rotateY(-90deg) translateZ(200px);
     }
 
     .face-right {
       width: 304px;
       height: 300px;
-      transform: rotateY(90deg) translateZ(200px)
+      left: 48px;
+      top: 0;
+      transform: rotateY(90deg) translateZ(200px);
     }
 
     /* BOTTOM FACE */
     .face-bottom {
       width: 400px;
       height: 304px;
-      transform: rotateX(-90deg) translateZ(150px);
+      left: 0;
+      top: -2px;
+      transform: rotateX(-90deg) translateZ(-150px);
       background: #000;
-      box-shadow: 0 0 100px rgba(0, 0, 0, 0.5)
+      box-shadow: 0 0 100px rgba(0, 0, 0, 0.5);
     }
 
-    /* THE LID SYSTEM (Hinged at back) */
-    .lid-assembly {
+    /* THE 4 FLAP SYSTEM */
+    .flap {
       position: absolute;
-      width: 400px;
-      height: 304px;
       top: 0;
-      transform-origin: 50% 0;
-      transform: rotateX(90.5deg) translateY(-152px);
+      background: #1a1a1a;
+      border: 1px solid #333;
       transform-style: preserve-3d;
       transition: transform 2.5s cubic-bezier(.4, 0, .2, 1);
-      z-index: 10
+      transform-origin: 50% 0%;
+      backface-visibility: visible;
+      outline: 1.5px solid #1a1a1a;
     }
 
-    .lid-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333
+    .flap-front {
+      width: 400px;
+      height: 154px;
+      left: 0;
+      transform: translateZ(152px) rotateX(-90deg);
+    }
+    .crate-container.open .flap-front {
+      transform: translateZ(152px) rotateX(-280deg);
     }
 
-    .crate-container.open .lid-assembly {
-      transform: rotateX(10deg) translateY(-152px)
+    .flap-back {
+      width: 400px;
+      height: 154px;
+      left: 0;
+      transform: rotateY(180deg) translateZ(152px) rotateX(-90deg);
+    }
+    .crate-container.open .flap-back {
+      transform: rotateY(180deg) translateZ(152px) rotateX(-220deg);
+    }
+
+    .flap-left {
+      width: 304px;
+      height: 202px;
+      left: 48px;
+      transform: rotateY(-90deg) translateZ(200px) rotateX(-89deg);
+    }
+    .crate-container.open .flap-left {
+      transform: rotateY(-90deg) translateZ(200px) rotateX(-280deg);
+    }
+
+    .flap-right {
+      width: 304px;
+      height: 202px;
+      left: 48px;
+      transform: rotateY(90deg) translateZ(200px) rotateX(-89deg);
+    }
+    .crate-container.open .flap-right {
+      transform: rotateY(90deg) translateZ(200px) rotateX(-280deg);
     }
 
     /* INTERNAL STRAW & PRODUCT */
@@ -162,47 +200,41 @@
     }
 
     .crate-container.open .mango-reveal {
-      transform: translate3d(-50%, -50%, 150px) scale(1)
+      transform: translate3d(-50%, -100px, 50px) scale(1);
     }
 
     .heritage-card {
       position: absolute;
-      width: 220px;
-      height: 140px;
+      width: 260px;
+      min-height: 220px;
       background: #fdfcf8;
       border: 8px solid #d4af37;
       border-image: linear-gradient(to bottom, #d4af37, #b8860b) 1;
-      padding: 20px;
       left: 50%;
       top: 100px;
       transform: translate3d(-50%, 0, 80px) rotateX(-20deg) scale(0);
       transition: 4s cubic-bezier(.17, .67, .2, 1);
       text-align: center;
       box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-      z-index: 6
     }
 
     .crate-container.open .heritage-card {
-      transform: translate3d(-50%, 140px, 250px) rotateX(0deg) scale(1.1);
+      transform: translate3d(-50%, -340px, 120px) rotateX(10deg) scale(1.1);
       opacity: 1;
       visibility: visible;
     }
 
-    .greeting-banner {
-      position: absolute;
-      top: 40px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      opacity: 0;
-      transition: 2s cubic-bezier(.17, .67, .2, 1);
-      pointer-events: none;
-      z-index: 100;
-      white-space: nowrap;
-    }
 
-    .crate-container.open ~ .greeting-banner {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
+    /* MOBILE OPTIMIZATION FOR 3D CRATE */
+    @media (max-width: 768px) {
+      .unboxing-wrap {
+        height: 480px;
+        margin: 60px auto;
+      }
+      .crate-container {
+        transform: scale(0.65) rotateX(-20deg) rotateY(30deg);
+      }
+
     }
 
     /* CORPORATE MODULE STYLES */
@@ -215,7 +247,6 @@
     .linen-tex {
       background-image: url('https://www.transparenttextures.com/patterns/black-linen-2.png');
       background-color: #0d0d0d;
-      opacity: 0.95
     }
 
     .brand-stamp {
@@ -1121,14 +1152,9 @@
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))
     }
 
-    #wa-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.7), transparent 60%);
-      animation: shine-sweep 3s infinite linear;
-      pointer-events: none
+    #floating-cart-bar.show ~ #wa-btn,
+    #floating-cart-bar.show ~ #back-top {
+      transform: translateY(-80px) !important;
     }
 
     /* BUTTON SHINE ANIMATION */
@@ -4216,51 +4242,42 @@
 
   <!-- ========== HOME ========== -->
   <div id="page-home" class="page active">
-    <section class="hero"><img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400"
-        alt="Fresh organic farm">
+      <section class="hero"><img src="https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=1400&q=80"
+        alt="Fresh Heritage Mangoes">
       <div class="hero-ov"></div>
       <div class="hero-c">
-        <div class="hero-eye"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z" />
-            <path d="M12 2c0 4 4 6 4 10" />
-            <path d="M12 2c0 4-4 6-4 10" />
-          </svg> Certified organic products</div>
-        <h1>Purely Natural.<br>Deeply Rooted.</h1>
-        <p>From the soil we nurture to the family table you cherish—authentic, hand-harvested food grown by our
-          community of new farmers.</p>
-        <div class="hero-btns"><a class="btn-ha" onclick="showPage('shop')">Explore the Harvest →</a><a class="btn-hb"
-            onclick="document.getElementById('about-sec').scrollIntoView({behavior:'smooth'})">Our Story</a></div>
+        <div class="hero-eye" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border-color: #d4af37;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+          </svg> 2026 SEASON LIVE — LIMITED HARVEST</div>
+        <h1 style="font-size: clamp(3rem, 8vw, 5rem); letter-spacing: -2px;">The Heritage<br><span style="color: #ea9800;">Mango</span> Harvest.</h1>
+        <p>Golden, sun-ripened, and hand-harvested from our private estates. Experience the legendary taste of the 2026 Season, delivered in our signature artisanal crates.</p>
+        <div class="hero-btns"><a class="btn-ha" onclick="showPage('shop')" style="background: #ea9800; border-color: #ea9800;">Reserve Your Crate →</a><a class="btn-hb"
+            onclick="document.getElementById('mix').scrollIntoView({behavior:'smooth'})">Build Your Mix</a></div>
       </div>
     </section>
-    <div class="trust-bar">
+    <div class="trust-bar" style="background: #0a1a0a;">
       <div class="trust-inner">
-        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ea9800"
             stroke-width="2.5">
-            <path d="M12 22c-4-3-8-7.5-8-12a8 8 0 0116 0c0 4.5-4 9-8 12z" />
-            <path d="M12 2c0 4 4 6 4 10" />
-            <path d="M12 2c0 4-4 6-4 10" />
-          </svg> 100% Organic Content</div>
+            <circle cx="12" cy="12" r="10"/><path d="M12 8l4 4-4 4M8 12h7"/>
+          </svg> A-Grade Export Quality</div>
         <div class="tdiv"></div>
-        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ea9800"
             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="3" width="15" height="13" rx="2" />
-            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-            <circle cx="5.5" cy="18.5" r="2.5" />
-            <circle cx="18.5" cy="18.5" r="2.5" />
-          </svg> Free Express Delivery</div>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg> Carbide-Free Ripening</div>
         <div class="tdiv"></div>
-        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ea9800"
             stroke-width="2.5" stroke-linecap="round">
             <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
-          </svg> Lab Tested Purity</div>
+          </svg> Same-Day Farm Dispatch</div>
         <div class="tdiv"></div>
-        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ea9800"
             stroke-width="2.5" stroke-linecap="round">
-            <polyline points="23 4 23 10 17 10" />
-            <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
-          </svg> Direct From Farm</div>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg> Global Gap Certified</div>
       </div>
     </div>
     <section class="sec" id="categories-sec">
@@ -4276,8 +4293,8 @@
     <section class="sec" style="padding-top:0">
       <div class="inner">
         <div class="sec-title">
-          <h2>The Harvest</h2>
-          <p>Top picks loved by thousands of families</p>
+          <h2>The 2026 Harvest</h2>
+          <p>Export-quality mangoes, naturally ripened and hand-selected for your family.</p>
           <div class="title-bar"></div>
         </div>
         <div class="prow" id="feat-row"></div>
@@ -4294,52 +4311,52 @@
         <!-- IMAM PASAND -->
         <div class="group bg-white p-8 rounded-3xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl border border-orange-100 flex flex-col items-center">
           <div class="w-full aspect-square bg-[#FFF9E5] rounded-2xl mb-6 flex items-center justify-center overflow-hidden">
-            <img src="https://antigravity-assets.s3.amazonaws.com/premium_mango_isolated.png" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Imam Pasand">
+            <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Premium Mango">
           </div>
           <h3 class="text-2xl font-serif text-amber-900 mb-1">Imam Pasand</h3>
           <p class="text-3xl font-bold text-amber-600 mb-6 font-sans">₹349<span class="text-xs text-gray-400 font-normal ml-1">/kg</span></p>
           <div class="w-full space-y-3">
-            <button onclick="showToast('Pre-booking for Imam Pasand 3KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹1047</button>
-            <button onclick="showToast('Pre-booking for Imam Pasand 5KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1745</button>
+            <button onclick="addToCart(101)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹1047</button>
+            <button onclick="addToCart(102)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1745</button>
           </div>
         </div>
 
         <!-- ALPHONSO -->
         <div class="group bg-white p-8 rounded-3xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl border border-orange-100 flex flex-col items-center">
           <div class="w-full aspect-square bg-orange-50 rounded-2xl mb-6 flex items-center justify-center overflow-hidden">
-            <img src="https://antigravity-assets.s3.amazonaws.com/premium_mango_isolated.png" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Alphonso">
+            <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Premium Mango">
           </div>
           <h3 class="text-2xl font-serif text-orange-900 mb-1">Alphonso</h3>
           <p class="text-3xl font-bold text-orange-600 mb-6 font-sans">₹299<span class="text-xs text-gray-400 font-normal ml-1">/kg</span></p>
           <div class="w-full space-y-3">
-            <button onclick="showToast('Pre-booking for Alphonso 3KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹897</button>
-            <button onclick="showToast('Pre-booking for Alphonso 5KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1495</button>
+            <button onclick="addToCart(103)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹897</button>
+            <button onclick="addToCart(104)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1495</button>
           </div>
         </div>
 
         <!-- BANGANAPALLI -->
         <div class="group bg-white p-8 rounded-3xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl border border-orange-100 flex flex-col items-center">
           <div class="w-full aspect-square bg-yellow-50 rounded-2xl mb-6 flex items-center justify-center overflow-hidden">
-            <img src="https://antigravity-assets.s3.amazonaws.com/premium_mango_isolated.png" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Banganapalli">
+            <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Premium Mango">
           </div>
           <h3 class="text-2xl font-serif text-yellow-900 mb-1">Banganapalli</h3>
           <p class="text-3xl font-bold text-yellow-600 mb-6 font-sans">₹259<span class="text-xs text-gray-400 font-normal ml-1">/kg</span></p>
           <div class="w-full space-y-3">
-            <button onclick="showToast('Pre-booking for Banganapalli 3KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹777</button>
-            <button onclick="showToast('Pre-booking for Banganapalli 5KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1295</button>
+            <button onclick="addToCart(105)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹777</button>
+            <button onclick="addToCart(106)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1295</button>
           </div>
         </div>
 
         <!-- SENTHURA -->
         <div class="group bg-white p-8 rounded-3xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl border border-orange-100 flex flex-col items-center">
           <div class="w-full aspect-square bg-red-50 rounded-2xl mb-6 flex items-center justify-center overflow-hidden">
-            <img src="https://antigravity-assets.s3.amazonaws.com/premium_mango_isolated.png" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Senthura">
+            <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80" class="w-4/5 group-hover:scale-110 transition-transform duration-700" alt="Premium Mango">
           </div>
           <h3 class="text-2xl font-serif text-red-900 mb-1">Senthura</h3>
           <p class="text-3xl font-bold text-red-600 mb-6 font-sans">₹239<span class="text-xs text-gray-400 font-normal ml-1">/kg</span></p>
           <div class="w-full space-y-3">
-            <button onclick="showToast('Pre-booking for Senthura 3KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹717</button>
-            <button onclick="showToast('Pre-booking for Senthura 5KG opens soon!')" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1195</button>
+            <button onclick="addToCart(107)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">3KG BOX — ₹717</button>
+            <button onclick="addToCart(108)" class="w-full py-4 border-2 border-emerald-900 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-900 hover:text-white transition-all">5KG BOX — ₹1195</button>
           </div>
         </div>
       </div>
@@ -4457,7 +4474,7 @@
             <!-- CONTENTS -->
             <div class="straw-layer"></div>
             <div class="mango-reveal">
-              <img src="https://antigravity-assets.s3.amazonaws.com/premium_mango_isolated.png" class="w-full h-full object-contain" alt="Golden Mango">
+              <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80" class="w-full h-full object-contain" alt="Golden Mango">
             </div>
             <div class="heritage-card flex flex-col items-center justify-center p-6 text-center">
               <div class="w-12 h-[1px] bg-amber-200 mb-4"></div>
@@ -4471,23 +4488,17 @@
               </div>
             </div>
 
-            <!-- LID ASSEMBLY (Hinged at back) -->
-            <div class="lid-assembly">
-              <div class="lid-face linen-tex flex items-center justify-center">
-                <div class="brand-stamp" style="font-size: 24px; transform: rotate(180deg)">FARMMILY</div>
-              </div>
+            <!-- FLAPS -->
+            <div class="flap flap-back linen-tex flex items-center justify-center">
+              <div class="brand-stamp" id="crate-logo-top" style="font-size: 24px; transform: rotate(180deg); color: #d4af37;">FARMMILY</div>
             </div>
+            <div class="flap flap-front linen-tex"></div>
+            <div class="flap flap-left linen-tex"></div>
+            <div class="flap flap-right linen-tex"></div>
           </div>
         </div>
 
-        <!-- NEW GREETING BANNER -->
-        <div class="greeting-banner">
-          <div class="bg-white/90 backdrop-blur-xl px-10 py-4 rounded-full border border-amber-200 shadow-2xl flex items-center gap-4">
-            <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <span class="text-xl font-serif text-emerald-950 italic">Welcome to the 2026 Harvest Family!</span>
-          </div>
-        </div>
-        
+
         <!-- INTERACTION PROMPT -->
         <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse" id="reveal-hint">
           <span class="text-[10px] font-black tracking-[8px] text-emerald-900/40 uppercase mb-4">Click To Reveal</span>
@@ -5119,10 +5130,63 @@
         document.getElementById('price').innerText = cratePrice;
     }
     function updateBrand(val) {
-        document.getElementById('corp-logo').innerText = val.toUpperCase() || 'YOUR BRAND';
-        document.getElementById('crate-logo').innerText = val.toUpperCase() || 'EST. 2024';
+        const name = val.toUpperCase() || 'YOUR BRAND';
+        if(document.getElementById('corp-logo')) document.getElementById('corp-logo').innerText = name;
+        if(document.getElementById('crate-logo')) document.getElementById('crate-logo').innerText = name;
+        if(document.getElementById('crate-logo-top')) document.getElementById('crate-logo-top').innerText = name;
     }
+    let isDragging3D = false;
+    let wasDragged = false;
+    let startX3D = 0, startY3D = 0;
+    let rotX3D = -20, rotY3D = 30;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const wrap = document.getElementById('unboxing-trigger');
+        const crate = document.getElementById('main-crate');
+        if(!wrap || !crate) return;
+        
+        function startDrag(e) {
+            isDragging3D = true;
+            wasDragged = false;
+            startX3D = e.pageX || (e.touches && e.touches[0].pageX);
+            startY3D = e.pageY || (e.touches && e.touches[0].pageY);
+            crate.style.transition = 'none';
+        }
+        function moveDrag(e) {
+            if(!isDragging3D) return;
+            if(e.cancelable) e.preventDefault();
+            const x = e.pageX || (e.touches && e.touches[0].pageX);
+            const y = e.pageY || (e.touches && e.touches[0].pageY);
+            const dx = x - startX3D;
+            const dy = y - startY3D;
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true;
+            let cx = Math.max(-60, Math.min(60, rotX3D - dy * 0.5));
+            let cy = rotY3D + dx * 0.5;
+            let scale = window.innerWidth <= 768 ? 'scale(0.65)' : '';
+            crate.style.transform = `${scale} rotateX(${cx}deg) rotateY(${cy}deg)`;
+        }
+        function endDrag(e) {
+            if(!isDragging3D) return;
+            isDragging3D = false;
+            if (!wasDragged) return;
+            const x = e.pageX || (e.changedTouches && e.changedTouches[0].pageX);
+            const y = e.pageY || (e.changedTouches && e.changedTouches[0].pageY);
+            rotY3D += (x - startX3D) * 0.5;
+            rotX3D -= (y - startY3D) * 0.5;
+            rotX3D = Math.max(-60, Math.min(60, rotX3D));
+            crate.style.transition = 'transform 1s cubic-bezier(.2, .8, .2, 1)';
+        }
+        
+        wrap.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', moveDrag);
+        window.addEventListener('mouseup', endDrag);
+        wrap.addEventListener('touchstart', startDrag, {passive:false});
+        window.addEventListener('touchmove', moveDrag, {passive:false});
+        window.addEventListener('touchend', endDrag);
+    });
+
     function toggleCrate() {
+        if (wasDragged) return;
         const c = document.getElementById('main-crate');
         c.classList.toggle('open');
         document.getElementById('reveal-hint').style.opacity = c.classList.contains('open') ? '0' : '1';
@@ -5164,8 +5228,13 @@
     }
 
     function updateCorpPreview(val, type) {
-        if(type === 'logo') document.getElementById('corp-prev-logo').innerText = val.toUpperCase() || 'YOUR BRAND';
-        if(type === 'msg') document.getElementById('corp-prev-msg').innerText = val || "Your personalized message will appear here...";
+        if(type === 'logo') {
+            const name = val.toUpperCase() || 'YOUR BRAND';
+            if(document.getElementById('corp-prev-logo')) document.getElementById('corp-prev-logo').innerText = name;
+            if(document.getElementById('crate-logo')) document.getElementById('crate-logo').innerText = name;
+            if(document.getElementById('crate-logo-top')) document.getElementById('crate-logo-top').innerText = name;
+        }
+        if(type === 'msg') if(document.getElementById('corp-prev-msg')) document.getElementById('corp-prev-msg').innerText = val || "Your personalized message will appear here...";
     }
     function calcCorpPrice() {
         const rates = { imam: 349, alph: 299, bang: 259, sent: 239 };
@@ -5187,8 +5256,14 @@
             alert(`Please fill the crate (${crateWeight}/${crateLimit} KG) before adding to cart.`);
             return;
         }
-        showToast(`Premium ${crateLimit}KG Mix added to your selection!`);
-        resetAll();
+        if (typeof handleCrateAddToCart === 'function') {
+            handleCrateAddToCart(crateLimit, crateWeight, cratePrice);
+            resetAll();
+        } else {
+            showToast("Adding custom mix to cart...");
+            addToCart(100);
+            resetAll();
+        }
     }
   </script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

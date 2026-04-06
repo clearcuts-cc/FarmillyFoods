@@ -68,7 +68,29 @@ function addToCart(id) {
   const ex = cart.find(x => x.id === id);
   if (ex) ex.qty++; else cart.push({ id, qty: 1 });
   saveCart();
-  showToast(p.name + ' added to cart!');
+}
+
+function handleCrateAddToCart(size, weight, price) {
+  let p = products.find(x => x.id === 100);
+  if (!p) {
+    p = { 
+      id: 100, name: 'Custom Heritage Mango Crate', 
+      price: price, wt: size + 'KG Mix', 
+      img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80', 
+      inStock: true 
+    };
+    products.push(p);
+  } else {
+    p.price = price;
+    p.wt = size + 'KG Mix';
+  }
+  
+  const ex = cart.find(x => x.id === 100);
+  if (ex) ex.qty++; else cart.push({ id: 100, qty: 1 });
+  
+  saveCart();
+  showToast(`${size}KG Heritage Crate added!`);
+  refreshCurrentView();
 }
 
 function showToast(msg) {
@@ -86,6 +108,7 @@ function showPage(page) {
   const el = document.getElementById('page-' + page);
   if (el) { el.classList.add('active'); prevPage = curPage; curPage = page; window.scrollTo(0, 0); }
   updateNav(page);
+  if (page === 'home') renderHome();
   if (page === 'shop') renderShop();
   if (page === 'cart') renderCart();
   if (page === 'corporate') {
@@ -185,16 +208,17 @@ function renderHome() {
 
   const fr = document.getElementById('feat-row');
   if (fr) {
-    const harvestSlugs = ['wild-forest-honey-500g', 'dry-fig-honey-infusion-500g', 'royal-estate-coffee-100g', 'traditional-cow-ghee-500ml', 'bold-black-pepper-100g', 'pure-turmeric-powder-250g'];
-    const harvestProds = harvestSlugs.map(s => products.find(p => p.slug === s)).filter(Boolean);
-    fr.innerHTML = harvestProds.length ? harvestProds.map(pcardHTML).join('') : products.slice(0, 6).map(pcardHTML).join('');
+    // FOCUS MODE: Show only Mango products in featured row
+    const mangoProds = products.filter(p => p.name.toLowerCase().includes('mango')).slice(0, 8);
+    fr.innerHTML = mangoProds.length ? mangoProds.map(pcardHTML).join('') : '<p style="text-align:center;width:100%;color:#888;">Harvesting fresh mangoes for you...</p>';
   }
 }
 
 function filterBycat(cat) { activeFilter = cat; showPage('shop'); }
 
 // ===== SHOP =====
-const allCats = ['All', 'Ghee & Oils', 'Honey & Jaggery', 'Millets & Grains', 'Spices', 'Flours', 'Dry Fruits'];
+// FOCUS MODE: Restricted categories
+const allCats = ['All', 'Mangoes'];
 
 function renderShop() {
   const chips = document.getElementById('chips');
@@ -285,7 +309,6 @@ function addDetToCart() {
   const ex = cart.find(x => x.id === curProd.id);
   if (ex) ex.qty += detQty; else cart.push({ id: curProd.id, qty: detQty });
   saveCart();
-  showToast(curProd.name + ' added to cart!');
   const btn = document.getElementById('det-add-btn');
   btn.textContent = 'Added!';
   setTimeout(() => { refreshCurrentView(); }, 800);
@@ -368,7 +391,7 @@ function renderCart() {
       '<div class="ci-qty"><button class="ci-qbtn" onclick="updCart(' + p.id + ',-1)">-</button>' +
       '<span class="ci-qval">' + ci.qty + '</span>' +
       '<button class="ci-qbtn" onclick="updCart(' + p.id + ',1)">+</button></div>' +
-      '<button class="ci-rm" onclick="rmCart(' + p.id + ')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+      '<button class="ci-rm" onclick="deleteFromCart(' + p.id + ')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
       '</div></div></div>';
   }).join('');
   const del = sub >= 499 ? '<span class="free-del">Free</span>' : '<span>' + R + '49</span>';
@@ -391,7 +414,7 @@ function updCart(id, d) {
   saveCart(); refreshCurrentView();
 }
 
-function rmCart(id) { 
+function deleteFromCart(id) { 
   cart = cart.filter(x => x.id !== id); 
   saveCart(); 
   refreshCurrentView(); 
@@ -505,7 +528,6 @@ async function handleTrack() {
   const id = idInput.value.trim().toUpperCase();
   if (!id) { showToast('Please enter an Order ID'); return; }
   
-  // Save to history on manual track
   saveToHistory(id);
   renderRecentHistory();
   
@@ -513,60 +535,75 @@ async function handleTrack() {
   res.innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div><p style="margin-top:15px;color:#888">Fetching status for ' + id + '...</p></div>';
   
   try {
-    // 1. Fetch real order from Supabase
-    const { data, error } = await supabaseClient
-      .from('orders')
-      .select('*')
-      .eq('order_number', id) // Use order_number column
-      .maybeSingle();
+    // 1. Try Retail Order first
+    let { data, error } = await supabaseClient.from('orders').select('*').eq('order_number', id).maybeSingle();
 
-    if (error) {
-      console.error('Error fetching order status:', error);
-      showToast('Error tracking order. Please try again later.');
-      return;
+    if (error) throw error;
+
+    // 2. If not found, try Corporate Order
+    if (!data) {
+      const { data: corpData, error: corpError } = await supabaseClient
+        .from('corporate_orders')
+        .select('*')
+        .eq('enquiry_ref', id)
+        .maybeSingle();
+      
+      if (corpError) throw corpError;
+      
+      if (corpData) {
+        // FOUND CORPORATE ORDER - Use corporate layout
+        const statusColors = { new:'#888', contacted:'#D4A017', confirmed:'#3A6B35', fulfilled:'#1b3b1b', cancelled:'#e74c3c' };
+        const statusLabels = { new:'🕐 Received', contacted:'📞 Contacted', confirmed:'✅ Confirmed', fulfilled:'🎁 Fulfilled', cancelled:'❌ Cancelled' };
+        const sc = statusColors[corpData.status] || '#888';
+        const sl = statusLabels[corpData.status] || corpData.status;
+        const date = new Date(corpData.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+
+        res.innerHTML = `
+          <div style="background:#fff;border-radius:16px;padding:24px;border:1.5px solid #f0ece4;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+              <div>
+                <div style="font-size:1.2rem;font-weight:700;color:var(--primary);">${corpData.enquiry_ref}</div>
+                <div style="font-size:.7rem;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Corporate B2B Order</div>
+              </div>
+              <div style="background:${sc}18;color:${sc};padding:4px 12px;border-radius:10px;font-size:.75rem;font-weight:800;">${corpData.status.toUpperCase()}</div>
+            </div>
+            <div style="font-size:.85rem;color:#444;line-height:1.8;border-top:1px solid #f5f0e8;padding-top:16px;">
+              <div><strong>Company:</strong> ${corpData.company_name}</div>
+              <div><strong>Size:</strong> ${corpData.total_units} × ${corpData.crate_size}KG Mix</div>
+              <div><strong>Status:</strong> ${sl}</div>
+              <div><strong>Date:</strong> ${date}</div>
+            </div>
+          </div>`;
+        return;
+      }
     }
 
     if (!data) {
-      res.innerHTML = '<div style="text-align:center;padding:40px;color:#e74c3c"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:10px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Order ID not found. Please check and try again.</p></div>';
+      res.innerHTML = '<div style="text-align:center;padding:40px;color:#e74c3c"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:10px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Order Reference not found.</p></div>';
       return;
     }
 
-    // 2. Map current status to timeline steps
+    // 3. RETAIL ORDER LAYOUT (Existing Timeline)
     const statusOrder = ['pending', 'confirmed', 'packed', 'shipped', 'delivered'];
     const currentIdx = statusOrder.indexOf(data.status);
-
     const steps = [
-      { t: 'Order Received', d: 'We have received your order.', s: 'pending' },
-      { t: 'Confirmed', d: 'Your order has been confirmed by our farm.', s: 'confirmed' },
-      { t: 'Processing', d: 'We are hand-picking and packing your items.', s: 'packed' },
-      { t: 'Shipped', d: 'Your order has been shipped via Express Delivery.', s: 'shipped' },
-      { t: 'Delivered', d: 'Thank you for choosing Farmmily!', s: 'delivered' }
+      { t: 'Order Received', d: 'We have received your order.' },
+      { t: 'Confirmed', d: 'Confirmed by our farm.' },
+      { t: 'Processing', d: 'Picking and packing.' },
+      { t: 'Shipped', d: 'Express Delivery.' },
+      { t: 'Delivered', d: 'Thank you!' }
     ];
 
-    let html = '<h3 style="margin-bottom:20px;color:var(--primary);font-size:1.1rem">Tracking Status: ' + id + '</h3>';
+    let html = '<h3 style="margin-bottom:20px;color:var(--primary);font-size:1.1rem">Retail Order: ' + id + '</h3>';
     steps.forEach((step, idx) => {
-      let state = 'pending';
-      if (idx < currentIdx) state = 'done';
-      else if (idx === currentIdx) state = 'active';
-
-      const icon = state === 'done' 
-        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' 
-        : (state === 'active' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' : '');
-      
-      html += `
-        <div class="track-step ${state}">
-          <div class="ts-icon">${icon}</div>
-          <div class="ts-info">
-            <h4>${step.t}</h4>
-            <p>${state === 'done' ? 'Completed' : (state === 'active' ? 'In Progress' : 'Pending')}</p>
-          </div>
-        </div>
-      `;
+      let state = idx < currentIdx ? 'done' : (idx === currentIdx ? 'active' : 'pending');
+      const icon = state === 'done' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : (state === 'active' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' : '');
+      html += `<div class="track-step ${state}"><div class="ts-icon">${icon}</div><div class="ts-info"><h4>${step.t}</h4><p>${state === 'done' ? 'Completed' : (state === 'active' ? 'In Progress' : 'Pending')}</p></div></div>`;
     });
     res.innerHTML = html;
   } catch (err) {
     console.error('Tracking fatal error:', err);
-    showToast('Failed to track order. Try again.');
+    showToast('Failed to track. Try again later.');
   }
 }
 
@@ -725,7 +762,16 @@ const svgMap = {
 async function loadCategories() {
   const { data } = await supabaseClient.from('categories').select('*');
   if (data) {
-    cats = data.map(c => ({ name: c.name, svg: svgMap[c.name] || svgMap['Spices'] }));
+    const rawCats = data.map(c => ({ name: c.name, svg: svgMap[c.name] || svgMap['Spices'] }));
+    
+    // FOCUS MODE: Only show Mango-related categories
+    cats = rawCats.filter(c => c.name.toLowerCase().includes('mango'));
+    
+    // If no mango category in DB, add a virtual one for the focus period
+    if (cats.length === 0) {
+        cats = [{ name: 'Mangoes', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>' }];
+    }
+
     const dc = document.getElementById('desk-cat-drop');
     if (dc) dc.innerHTML = cats.map(c => '<a style="display:block;padding:10px 16px;font-size:.85rem;color:var(--text);cursor:pointer;" onclick="filterBycat(\'' + c.name + '\')">' + c.name + '</a>').join('');
     const mc = document.getElementById('mob-cat-list');
@@ -737,12 +783,22 @@ async function loadCategories() {
 async function loadProducts() {
   const { data } = await supabaseClient.from('products').select('*, categories (name)');
   if (data) {
-    products = data.map(p => ({
+    const raw = data.map(p => ({
       id: p.id, name: p.name, slug: p.slug, cat: p.categories?.name,
       price: p.price, orig: p.original_price, wt: p.weight, rating: p.rating,
       revs: p.review_count, badge: p.badge || '', desc: p.description,
       benefits: p.benefits || [], img: p.image_url, inStock: p.in_stock
     }));
+    
+    // FOCUS MODE: Only show mango related items
+    products = raw.filter(p => 
+      p.name.toLowerCase().includes('mango') || 
+      (p.cat && p.cat.toLowerCase().includes('mango')) ||
+      ['Imam', 'Alphonso', 'Bang', 'Sent', 'Crate'].some(v => 
+        p.name.includes(v) || (p.cat && p.cat.includes(v))
+      )
+    );
+    
     refreshCurrentView();
   }
 }
