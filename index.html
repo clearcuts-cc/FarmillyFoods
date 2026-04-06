@@ -67,7 +67,8 @@
       border: 1px solid #333;
       box-sizing: border-box;
       display: flex;
-      align-items: center;
+      align-items: flex-start; /* Move logo to top */
+      padding-top: 40px;      /* Consistent padding from top */
       justify-content: center;
       backface-visibility: visible;
       outline: 1.5px solid #1a1a1a;
@@ -258,6 +259,11 @@
       text-transform: uppercase;
       opacity: 0.8;
       text-shadow: 0 0 15px rgba(212, 175, 55, 0.3)
+    }
+    
+    /* Mirror-fix for elements placed on back-facing or mirrored planes */
+    .brand-stamp.mirrored {
+      transform: scaleX(-1);
     }
 
     /* FLOOR SHADOW */
@@ -4439,12 +4445,9 @@
           <div class="pt-8 space-y-6">
             <div class="relative">
               <input type="text" onkeyup="updateBrand(this.value)" placeholder="Enter Brand Name..." class="w-full bg-white border-b-2 border-gray-100 py-4 px-2 outline-none focus:border-amber-500 transition-all font-serif text-3xl">
-              <span class="absolute top-1/2 -translate-y-1/2 right-4 text-xs font-bold text-gray-300 pointer-events-none">MIN 15 BOXES</span>
+              <span class="absolute top-1/2 -translate-y-1/2 right-4 text-xs font-bold text-gray-300 pointer-events-none uppercase">Min 15 Units</span>
             </div>
-            <div class="relative">
-              <textarea onkeyup="updateCrateMessage(this.value)" placeholder="Enter Heritage Message (Inside Card)..." class="w-full bg-white border-b-2 border-gray-100 py-4 px-2 outline-none focus:border-amber-500 transition-all font-serif text-lg resize-none h-24" maxlength="150"></textarea>
-            </div>
-            <button onclick="showToast('Collection Quotation Request Sent!')" class="w-full bg-emerald-950 text-white py-6 rounded-2xl font-black uppercase tracking-[4px] text-xs hover:bg-emerald-900 transition-all shadow-xl hover:shadow-2xl shadow-emerald-900/10 active:scale-95">Request Collection Quote</button>
+            <button onclick="showToast('Starting Branding Session... Scrolling to Preview')" class="w-full bg-emerald-950 text-white py-6 rounded-2xl font-black uppercase tracking-[4px] text-xs hover:bg-emerald-900 transition-all shadow-xl active:scale-95">Customize Your Harvest →</button>
           </div>
         </div>
       </div>
@@ -4455,6 +4458,21 @@
       <div class="text-center mb-16 space-y-4">
         <h2 class="text-3xl font-serif text-emerald-950">The Heritage Unboxing</h2>
         <p class="text-gray-400 text-sm font-light uppercase tracking-widest">Experience the physicality of the 2026 Harvest</p>
+      </div>
+
+      <!-- INTERACTIVE CONFIGURATOR -->
+      <div class="max-w-2xl mx-auto mb-20 bg-white p-8 rounded-[32px] shadow-2xl border border-orange-50 space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-2">
+            <label class="text-[9px] font-black tracking-[4px] text-amber-700 uppercase">1. Box Identity</label>
+            <input type="text" onkeyup="updateAllBranding(this.value)" placeholder="Brand / Logo Name" class="w-full border-b-2 border-gray-100 py-4 outline-none focus:border-amber-500 transition-all font-serif text-2xl bg-transparent">
+          </div>
+          <div class="space-y-4">
+            <label class="text-[9px] font-black tracking-[4px] text-amber-700 uppercase">2. Personalized Note (Inside Box)</label>
+            <textarea onkeyup="updateAllMessages(this.value)" placeholder="Enter message to partner..." class="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-amber-500 transition-all font-serif text-lg resize-none h-16 bg-transparent" maxlength="150"></textarea>
+          </div>
+        </div>
+        <button onclick="showToast('Quotation Request Sent!')" class="w-full bg-emerald-950 text-white py-5 rounded-2xl font-black uppercase tracking-[4px] text-[10px] hover:bg-emerald-900 transition-all">Request Bulk Quote</button>
       </div>
       
       <div class="unboxing-wrap" id="unboxing-trigger" onclick="toggleCrate()">
@@ -4493,7 +4511,7 @@
 
             <!-- FLAPS -->
             <div class="flap flap-back linen-tex flex items-center justify-center">
-              <div class="brand-stamp" id="crate-logo-top" style="font-size: 24px; transform: rotate(180deg); color: #d4af37;">FARMMILY</div>
+              <div class="brand-stamp mirrored" id="crate-logo-top" style="font-size: 24px; color: #d4af37;">FARMMILY</div>
             </div>
             <div class="flap flap-front linen-tex"></div>
             <div class="flap flap-left linen-tex"></div>
@@ -4880,11 +4898,11 @@
               </div>
               <div>
                 <label class="text-[10px] font-bold uppercase text-gray-400 tracking-[3px] mb-2 block">Company Name on Sleeve</label>
-                <input type="text" id="corp-company-name" onkeyup="updateCorpPreview(this.value, 'logo')" placeholder="TATA STEEL, RELIANCE, etc." class="w-full p-6 bg-white border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/10 text-2xl serif-font shadow-inner">
+                <input type="text" id="corp-company-name" onkeyup="updateAllBranding(this.value); updateCorpPreview(this.value, 'logo')" placeholder="TATA STEEL, RELIANCE, etc." class="w-full p-6 bg-white border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/10 text-2xl serif-font shadow-inner">
               </div>
               <div>
                 <label class="text-[10px] font-bold uppercase text-gray-400 tracking-[3px] mb-2 block">Inner Heritage Card Message</label>
-                <textarea id="corp-heritage-msg" onkeyup="updateCorpPreview(this.value, 'msg')" placeholder="Write your personalized message to partners..." class="w-full p-6 bg-white border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/10 h-40 italic shadow-inner leading-relaxed"></textarea>
+                <textarea id="corp-heritage-msg" onkeyup="updateAllMessages(this.value); updateCorpPreview(this.value, 'msg')" placeholder="Write your personalized message to partners..." class="w-full p-6 bg-white border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/10 h-40 italic shadow-inner leading-relaxed"></textarea>
               </div>
             </div>
           </section>
@@ -5132,16 +5150,30 @@
         document.getElementById('weight').innerText = crateWeight;
         document.getElementById('price').innerText = cratePrice;
     }
-    function updateBrand(val) {
+    function updateAllBranding(val) {
         const name = val.toUpperCase() || 'YOUR BRAND';
-        if(document.getElementById('corp-logo')) document.getElementById('corp-logo').innerText = name;
-        if(document.getElementById('crate-logo')) document.getElementById('crate-logo').innerText = name;
-        if(document.getElementById('crate-logo-top')) document.getElementById('crate-logo-top').innerText = name;
+        const targets = ['corp-logo', 'crate-logo', 'crate-logo-top', 'corp-prev-logo', 'corp-company-name'];
+        targets.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.tagName === 'INPUT') el.value = val;
+                else el.innerText = name;
+            }
+        });
     }
-    function updateCrateMessage(val) {
+    function updateBrand(val) { updateAllBranding(val); }
+    function updateAllMessages(val) {
         const msg = val || "May this harvest bring the essence of nature back to your table.";
-        if(document.getElementById('crate-message-inner')) document.getElementById('crate-message-inner').innerText = `"${msg}"`;
+        const targets = ['crate-message-inner', 'corp-prev-msg', 'corp-heritage-msg'];
+        targets.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = val;
+                else el.innerText = id === 'crate-message-inner' ? `"${msg}"` : msg;
+            }
+        });
     }
+    function updateCrateMessage(val) { updateAllMessages(val); }
     let isDragging3D = false;
     let wasDragged = false;
     let startX3D = 0, startY3D = 0;
@@ -5236,10 +5268,7 @@
 
     function updateCorpPreview(val, type) {
         if(type === 'logo') {
-            const name = val.toUpperCase() || 'YOUR BRAND';
-            if(document.getElementById('corp-prev-logo')) document.getElementById('corp-prev-logo').innerText = name;
-            if(document.getElementById('crate-logo')) document.getElementById('crate-logo').innerText = name;
-            if(document.getElementById('crate-logo-top')) document.getElementById('crate-logo-top').innerText = name;
+            updateAllBranding(val);
         }
         if(type === 'msg') if(document.getElementById('corp-prev-msg')) document.getElementById('corp-prev-msg').innerText = val || "Your personalized message will appear here...";
     }
