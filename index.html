@@ -585,6 +585,8 @@
       padding: 0 20px;
       color: #fff;
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+      max-width: 600px;
+      margin: 0 auto;
       transform: translateY(150%);
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       overflow: hidden;
@@ -1543,10 +1545,10 @@
     /* TOAST */
     #toast {
       position: fixed;
-      bottom: 110px;
+      top: 100px;
       left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(58, 107, 53, 0.85);
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(58, 107, 53, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       color: #fff;
@@ -1554,12 +1556,12 @@
       border-radius: 50px;
       font-size: .88rem;
       font-weight: 600;
-      z-index: 9999;
+      z-index: 10001;
       opacity: 0;
-      transition: all .3s;
+      transition: all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       pointer-events: none;
       white-space: nowrap;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.1)
     }
 
@@ -1737,7 +1739,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 16px rgba(37, 211, 102, .4);
-      z-index: 90;
+      z-index: 1000;
       transition: var(--tr);
       text-decoration: none
     }
@@ -1767,7 +1769,7 @@
       opacity: 0;
       pointer-events: none;
       transition: var(--tr);
-      z-index: 90;
+      z-index: 1000;
       cursor: pointer;
       border: none
     }
@@ -4521,7 +4523,7 @@
 
 
         <!-- INTERACTION PROMPT -->
-        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse" id="reveal-hint">
+        <div class="absolute bottom-32 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse" id="reveal-hint">
           <span class="text-[10px] font-black tracking-[8px] text-emerald-900/40 uppercase mb-4">Click To Reveal</span>
           <div class="w-[1px] h-12 bg-emerald-950/20"></div>
         </div>
