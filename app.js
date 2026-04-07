@@ -1,29 +1,45 @@
 // ===== SUPABASE =====
 const supabaseUrl = 'https://jztreusepxilnfqffwka.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dHJldXNlcHhpbG5mcWZmd2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NzA5OTUsImV4cCI6MjA5MDQ0Njk5NX0.AXaOi_ax6esifM7DzwVjNXQrm3XLNPnzT_0yQWm6ahY';
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
 
-// ===== DATA =====
-let products = [];
-let cats = [];
-
-// SVG icon helper
 const svgCheck = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
 
-// ===== STATE =====
-let cart = JSON.parse(localStorage.getItem('ff_cart') || '[]');
-let curPage = 'home', prevPage = 'home', curProd = null, detQty = 1, activeFilter = 'All';
+var cart = [];
+try {
+  cart = JSON.parse(localStorage.getItem('ff_cart') || '[]');
+  if (!Array.isArray(cart)) cart = [];
+} catch (e) {
+  console.error("Cart load error", e);
+  cart = [];
+}
+window.cart = cart;
+
+// Signature Heritage Collection (Static Initialization)
+var products = [
+  { id: 200, name: 'Imam Pasand (3KG Box)', cat: 'Mangoes', price: 999, wt: '3 KG', img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=600', rating: 5.0, inStock: true },
+  { id: 201, name: 'Alphonso (3KG Box)', cat: 'Mangoes', price: 899, wt: '3 KG', img: 'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=600', rating: 4.9, inStock: true },
+  { id: 202, name: 'Banganapalli (3KG Box)', cat: 'Mangoes', price: 799, wt: '3 KG', img: 'https://images.unsplash.com/photo-1591073040331-b84784795267?w=600', rating: 4.8, inStock: true },
+  { id: 203, name: 'Senthura (3KG Box)', cat: 'Mangoes', price: 699, wt: '3 KG', img: 'https://images.unsplash.com/photo-1621236322951-681650d18200?w=600', rating: 4.7, inStock: true }
+];
+var cats = [{ name: 'Mangoes', svg: '<svg viewBox="0 0 512 512" fill="currentColor"><path d="M439.4 362.2c-19.3-20.7-58.3-54.3-108.8-87.3-50.5-33.1-94.2-46.1-125.7-43.5-31.5 2.6-47.5 13.9-63.5 29.9s-27.3 32-29.9 63.5c-2.6 31.5 10.4 75.2 43.5 125.7 33.1 50.5 66.7 89.5 87.3 108.8l10.1 9.4 10.1-9.4c20.7-19.3 54.3-58.3 87.3-108.8 33.1-50.5 46.1-94.2 43.5-125.7zM256 128c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zM256 0c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0z"/></svg>' }];
+window.products = products;
+window.cats = cats;
+
+var curPage = 'home';
+var prevPage = 'home', curProd = null, detQty = 1, activeFilter = 'All';
 
 // ===== CART HELPERS =====
 function saveCart() {
-  localStorage.setItem('ff_cart', JSON.stringify(cart));
+  localStorage.setItem('ff_cart', JSON.stringify(window.cart));
   updateCartCount();
 }
+window.saveCart = saveCart;
 
 function updateCartCount() {
-  const n = cart.reduce((s, i) => s + i.qty, 0);
-  const totalPrice = cart.reduce((s, i) => {
-    const p = products.find(x => x.id === i.id);
+  const n = window.cart.reduce((s, i) => s + i.qty, 0);
+  const totalPrice = window.cart.reduce((s, i) => {
+    const p = window.products.find(x => Number(x.id) === Number(i.id));
     return s + (p ? p.price * i.qty : 0);
   }, 0);
 
@@ -32,9 +48,9 @@ function updateCartCount() {
   const fBar = document.getElementById('floating-cart-bar');
   const fCount = document.getElementById('f-cart-count');
   const fPrice = document.getElementById('f-cart-price');
-  
+
   const btns = [document.getElementById('cart-btn'), document.getElementById('mob-cart-btn')].filter(Boolean);
-  
+
   if (n > 0) {
     if (fBar) fBar.classList.add('show');
     if (fCount) fCount.textContent = `${n} item${n > 1 ? 's' : ''}`;
@@ -50,48 +66,63 @@ function updateCartCount() {
 
   if (el) { el.textContent = n; n > 0 ? el.classList.add('show') : el.classList.remove('show'); }
   if (m) { m.textContent = n; n > 0 ? m.classList.add('show') : m.classList.remove('show'); }
+  
+  const mb = document.getElementById('mob-badge');
+  if (mb) { 
+    mb.textContent = n; 
+    n > 0 ? mb.classList.add('show') : mb.classList.remove('show'); 
+  }
+
   refreshCurrentView();
 }
+window.updateCartCount = updateCartCount;
 
 function rmCart(id) {
-  const ex = cart.find(x => x.id === id);
+  const ex = window.cart.find(x => Number(x.id) === Number(id));
   if (ex) {
     ex.qty--;
-    if (ex.qty <= 0) cart = cart.filter(x => x.id !== id);
+    if (ex.qty <= 0) window.cart = window.cart.filter(x => Number(x.id) !== Number(id));
     saveCart();
   }
 }
+window.rmCart = rmCart;
 
 function addToCart(id) {
-  const p = products.find(x => x.id === id);
-  if (!p || !p.inStock) return;
-  const ex = cart.find(x => x.id === id);
-  if (ex) ex.qty++; else cart.push({ id, qty: 1 });
+  const nid = Number(id);
+  const p = window.products.find(x => Number(x.id) === nid);
+  if (!p || !p.inStock) {
+    console.warn('Product not found or out of stock:', id);
+    return;
+  }
+  const ex = window.cart.find(x => Number(x.id) === nid);
+  if (ex) ex.qty++; else window.cart.push({ id: nid, qty: 1 });
   saveCart();
 }
+window.addToCart = addToCart;
 
 function handleCrateAddToCart(size, weight, price) {
-  let p = products.find(x => x.id === 100);
+  let p = window.products.find(x => Number(x.id) === 100);
   if (!p) {
-    p = { 
-      id: 100, name: 'Custom Heritage Mango Crate', 
-      price: price, wt: size + 'KG Mix', 
-      img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80', 
-      inStock: true 
+    p = {
+      id: 100, name: 'Custom Heritage Mango Crate',
+      price: price, wt: size + 'KG Mix',
+      img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80',
+      inStock: true
     };
-    products.push(p);
+    window.products.push(p);
   } else {
     p.price = price;
     p.wt = size + 'KG Mix';
   }
-  
-  const ex = cart.find(x => x.id === 100);
-  if (ex) ex.qty++; else cart.push({ id: 100, qty: 1 });
-  
+
+  const ex = window.cart.find(x => Number(x.id) === 100);
+  if (ex) ex.qty++; else window.cart.push({ id: 100, qty: 1 });
+
   saveCart();
   showToast(`${size}KG Heritage Crate added!`);
   refreshCurrentView();
 }
+window.handleCrateAddToCart = handleCrateAddToCart;
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -101,38 +132,46 @@ function showToast(msg) {
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 }
+window.showToast = showToast;
 
 // ===== ROUTING =====
 function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pages = document.querySelectorAll('.page');
+  pages.forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  
   const el = document.getElementById('page-' + page);
-  if (el) { el.classList.add('active'); prevPage = curPage; curPage = page; window.scrollTo(0, 0); }
-  updateNav(page);
+  if (el) {
+    el.style.display = 'block';
+    // Use a small timeout for the fade-in animation
+    setTimeout(() => el.classList.add('active'), 10);
+    prevPage = curPage;
+    curPage = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Update active states for all nav items
+    document.querySelectorAll('#mob-nav .mob-nav-item, #desktop-nav a').forEach(a => {
+      const oc = a.getAttribute('onclick') || '';
+      if (oc.includes(`'${page}'`)) a.classList.add('active');
+      else a.classList.remove('active');
+    });
+  } else {
+    console.warn(`Page not found: page-${page}`);
+    // If page fails, default to home
+    const home = document.getElementById('page-home');
+    if (home) {
+      home.style.display = 'block';
+      home.classList.add('active');
+      curPage = 'home';
+    }
+  }
+  
   if (page === 'home') renderHome();
   if (page === 'shop') renderShop();
   if (page === 'cart') renderCart();
-  if (page === 'corporate') {
-    // Reset the live preview to defaults when visiting the corporate page
-    const prevLogo = document.getElementById('corp-prev-logo');
-    const prevMsg = document.getElementById('corp-prev-msg');
-    if (prevLogo && !document.getElementById('corp-company-name')?.value) prevLogo.innerText = 'YOUR BRAND';
-    if (prevMsg && !document.getElementById('corp-heritage-msg')?.value) prevMsg.innerText = '"Your personalized message will appear here, printed on 350 GSM archival paper with a hand-pressed gold foil borders..."';
-  }
-  closeMob();
-}
-
-function updateNav(page) {
-  document.querySelectorAll('nav.desktop-nav a').forEach(a => {
-    a.classList.remove('active');
-    if (a.dataset.page === page) a.classList.add('active');
-  });
-  document.querySelectorAll('.mob-item').forEach(i => {
-    i.classList.remove('active');
-    if (i.dataset.mob === page) i.classList.add('active');
-  });
-  
   if (page === 'track') renderRecentHistory();
-  
+ 
   // Clear tracking search if leaving track page
   if (page !== 'track') {
     const ti = document.getElementById('tr-oid') || document.getElementById('track-id');
@@ -140,7 +179,51 @@ function updateNav(page) {
     if (ti) ti.value = '';
     if (tr) { tr.innerHTML = ''; tr.style.display = 'none'; }
   }
+ 
+  if (page === 'corporate') {
+    const prevLogo = document.getElementById('corp-prev-logo');
+    const prevMsg = document.getElementById('corp-prev-msg');
+    if (prevLogo && !document.getElementById('corp-company-name')?.value) prevLogo.innerText = 'YOUR BRAND';
+    if (prevMsg && !document.getElementById('corp-heritage-msg')?.value) prevMsg.innerText = '"Your personalized message will appear here..."';
+  }
+  closeMob();
 }
+window.showPage = showPage;
+
+function toggleMob() {
+  const m = document.getElementById('mob-menu');
+  const o = document.getElementById('mob-menu-overlay');
+  if (m && o) {
+    m.classList.add('active');
+    o.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeMob() {
+  const m = document.getElementById('mob-menu');
+  const o = document.getElementById('mob-menu-overlay');
+  if (m && o) {
+    m.classList.remove('active');
+    setTimeout(() => o.style.display = 'none', 300);
+    document.body.style.overflow = 'auto';
+  }
+}
+window.toggleMob = window.openMobileSidebar;
+window.closeMob = window.closeMobileSidebar;
+
+function toggleMobCat(el) {
+  const d = document.getElementById('mob-drawer-cats');
+  const svg = el.querySelector('svg');
+  if (d.style.display === 'none') {
+    d.style.display = 'block';
+    if (svg) svg.style.transform = 'rotate(180deg)';
+  } else {
+    d.style.display = 'none';
+    if (svg) svg.style.transform = 'rotate(0deg)';
+  }
+}
+window.toggleMobCat = toggleMobCat;
 
 function refreshCurrentView() {
   if (curPage === 'home') renderHome();
@@ -158,36 +241,69 @@ function stars(r) { return '<span style="color:var(--secondary)">' + String.from
 
 // ===== PRODUCT CARD HTML ====
 function pcardHTML(p) {
-  const ex = cart.find(x => x.id === p.id);
+  const isMango = (p.name || '').toLowerCase().includes('mango') || (p.cat && p.cat.toLowerCase().includes('mango'));
+  const ex = (typeof cart !== 'undefined' ? cart.find(x => x.id === p.id) : null);
   const qty = ex ? ex.qty : 0;
   const inCartClass = qty > 0 ? 'in-cart' : '';
-  const disc = Math.round((1 - p.price / p.orig) * 100);
-  const bClass = p.badge === 'New Harvest' ? 'bn' : (p.badge === 'Best Seller' ? 'bb' : 'bo');
 
-  return `<div class="pcard glass" onclick="openProduct(${p.id})">
-    <div class="ci-wrap">
-      <img src="${p.img}" alt="${p.name}" loading="lazy">
-      ${p.badge ? `<span class="pbadge ${bClass}">${p.badge}</span>` : ''}
-    </div>
-    <div class="pbody">
-      <div class="pname">${p.name}</div>
-      <div class="pwt">${p.wt}</div>
-      <div class="pstars">${stars(p.rating)}<span class="rv">(${p.revs})</span></div>
-      <div class="pprices">
-        <span class="pp">₹${p.price}</span>
-        <span class="pop">₹${p.orig}</span>
-        <span class="pdisc">${disc}% off</span>
-      </div>
-      <div class="btn-add-wrap ${inCartClass}" onclick="event.stopPropagation()">
-        <button class="btn-add" onclick="addToCart(${p.id})">ADD</button>
-        <div class="btn-qty-ctrl">
-          <button class="qty-btn" onclick="rmCart(${p.id})">−</button>
-          <span class="qty-num">${qty}</span>
-          <button class="qty-btn" onclick="addToCart(${p.id})">+</button>
+  if (isMango) {
+    return `
+            <div class="premium-mango-card">
+                <div class="m-img-wrap" style="background: ${getColorForVariety(p.name)}" onclick="if(window.showPremiumDetail) window.showPremiumDetail('${p.name}')">
+                    <img src="${p.img}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80'">
+                    <div class="m-add-btn-image" onclick="event.stopPropagation(); addToCartAnim(this, ${p.id})">
+                        ADD TO CART
+                    </div>
+                </div>
+                <div class="m-info">
+                    <div class="m-top-row">
+                        <div class="m-wt-tag">${p.wt || '3 kg'}</div>
+                        <div class="m-stats">
+                            <div class="m-stars">★★★★★</div>
+                            <span class="m-rating-val">${p.rating || '5.0'}</span>
+                        </div>
+                    </div>
+                    <h3 class="m-title">${p.name.toLowerCase()}</h3>
+                    <span class="m-subtitle">Heritage Mambalam Series</span>
+                    <div class="m-price-row">
+                        <div class="m-price-box">
+                            <span class="m-currency">₹</span>
+                            <span class="m-amt">${p.price}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+  }
+
+  return `
+        <div class="p-card" onclick="showProduct(${p.id})">
+            ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
+            <div class="p-img"><img src="${p.img}" alt="${p.name}" loading="lazy"></div>
+            <div class="p-info">
+                <div class="p-cat">${p.cat || ''}</div>
+                <h3 class="p-name">${p.name}</h3>
+                <div class="p-wt">${p.wt}</div>
+                <div class="p-bot" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="p-price">₹${p.price}</span>
+                    <button class="add-btn" style="background:var(--primary); color:white; border:none; width:30px; height:30px; border-radius:50%;" onclick="event.stopPropagation();addToCart(${p.id})">+</button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>`;
+    `;
+}
+
+function getColorForVariety(name) {
+  const n = (name || '').toLowerCase();
+  if (n.includes('imam')) return '#FFF9C4';
+  if (n.includes('alph')) return '#FFE0B2';
+  if (n.includes('bang')) return '#FFF17644';
+  if (n.includes('sent')) return '#FFEBEE';
+  return '#f0fdf4';
+}
+
+function showProduct(id) {
+  if (typeof openProduct === 'function') openProduct(id);
 }
 
 function addToCartAnim(btn, id) {
@@ -200,6 +316,24 @@ function addToCartAnim(btn, id) {
 // ===== HOME =====
 function renderHome() {
   const cr = document.getElementById('cats-row');
+  if (cr) {
+    cr.innerHTML = cats.map(c =>
+      '<div class="cat-card" onclick="filterBycat(\'' + c.name + '\')">' +
+      '<div class="cat-icon-wrap">' + c.svg + '</div>' +
+      '<span class="cn">' + c.name + '</span></div>'
+    ).join('');
+  }
+// Duplicate row logic removed.
+
+  const mcl = document.getElementById('mob-cat-list');
+  if (mcl) mcl.innerHTML = cats.map(c => 
+    '<div class="mob-menu-item" style="padding:12px 0; border:none;  color:#666;" onclick="filterBycat(\'' + c.name + '\');closeMobileSidebar()">' + c.name + '</div>'
+  ).join('');
+
+  const dcl = document.getElementById('desk-cat-drop');
+  if (dcl) dcl.innerHTML = cats.map(c => 
+    '<div style="padding:10px 16px; cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeDeskCat()">' + c.name + '</div>'
+  ).join('');
   if (cr) cr.innerHTML = cats.map(c =>
     '<div class="cat-card" onclick="filterBycat(\'' + c.name + '\')">' +
     '<div class="cat-icon-wrap">' + c.svg + '</div>' +
@@ -209,7 +343,7 @@ function renderHome() {
   const fr = document.getElementById('feat-row');
   if (fr) {
     // FOCUS MODE: Show only Mango products in featured row
-    const mangoProds = products.filter(p => p.name.toLowerCase().includes('mango')).slice(0, 8);
+    const mangoProds = products.filter(p => (p.name || '').toLowerCase().includes('mango')).slice(0, 8);
     fr.innerHTML = mangoProds.length ? mangoProds.map(pcardHTML).join('') : '<p style="text-align:center;width:100%;color:#888;">Harvesting fresh mangoes for you...</p>';
   }
 }
@@ -221,9 +355,10 @@ function filterBycat(cat) { activeFilter = cat; showPage('shop'); }
 const allCats = ['All', 'Mangoes'];
 
 function renderShop() {
-  const chips = document.getElementById('chips');
+  const chips = document.getElementById('shop-cats-row');
   if (chips) {
-    chips.innerHTML = allCats.map(c =>
+    const list = ['All', 'Mangoes'];
+    chips.innerHTML = list.map(c =>
       '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
     ).join('');
   }
@@ -232,31 +367,26 @@ function renderShop() {
 
 function setFilter(cat) {
   activeFilter = cat;
-  document.querySelectorAll('.chip').forEach(c => {
-    c.classList.remove('active');
-    if (c.textContent === cat) c.classList.add('active');
-  });
+  renderShop(); // Redraw chips to show active state
   filterProds();
 }
 
 function filterProds() {
+  const grid = document.getElementById('shop-grid');
+  if (!grid) return;
+  
   const q = (document.getElementById('shop-srch')?.value || '').toLowerCase();
-  const sort = document.getElementById('sort-sel')?.value || '';
+  
   let list = products.filter(p => {
     const matchCat = activeFilter === 'All' || p.cat === activeFilter;
     const catStr = p.cat ? p.cat.toLowerCase() : '';
     const matchQ = !q || p.name.toLowerCase().includes(q) || catStr.includes(q);
     return matchCat && matchQ;
   });
-  if (sort === 'asc') list.sort((a, b) => a.price - b.price);
-  else if (sort === 'desc') list.sort((a, b) => b.price - a.price);
-  else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating);
-  const g = document.getElementById('pgrid');
-  const cnt = document.getElementById('prod-cnt');
-  if (cnt) cnt.textContent = list.length;
-  if (g) g.innerHTML = list.length
+  
+  grid.innerHTML = list.length
     ? list.map(pcardHTML).join('')
-    : '<div class="empty-st"><div class="ei"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p>No products found. Try a different search.</p></div>';
+    : '<div style="text-align:center;width:100%;padding:100px 20px;color:#888;">Harvesting fresh mangoes for you...</div>';
 }
 
 // ===== PRODUCT DETAIL =====
@@ -282,7 +412,7 @@ function openProduct(id) {
   document.getElementById('det-ben').innerHTML = p.benefits.map(b => '<li>' + svgCheck + ' ' + b + '</li>').join('');
   const btn = document.getElementById('det-add-btn');
   const inCart = !!cart.find(x => x.id === p.id);
-  
+
   if (!p.inStock) {
     btn.textContent = 'Out of Stock'; btn.disabled = true;
     btn.className = 'btn det-add'; btn.style.background = '#ddd'; btn.style.color = '#888'; btn.style.border = 'none';
@@ -295,7 +425,7 @@ function openProduct(id) {
     btn.className = 'btn btn-green det-add'; btn.style.background = ''; btn.style.color = ''; btn.style.border = '';
     btn.onclick = () => { addDetToCart(); };
   }
-  
+
   const rel = products.filter(x => x.id !== id && x.cat === p.cat).slice(0, 4);
   const rg = document.getElementById('rgrid');
   if (rg) rg.innerHTML = (rel.length ? rel : products.filter(x => x.id !== id).slice(0, 4)).map(pcardHTML).join('');
@@ -355,8 +485,8 @@ function initSlider(id, callback) {
   handle.addEventListener('mousedown', start);
   window.addEventListener('mousemove', move);
   window.addEventListener('mouseup', end);
-  handle.addEventListener('touchstart', start, {passive:true});
-  window.addEventListener('touchmove', move, {passive:false});
+  handle.addEventListener('touchstart', start, { passive: true });
+  window.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', end);
 }
 
@@ -368,7 +498,7 @@ window.addEventListener('scroll', () => {
   if (current > lastScroll && current > 120) hdr.classList.add('hdr-hidden');
   else hdr.classList.remove('hdr-hidden');
   lastScroll = current;
-}, {passive:true});
+}, { passive: true });
 
 function renderCart() {
   const el = document.getElementById('cart-content');
@@ -401,7 +531,7 @@ function renderCart() {
     '<div class="srow"><span>Subtotal</span><span>' + R + sub + '</span></div>' +
     '<div class="srow"><span>Delivery</span>' + del + '</div>' +
     '<div class="srow total"><span>Total</span><span>' + R + total + '</span></div>' +
-    '<div id="co-tot" style="display:none">' + total + '</div>' + 
+    '<div id="co-tot" style="display:none">' + total + '</div>' +
     '<div class="slide-wrap" id="cart-slider"><div class="slide-bg"></div><div class="slide-text">Slide to Pay</div><div class="slide-handle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div></div>';
   initSlider('cart-slider', placeOrder);
 }
@@ -414,10 +544,10 @@ function updCart(id, d) {
   saveCart(); refreshCurrentView();
 }
 
-function deleteFromCart(id) { 
-  cart = cart.filter(x => x.id !== id); 
-  saveCart(); 
-  refreshCurrentView(); 
+function deleteFromCart(id) {
+  cart = cart.filter(x => x.id !== id);
+  saveCart();
+  refreshCurrentView();
 }
 
 function placeOrder() {
@@ -437,46 +567,47 @@ function placeOrder() {
       if (elOid) elOid.textContent = oidString;
 
       const currentTot = parseInt((document.getElementById('co-tot')?.textContent || '0').replace(/[^0-9]/g, ''));
-      
+
       // SAVE TO BACKEND (Supabase)
       try {
         // 1. Insert into 'orders' table
-        // Note: 'order_number' is auto-generated by the DB if not provided, 
-        // but we'll use the one we generated to match the success screen.
         const { data: orderRecord, error: orderError } = await supabaseClient
           .from('orders')
           .insert([{
             order_number: oidString,
             total: currentTot,
-            subtotal: currentTot, 
+            subtotal: currentTot,
             delivery_charge: 0,
             discount: 0,
-            status: 'pending', // Correcting status to 'pending'
-            payment_method: 'upi'
+            status: 'pending',
+            payment_method: 'upi',
+            payment_status: 'paid' // Mark as paid since Razorpay was successful
           }])
           .select();
 
         if (orderError) throw orderError;
-        
+        if (!orderRecord || orderRecord.length === 0) throw new Error("Order creation failed - no record returned");
+
         const internalId = orderRecord[0].id;
 
         // Also save payment details to the payments table
         await supabaseClient.from('payments').insert([{
-           order_id: internalId,
-           razorpay_order_id: response.razorpay_order_id,
-           razorpay_payment_id: response.razorpay_payment_id,
-           amount: currentTot,
-           status: 'paid'
+          order_id: internalId,
+          razorpay_order_id: response.razorpay_order_id || 'N/A',
+          razorpay_payment_id: response.razorpay_payment_id,
+          amount: currentTot,
+          status: 'paid',
+          method: 'razorpay'
         }]);
 
 
         // 2. Prepare and Insert into 'order_items' table
-        const orderItems = cart.map(i => {
-          const p = products.find(x => x.id === i.id);
+        const orderItems = window.cart.map(i => {
+          const p = window.products.find(x => Number(x.id) === Number(i.id));
           const price = p?.price || 0;
           return {
             order_id: internalId,
-            product_id: i.id,
+            product_id: Number(i.id),
             product_name: p?.name || 'Unknown',
             product_image: p?.img || '',
             weight: p?.wt || '',
@@ -493,14 +624,24 @@ function placeOrder() {
         if (itemsError) throw itemsError;
 
         showToast('Order saved successfully!');
+
+        // Success actions: save history, clear cart, and redirect
+        saveToHistory(oidString);
+        window.cart = [];
+        saveCart();
+        showPage('success');
+
       } catch (err) {
         console.error('Final Save Error:', err);
-        showToast('DB Error: ' + (err.message || 'Check connection'));
+        showToast('Payment OK, but DB Error: ' + (err.message || 'Check connection'));
+        // If DB fails, we still show the success screen but with a warning? 
+        // Actually, let's still show the success page but maybe the toast warns them.
+        // Or better: redirect so they get their ID, but warn them it might take time to show in tracking.
+        saveToHistory(oidString);
+        window.cart = [];
+        saveCart();
+        showPage('success');
       }
-
-      saveToHistory(oidString);
-      cart = []; saveCart();
-      showPage('success');
     },
     "theme": { "color": "#3A6B35" }
   };
@@ -524,16 +665,16 @@ async function handleTrack() {
   const idInput = document.getElementById('tr-oid') || document.getElementById('track-id');
   const res = document.getElementById('tr-res') || document.getElementById('track-res');
   if (!idInput || !res) return;
-  
+
   const id = idInput.value.trim().toUpperCase();
   if (!id) { showToast('Please enter an Order ID'); return; }
-  
+
   saveToHistory(id);
   renderRecentHistory();
-  
+
   res.style.display = 'block';
   res.innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div><p style="margin-top:15px;color:#888">Fetching status for ' + id + '...</p></div>';
-  
+
   try {
     // 1. Try Retail Order first
     let { data, error } = await supabaseClient.from('orders').select('*').eq('order_number', id).maybeSingle();
@@ -547,16 +688,16 @@ async function handleTrack() {
         .select('*')
         .eq('enquiry_ref', id)
         .maybeSingle();
-      
+
       if (corpError) throw corpError;
-      
+
       if (corpData) {
         // FOUND CORPORATE ORDER - Use corporate layout
-        const statusColors = { new:'#888', contacted:'#D4A017', confirmed:'#3A6B35', fulfilled:'#1b3b1b', cancelled:'#e74c3c' };
-        const statusLabels = { new:'🕐 Received', contacted:'📞 Contacted', confirmed:'✅ Confirmed', fulfilled:'🎁 Fulfilled', cancelled:'❌ Cancelled' };
+        const statusColors = { new: '#888', contacted: '#D4A017', confirmed: '#3A6B35', fulfilled: '#1b3b1b', cancelled: '#e74c3c' };
+        const statusLabels = { new: '🕐 Received', contacted: '📞 Contacted', confirmed: '✅ Confirmed', fulfilled: '🎁 Fulfilled', cancelled: '❌ Cancelled' };
         const sc = statusColors[corpData.status] || '#888';
         const sl = statusLabels[corpData.status] || corpData.status;
-        const date = new Date(corpData.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+        const date = new Date(corpData.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
         res.innerHTML = `
           <div style="background:#fff;border-radius:16px;padding:24px;border:1.5px solid #f0ece4;">
@@ -611,8 +752,8 @@ function saveToHistory(id) {
   if (!id || id.length < 5) return;
   let hist = JSON.parse(localStorage.getItem('ff_track_hist') || '[]');
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) + ', ' + 
-                  now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) + ', ' +
+    now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
   // Deduplicate: same ID should only appear once (at top)
   hist = hist.filter(x => (typeof x === 'string' ? x : x.id) !== id);
@@ -625,7 +766,7 @@ function renderRecentHistory() {
   const listEl = document.getElementById('recent-list');
   const wrap = document.getElementById('tr-recent') || document.getElementById('track-recent');
   if (!listEl || !wrap) return;
-  
+
   const hist = JSON.parse(localStorage.getItem('ff_track_hist') || '[]');
   if (hist.length > 0) {
     wrap.style.display = 'block';
@@ -653,8 +794,8 @@ let _srchOpen = false;
 function openSearch() {
   const bar = document.getElementById('nav-search-bar');
   const hdr = document.getElementById('header');
-  if(bar) bar.classList.add('open');
-  if(hdr) hdr.classList.add('search-open');
+  if (bar) bar.classList.add('open');
+  if (hdr) hdr.classList.add('search-open');
   setTimeout(() => { _srchOpen = true; }, 150);
   document.getElementById('srch-in').focus();
 }
@@ -663,11 +804,11 @@ function closeSearch() {
   _srchOpen = false;
   const bar = document.getElementById('nav-search-bar');
   const hdr = document.getElementById('header');
-  if(bar) bar.classList.remove('open');
-  if(hdr) hdr.classList.remove('search-open');
+  if (bar) bar.classList.remove('open');
+  if (hdr) hdr.classList.remove('search-open');
   document.getElementById('srch-in').value = '';
   const res = document.getElementById('srch-res');
-  if(res) { res.innerHTML = ''; res.classList.remove('open'); }
+  if (res) { res.innerHTML = ''; res.classList.remove('open'); }
 }
 
 function liveSearch(q) {
@@ -699,11 +840,11 @@ document.addEventListener('click', e => {
 // ===== MOBILE MENU & DROPDOWNS =====
 function toggleMob() {
   const m = document.getElementById('mob-menu');
-  if(m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
 }
-function closeMob() { 
+function closeMob() {
   const m = document.getElementById('mob-menu');
-  if(m) m.style.display = 'none'; 
+  if (m) m.style.display = 'none';
 }
 
 function toggleDeskCat() {
@@ -714,16 +855,16 @@ function closeDeskCat() {
   const dc = document.getElementById('desk-cat-drop');
   if (dc) dc.style.display = 'none';
 }
-function toggleMobCat() {
+function toggleMobCatLegacy() {
   const mc = document.getElementById('mob-cat-list');
   const arr = document.getElementById('mc-arr');
   if (mc) {
     if (mc.style.display === 'none') {
       mc.style.display = 'flex';
-      if(arr) arr.style.transform = 'rotate(180deg)';
+      if (arr) arr.style.transform = 'rotate(180deg)';
     } else {
       mc.style.display = 'none';
-      if(arr) arr.style.transform = 'rotate(0deg)';
+      if (arr) arr.style.transform = 'rotate(0deg)';
     }
   }
 }
@@ -736,7 +877,7 @@ function scrollToSection(id) {
   showPage('home');
   setTimeout(() => {
     const el = document.getElementById(id);
-    if(el) {
+    if (el) {
       const headerHeight = document.getElementById('header').offsetHeight || 60;
       const elTop = el.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({ top: elTop - headerHeight, behavior: 'smooth' });
@@ -760,50 +901,82 @@ const svgMap = {
 };
 
 async function loadCategories() {
+  if (!supabaseClient) return;
   const { data } = await supabaseClient.from('categories').select('*');
   if (data) {
     const rawCats = data.map(c => ({ name: c.name, svg: svgMap[c.name] || svgMap['Spices'] }));
-    
+
     // FOCUS MODE: Only show Mango-related categories
     cats = rawCats.filter(c => c.name.toLowerCase().includes('mango'));
-    
+
     // If no mango category in DB, add a virtual one for the focus period
     if (cats.length === 0) {
-        cats = [{ name: 'Mangoes', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>' }];
+      cats = [{ name: 'Mangoes', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>' }];
     }
 
     const dc = document.getElementById('desk-cat-drop');
     if (dc) dc.innerHTML = cats.map(c => '<a style="display:block;padding:10px 16px;font-size:.85rem;color:var(--text);cursor:pointer;" onclick="filterBycat(\'' + c.name + '\')">' + c.name + '</a>').join('');
     const mc = document.getElementById('mob-cat-list');
-    if (mc) mc.innerHTML = cats.map(c => '<a style="display:block;padding:8px 0;font-size:.88rem;color:#666;cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeMobCatAndMenu()">' + c.name + '</a>').join('');
+    if (mc) mc.innerHTML = cats.map(c => '<a style="display:block; font-size:18px; font-weight:700; color:#111; cursor:pointer;" onclick="filterBycat(\'' + c.name + '\');closeMobCatAndMenu()">' + c.name + '</a>').join('');
     renderHome();
   }
 }
 
 async function loadProducts() {
-  const { data } = await supabaseClient.from('products').select('*, categories (name)');
-  if (data) {
-    const raw = data.map(p => ({
-      id: p.id, name: p.name, slug: p.slug, cat: p.categories?.name,
-      price: p.price, orig: p.original_price, wt: p.weight, rating: p.rating,
-      revs: p.review_count, badge: p.badge || '', desc: p.description,
-      benefits: p.benefits || [], img: p.image_url, inStock: p.in_stock
-    }));
-    
-    // FOCUS MODE: Only show mango related items
-    products = raw.filter(p => 
-      p.name.toLowerCase().includes('mango') || 
-      (p.cat && p.cat.toLowerCase().includes('mango')) ||
-      ['Imam', 'Alphonso', 'Bang', 'Sent', 'Crate'].some(v => 
-        p.name.includes(v) || (p.cat && p.cat.includes(v))
-      )
-    );
-    
-    refreshCurrentView();
+  if (!supabaseClient) { 
+    console.warn("Supabase not init, using local seed");
+    handleRawProducts([]); 
+    return; 
+  }
+  
+  try {
+    const { data, error } = await supabaseClient.from('products').select('*, categories!products_category_id_fkey(name)');
+    if (error) {
+      console.warn("Join fail, trying basic:", error);
+      const { data: fb } = await supabaseClient.from('products').select('*');
+      handleRawProducts(fb || []);
+    } else {
+      handleRawProducts(data || []);
+    }
+  } catch(e) {
+    console.error("Load error:", e);
+    handleRawProducts([]);
   }
 }
 
+function handleRawProducts(data) {
+  const localSeed = [
+    { id: 200, name: 'Imam Pasand (3KG Box)', cat: 'Mangoes', price: 999, wt: '3 KG', img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=600', rating: 5.0, inStock: true },
+    { id: 201, name: 'Alphonso (3KG Box)', cat: 'Mangoes', price: 899, wt: '3 KG', img: 'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=600', rating: 4.9, inStock: true },
+    { id: 202, name: 'Banganapalli (3KG Box)', cat: 'Mangoes', price: 799, wt: '3 KG', img: 'https://images.unsplash.com/photo-1591073040331-b84784795267?w=600', rating: 4.8, inStock: true },
+    { id: 203, name: 'Senthura (3KG Box)', cat: 'Mangoes', price: 699, wt: '3 KG', img: 'https://images.unsplash.com/photo-1621236322951-681650d18200?w=600', rating: 4.7, inStock: true }
+  ];
+
+  const raw = data.map(p => ({
+    id: p.id, name: p.name, slug: p.slug, 
+    cat: (p.categories?.name || (Array.isArray(p.categories) ? p.categories[0]?.name : '') || ''),
+    price: p.price, orig: p.original_price, wt: p.weight, rating: p.rating,
+    revs: p.review_count, badge: p.badge || '', desc: p.description,
+    benefits: p.benefits || [], img: p.image_url, inStock: p.in_stock
+  }));
+
+  // Merge with local seed to ensure shop is never empty during harvest
+  const allProds = [...raw, ...localSeed];
+
+  // STRICT MANGO FILTER: "only show mangoes not other product"
+  products = allProds.filter(p => {
+    const n = (p.name || '').toLowerCase();
+    const c = (p.cat || '').toLowerCase();
+    return n.includes('mango') || c.includes('mango') || 
+           ['imam', 'alph', 'bang', 'sent', 'crate'].some(v => n.includes(v));
+  });
+
+  window.products = products;
+  refreshCurrentView();
+}
+
 async function loadBanners() {
+  if (!supabaseClient) return;
   const { data } = await supabaseClient.from('banners').select('*').eq('active', true).limit(1);
   if (data && data.length > 0) {
     const b = data[0];
@@ -855,24 +1028,28 @@ initApp().then(() => {
 async function submitCorpOrder() {
   const companyName = (document.getElementById('corp-company-name')?.value || '').trim();
   const heritageMsg = (document.getElementById('corp-heritage-msg')?.value || '').trim();
-  const totalUnits  = Math.max(15, parseInt(document.getElementById('corp-total-units')?.value || 15));
+  const totalUnits = Math.max(15, parseInt(document.getElementById('corp-total-units')?.value || 15));
   const contactEmail = (document.getElementById('corp-email')?.value || '').trim();
   const contactPhone = (document.getElementById('corp-phone')?.value || '').trim();
 
   if (!companyName) { showToast('Please enter your company name.'); return; }
   if (!contactPhone) { showToast('Please enter a contact phone number.'); return; }
 
+  // Use window scope for variables defined in index.html
+  const cCounts = window.corpCounts || { imam: 0, alph: 0, bang: 0, sent: 0 };
+  const cLimit = window.corpLimit || 3;
+
   // ---- Price calculation ----
   const rates = { imam: 349, alph: 299, bang: 259, sent: 239 };
-  const crateSize = corpLimit || 3;
+  const crateSize = cLimit;
   let pricePerCrate = 0;
   let totalKg = 0;
-  for (const v of ['imam','alph','bang','sent']) {
-    const qty = corpCounts?.[v] || 0;
+  for (const v of ['imam', 'alph', 'bang', 'sent']) {
+    const qty = cCounts[v] || 0;
     pricePerCrate += qty * rates[v];
     totalKg += qty;
   }
-  
+
   if (totalKg !== crateSize) {
     showToast(`Your mix total (${totalKg}kg) must exactly match the selected crate size (${crateSize}kg)!`, 'error');
     return;
@@ -893,16 +1070,16 @@ async function submitCorpOrder() {
     image: 'assets/farmmily logo.png',
     prefill: { contact: contactPhone, email: contactEmail },
     theme: { color: '#1b391b' },
-    handler: async function(response) {
+    handler: async function (response) {
       // ---- Save to Supabase after successful payment ----
       const obj = {
         company_name: companyName,
-        crate_size:   crateSize,
-        imam_qty:     corpCounts?.imam || 0,
-        alph_qty:     corpCounts?.alph || 0,
-        bang_qty:     corpCounts?.bang || 0,
-        sent_qty:     corpCounts?.sent || 0,
-        total_units:  totalUnits,
+        crate_size: crateSize,
+        imam_qty: cCounts.imam || 0,
+        alph_qty: cCounts.alph || 0,
+        bang_qty: cCounts.bang || 0,
+        sent_qty: cCounts.sent || 0,
+        total_units: totalUnits,
         heritage_message: heritageMsg,
         total_amount: totalAmount,
         contact_phone: contactPhone,
@@ -921,19 +1098,19 @@ async function submitCorpOrder() {
 
         // Show success overlay
         const overlay = document.getElementById('corp-success-overlay');
-        const refEl   = document.getElementById('corp-enquiry-ref');
+        const refEl = document.getElementById('corp-enquiry-ref');
         if (overlay) overlay.style.display = 'flex';
-        if (refEl)   refEl.textContent = ref;
+        if (refEl) refEl.textContent = ref;
 
         // Reset form
         document.getElementById('corp-company-name').value = '';
         document.getElementById('corp-heritage-msg').value = '';
-        document.getElementById('corp-total-units').value  = 15;
+        document.getElementById('corp-total-units').value = 15;
         if (document.getElementById('corp-phone')) document.getElementById('corp-phone').value = '';
         if (document.getElementById('corp-email')) document.getElementById('corp-email').value = '';
-        resetCorpCounts();
+        if (typeof window.resetCorpCounts === 'function') window.resetCorpCounts();
 
-      } catch(err) {
+      } catch (err) {
         console.error('Corp order DB error:', err);
         showToast('Payment received but record failed. Call +91 77088 47977 with your payment ID: ' + response.razorpay_payment_id);
       }
@@ -945,7 +1122,7 @@ async function submitCorpOrder() {
   try {
     const rzp = new Razorpay(options);
     rzp.open();
-  } catch(e) {
+  } catch (e) {
     console.error('Razorpay error:', e);
     showToast('Payment gateway error. Please try WhatsApp instead.');
   }
@@ -975,11 +1152,11 @@ async function checkCorpStatus() {
       return;
     }
 
-    const statusColors = { new:'#888', contacted:'#D4A017', confirmed:'#3A6B35', fulfilled:'#1b6b5b', cancelled:'#e74c3c' };
-    const statusLabels = { new:'🕐 Received — Our team will contact you within 2 hours', contacted:'📞 Contacted — Our agent has reached out to you', confirmed:'✅ Confirmed — Your crate order is confirmed', fulfilled:'🎁 Fulfilled — Shipped & Delivered', cancelled:'❌ Cancelled' };
+    const statusColors = { new: '#888', contacted: '#D4A017', confirmed: '#3A6B35', fulfilled: '#1b6b5b', cancelled: '#e74c3c' };
+    const statusLabels = { new: '🕐 Received — Our team will contact you within 2 hours', contacted: '📞 Contacted — Our agent has reached out to you', confirmed: '✅ Confirmed — Your crate order is confirmed', fulfilled: '🎁 Fulfilled — Shipped & Delivered', cancelled: '❌ Cancelled' };
     const sc = statusColors[data.status] || '#888';
     const sl = statusLabels[data.status] || data.status;
-    const date = new Date(data.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    const date = new Date(data.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
     const mixArr = [];
     if (data.imam_qty) mixArr.push(`Imam: ${data.imam_qty}kg`);
@@ -1012,7 +1189,7 @@ async function checkCorpStatus() {
           </a>
         </div>
       </div>`;
-  } catch(err) {
+  } catch (err) {
     console.error('Corp status error:', err);
     res.innerHTML = '<div style="text-align:center;padding:20px;color:#e74c3c"><p>Error fetching status. Please try again.</p></div>';
   }
@@ -1020,3 +1197,13 @@ async function checkCorpStatus() {
 
 // Alias so the HTML button onclick="trackOrder()" works
 const trackOrder = handleTrack;
+
+
+// Scroll listener for back-to-top button
+window.addEventListener('scroll', () => {
+  const bt = document.getElementById('back-top');
+  if (bt) {
+    if (window.scrollY > 300) bt.classList.add('show');
+    else bt.classList.remove('show');
+  }
+});
