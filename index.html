@@ -4748,6 +4748,15 @@
   <div id="mob-menu">
     <div class="mob-menu-item" onclick="showPage('home');closeMobileSidebar()">Home</div>
     <div class="mob-menu-item" onclick="showPage('shop');closeMobileSidebar()">Shop</div>
+    <div class="mob-menu-item" onclick="toggleMobCat(this)">
+      Categories
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;">
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </div>
+    <div id="mob-drawer-cats" style="display:none; padding-left: 20px;">
+      <div id="mob-cat-list"></div>
+    </div>
     <div class="mob-menu-item" onclick="showPage('track');closeMobileSidebar()">Track Order</div>
     <div class="mob-menu-item" onclick="showPage('corporate');closeMobileSidebar()">Corporate</div>
   </div>
@@ -4769,6 +4778,12 @@
       <nav class="desktop-nav" id="desktop-nav">
         <a data-page="home" onclick="showPage('home')" class="active">Home</a>
         <a data-page="shop" onclick="showPage('shop')">Shop</a>
+        <div class="cat-drop-wrap" style="position:relative; display:flex; align-items:center; height:100%" onmouseleave="closeDeskCat()">
+          <a data-page="categories" onclick="toggleDeskCat()" style="display:flex; align-items:center;">Categories ▾</a>
+          <div id="desk-cat-drop" style="display:none; position:absolute; top:100%; left:0; background:rgba(255,255,255,0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); box-shadow:0 8px 32px rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.5); border-radius:12px; padding:8px 0; min-width:180px; z-index:200; flex-direction:column;">
+            <!-- Categories rendered here -->
+          </div>
+        </div>
         <a data-page="corporate" onclick="showPage('corporate')">Corporate</a>
         <a data-page="track" onclick="showPage('track')">Tracking</a>
       </nav>

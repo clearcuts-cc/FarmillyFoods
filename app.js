@@ -493,10 +493,44 @@ function placeOrder() {
 
 // ===== SUPABASE LOAD =====
 async function loadCategories() {
-  // Hardcode to Mangoes only as requested
   cats = [{ name: 'Mangoes', svg: '<svg viewBox="0 0 512 512" fill="currentColor"><path d="M439.4 362.2c-19.3-20.7-58.3-54.3-108.8-87.3-50.5-33.1-94.2-46.1-125.7-43.5-31.5 2.6-47.5 13.9-63.5 29.9s-27.3 32-29.9 63.5c-2.6 31.5 10.4 75.2 43.5 125.7 33.1 50.5 66.7 89.5 87.3 108.8l10.1 9.4 10.1-9.4c20.7-19.3 54.3-58.3 87.3-108.8 33.1-50.5 46.1-94.2 43.5-125.7zM256 128c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zM256 0c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0z"/></svg>' }];
   renderHome();
+  renderCatLists();
 }
+
+function renderCatLists() {
+  const d = document.getElementById('desk-cat-drop');
+  const m = document.getElementById('mob-cat-list');
+  if (d) {
+    d.innerHTML = cats.map(c => `<div style="padding:10px 20px; cursor:pointer; font-size:14px; color:#555;" onclick="filterBycat('${c.name}');closeDeskCat()">${c.name}</div>`).join('');
+  }
+  if (m) {
+    m.innerHTML = cats.map(c => `<div style="padding:12px 0; cursor:pointer; font-size:15px; color:#666;" onclick="filterBycat('${c.name}');closeMob()">${c.name}</div>`).join('');
+  }
+}
+
+function toggleDeskCat() {
+  const d = document.getElementById('desk-cat-drop');
+  if (d) d.style.display = d.style.display === 'none' ? 'flex' : 'none';
+}
+window.toggleDeskCat = toggleDeskCat;
+
+function closeDeskCat() {
+  const d = document.getElementById('desk-cat-drop');
+  if (d) d.style.display = 'none';
+}
+window.closeDeskCat = closeDeskCat;
+
+function filterBycat(c) {
+  activeFilter = c;
+  showPage('shop');
+  const chips = document.querySelectorAll('.chip');
+  chips.forEach(ch => {
+    if (ch.innerText === c) ch.classList.add('active');
+    else ch.classList.remove('active');
+  });
+}
+window.filterBycat = filterBycat;
 
 // ===== SHOP =====
 function renderShop() {
