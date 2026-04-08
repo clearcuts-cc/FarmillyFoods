@@ -16,13 +16,8 @@ try {
 window.cart = cart;
 
 // Signature Heritage Collection (Static Initialization)
-var products = [
-  { id: 200, name: 'Imam Pasand (3KG Box)', cat: 'Mangoes', price: 999, wt: '3 KG', img: 'assets/imam.png', rating: 5.0, inStock: true, revs: 156, benefits: ['Handpicked', 'Elite Selection'], desc: 'The King of Mangoes from Mambalam.' },
-  { id: 201, name: 'Alphonso (3KG Box)', cat: 'Mangoes', price: 899, wt: '3 KG', img: 'assets/alphonso.png', rating: 4.9, inStock: true, revs: 89, benefits: ['Rich Aroma'], desc: 'Premium Ratnagiri style Alphonso.' },
-  { id: 202, name: 'Banganapalli (3KG Box)', cat: 'Mangoes', price: 799, wt: '3 KG', img: 'assets/banganapalli.png', rating: 4.8, inStock: true, revs: 212, benefits: ['Succulent'], desc: 'Golden and sweet Banganapalli.' },
-  { id: 203, name: 'Senthura (3KG Box)', cat: 'Mangoes', price: 699, wt: '3 KG', img: 'assets/senthura.png', rating: 4.7, inStock: true, revs: 45, benefits: ['Red Blush'], desc: 'Honey-sweet Senthura mangoes.' }
-];
-var cats = [{ name: 'Mangoes', svg: '<svg viewBox="0 0 512 512" fill="currentColor"><path d="M439.4 362.2c-19.3-20.7-58.3-54.3-108.8-87.3-50.5-33.1-94.2-46.1-125.7-43.5-31.5 2.6-47.5 13.9-63.5 29.9s-27.3 32-29.9 63.5c-2.6 31.5 10.4 75.2 43.5 125.7 33.1 50.5 66.7 89.5 87.3 108.8l10.1 9.4 10.1-9.4c20.7-19.3 54.3-58.3 87.3-108.8 33.1-50.5 46.1-94.2 43.5-125.7zM256 128c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zM256 0c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0z"/></svg>' }];
+var products = [];
+var cats = [];
 window.products = products;
 window.cats = cats;
 
@@ -239,7 +234,7 @@ function pcardHTML(p) {
                         </div>
                     </div>
                     <h3 class="m-title">${p.name}</h3>
-                    <span class="m-subtitle">Heritage Mambalam Series</span>
+                    <span class="m-subtitle">${p.cat || 'Premium Selection'}</span>
                     <div class="m-price-row"><div class="m-price-box"><span class="m-currency">₹</span><span class="m-amt">${p.price}</span></div></div>
                 </div>
             </div>
@@ -294,8 +289,9 @@ function renderHome() {
 
   const fr = document.getElementById('feat-row');
   if (fr) {
-    const mangoProds = window.products.filter(p => (p.name || '').toLowerCase().includes('mango')).slice(0, 8);
-    fr.innerHTML = mangoProds.length ? mangoProds.map(pcardHTML).join('') : '<p style="text-align:center;width:100%;color:#888;">Harvesting fresh mangoes for you...</p>';
+    const featuredProds = window.products.filter(p => p.isFeatured).slice(0, 8);
+    const displayProds = featuredProds.length ? featuredProds : window.products.slice(0, 8);
+    fr.innerHTML = displayProds.length ? displayProds.map(pcardHTML).join('') : '<p style="text-align:center;width:100%;color:#888;">Harvesting fresh products for you...</p>';
   }
 }
 
@@ -305,7 +301,7 @@ function filterBycat(cat) { activeFilter = cat; showPage('shop'); }
 function renderShop() {
   const chips = document.getElementById('shop-cats-row');
   if (chips) {
-    const list = ['All', 'Mangoes'];
+    const list = ['All', ...cats.map(c => c.name)];
     chips.innerHTML = list.map(c =>
       '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
     ).join('');
@@ -493,7 +489,20 @@ function placeOrder() {
 
 // ===== SUPABASE LOAD =====
 async function loadCategories() {
-  cats = [{ name: 'Mangoes', svg: '<svg viewBox="0 0 512 512" fill="currentColor"><path d="M439.4 362.2c-19.3-20.7-58.3-54.3-108.8-87.3-50.5-33.1-94.2-46.1-125.7-43.5-31.5 2.6-47.5 13.9-63.5 29.9s-27.3 32-29.9 63.5c-2.6 31.5 10.4 75.2 43.5 125.7 33.1 50.5 66.7 89.5 87.3 108.8l10.1 9.4 10.1-9.4c20.7-19.3 54.3-58.3 87.3-108.8 33.1-50.5 46.1-94.2 43.5-125.7zM256 128c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zM256 0c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0z"/></svg>' }];
+  if (!supabaseClient) { 
+    cats = [{ name: 'Products', svg: '' }];
+    renderHome();
+    renderCatLists();
+    return; 
+  }
+  const { data } = await supabaseClient.from('categories').select('*').eq('active', true);
+  if (data) {
+    cats = data.map(c => ({
+      id: c.id,
+      name: c.name,
+      svg: c.image_url || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>'
+    }));
+  }
   renderHome();
   renderCatLists();
 }
@@ -536,8 +545,11 @@ window.filterBycat = filterBycat;
 function renderShop() {
   const chips = document.getElementById('shop-cats-row');
   if (chips) {
-    // Only show Mangoes chip, or hide it if it's the only one
-    chips.style.display = 'none'; 
+    const list = ['All', ...cats.map(c => c.name)];
+    chips.innerHTML = list.map(c =>
+      '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
+    ).join('');
+    chips.style.display = 'flex'; 
   }
   filterProds();
 }
@@ -552,36 +564,23 @@ function handleRawProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
   const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png' };
   
-  // 1. Filter ONLY mangoes from the DB data
-  const mangoData = (data || []).filter(p => {
-    const n = (p.name || '').toLowerCase();
-    return n.includes('mango') || n.includes('imam') || n.includes('alph') || n.includes('bang') || n.includes('sent');
-  });
-
-  const raw = mangoData.map(p => {
+  const raw = (data || []).map(p => {
     let img = p.image_url;
     const low = (p.name||'').toLowerCase();
     for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    
+    // Find category name
+    const category = cats.find(c => c.id === p.category_id)?.name || 'Products';
+
     return { 
        id: p.id, name: cap(p.name), price: p.price, wt: p.weight, 
-       img: img || 'assets/imam.png', inStock: p.in_stock, cat: 'Mangoes',
-       rating: p.rating || 5.0, revs: p.review_count || 10, desc: p.description
+       img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
+       rating: p.rating || 5.0, revs: p.review_count || 10, desc: p.description,
+       isFeatured: p.is_featured
     };
   });
   
-  const combined = [...raw];
-  // 2. Add seed products if missing
-  [200,201,202,203].forEach(id => {
-    const seed = products.find(x => x.id === id);
-    if (!combined.some(c => Number(c.id) === id)) combined.push(seed);
-  });
-  
-  // 3. Final safety filter
-  window.products = combined.filter(p => {
-    const n = (p.name||'').toLowerCase();
-    return n.includes('mango') || n.includes('imam') || n.includes('alph') || n.includes('bang') || n.includes('sent');
-  });
-  
+  window.products = raw;
   refreshCurrentView();
 }
 
@@ -678,10 +677,10 @@ function saveToHistory(id) {
   // Logic to save search history
 }
 
-function initApp() {
+async function initApp() {
   updateCartCount();
-  loadProducts();
-  loadCategories();
+  await loadCategories();
+  await loadProducts();
 }
 
 initApp();
