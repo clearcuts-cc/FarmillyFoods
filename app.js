@@ -79,11 +79,30 @@ window.rmCart = rmCart;
 
 function addToCart(id) {
   const nid = Number(id);
-  const p = window.products.find(x => Number(x.id) === nid);
-  if (!p || p.inStock === false) return;
+  if (!nid) { console.error("addToCart: Invalid ID", id); return; }
+  
+  const p = (window.products || []).find(x => Number(x.id) === nid);
+  if (!p) {
+    console.error("addToCart: Product not found in window.products", nid);
+    // showToast("Item error. Please refresh.");
+    // return; 
+    // Proceed anyway if we can? No, we need metadata. 
+  }
+  
+  if (p && p.inStock === false) {
+    showToast("This item is currently sold out.");
+    return;
+  }
+
   const ex = window.cart.find(x => Number(x.id) === nid);
-  if (ex) ex.qty++; else window.cart.push({ id: nid, qty: 1 });
+  if (ex) {
+    ex.qty++;
+  } else {
+    window.cart.push({ id: nid, qty: 1 });
+  }
+  
   saveCart();
+  console.log("Cart updated:", window.cart);
 }
 window.addToCart = addToCart;
 
@@ -248,19 +267,22 @@ function pcardHTML(p) {
     }
   }
 
-  const isOutOfStock = p.in_stock === false;
+  const isOutOfStock = variants.length > 0 ? variants.every(v => v.in_stock === false || v.inStock === false) : (p.in_stock === false || p.inStock === false);
   const bg = getProductBG(p);
+  const badgeHTML = isOutOfStock ? `<div class="p-badge" style="background:#ef4444 !important; color:white !important; position:absolute; top:12px; left:12px; z-index:10; padding:4px 12px; border-radius:12px; font-size:10px; font-weight:900;">OUT OF STOCK</div>` : (p.badge ? `<div class="p-badge" style="position:absolute; top:12px; left:12px; z-index:10; font-size:10px; font-weight:900;">${p.badge}</div>` : '');
+
   const action = isOutOfStock ? `
     <div class="m-add-btn-image" style="background: #94a3b8 !important; color: white !important; cursor: not-allowed; opacity: 0.7;" onclick="event.stopPropagation()">
         SOLD OUT
     </div>` : `
-    <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('${p.name.replace(/'/g, "\\'")}')">
+    <div class="m-add-btn-image" onclick="event.stopPropagation(); openVariantSheet('${p.name.replace(/'/g, "\\'")}')">
         ADD
     </div>`;
 
   return `
     <div class="premium-mango-card" onclick="showProduct(${v0.id})">
         <div class="m-img-wrap" style="background: ${bg}">
+            ${badgeHTML}
             <img src="${p.img}" alt="${p.name}" loading="lazy">
             ${action}
         </div>
@@ -800,28 +822,98 @@ async function submitCorpOrder() {
 window.submitCorpOrder = submitCorpOrder;
 
 // ===== TRACKING & HISTORY =====
-async function handleTrack() {
-  const inp = document.getElementById('track-id');
-  const res = document.getElementById('track-res');
-  if (!inp || !res) return;
-  const id = inp.value.trim().toUpperCase();
-  if (!id) { showToast('Enter Order ID'); return; }
+async function handleTrack(manualId = null) {
+  const inp = document.getElementById('tr-oid');
+  const res = document.getElementById('tr-res');
+  if (!res) return;
+  
+  const idValue = manualId || (inp ? inp.value : '');
+  const id = idValue.trim().toUpperCase().replace('#', '');
+  
+  if (!id) { showToast('Enter Reference ID'); return; }
 
   res.style.display = 'block';
-  res.innerHTML = '<div style="text-align:center;padding:20px;">Tracking...</div>';
+  res.innerHTML = '<div style="text-align:center;padding:40px;color:#888;"><div class="spinner" style="margin:0 auto 15px;"></div>Locating your harvest...</div>';
 
-  const { data } = await supabaseClient.from('orders').select('*').eq('order_number', id).maybeSingle();
-  if (data) {
-    res.innerHTML = `<div style="background:#f9f9f9;padding:20px;border-radius:12px;"><h3>Order: ${id}</h3><p>Status: ${data.status.toUpperCase()}</p></div>`;
-  } else {
-    // Try corporate
-    const { data: cd } = await supabaseClient.from('corporate_orders').select('*').eq('enquiry_ref', id).maybeSingle();
-    if (cd) {
-       res.innerHTML = `<div style="background:#f9f9f9;padding:20px;border-radius:12px;"><h3>B2B: ${id}</h3><p>Status: ${cd.status.toUpperCase()}</p></div>`;
-    } else {
-       res.innerHTML = '<div style="padding:20px;color:red;">Reference not found.</div>';
+  try {
+    // 1. Try regular orders (FM- prefix or direct number)
+    const { data: orderData } = await supabaseClient
+      .from('orders')
+      .select('*, order_items(*)')
+      .or(`order_number.eq.${id},order_number.eq.FM-${id}`)
+      .maybeSingle();
+
+    if (orderData) {
+      renderTrackResult(orderData, 'ORDER', res);
+      return;
     }
+
+    // 2. Try corporate orders (CE- prefix)
+    const { data: corpData } = await supabaseClient
+      .from('corporate_orders')
+      .select('*')
+      .or(`enquiry_ref.eq.${id},enquiry_ref.eq.CE-${id}`)
+      .maybeSingle();
+
+    if (corpData) {
+      renderTrackResult(corpData, 'CORPORATE', res);
+    } else {
+      res.innerHTML = `
+        <div style="padding:40px; text-align:center; background:#fff5f5; border-radius:24px; border:1px solid #fed7d7;">
+          <div style="font-size:32px; margin-bottom:12px;">🔍</div>
+          <h3 style="color:#c53030; margin-bottom:8px;">Reference Not Found</h3>
+          <p style="color:#718096; font-size:14px;">We couldn't find any order with ID: <b>${id}</b>. Please check your confirmation SMS/Email.</p>
+        </div>`;
+    }
+  } catch (err) {
+    console.error("Tracking error:", err);
+    res.innerHTML = '<div style="padding:20px;color:#e74c3c;text-align:center;">Connection error. Please try again.</div>';
   }
+}
+
+function renderTrackResult(data, type, container) {
+  const status = (data.status || 'confirmed').toLowerCase();
+  const id = data.order_number || data.enquiry_ref;
+  const date = new Date(data.created_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  
+  const steps = ['confirmed', 'packed', 'shipped', 'delivered'];
+  let currentStepIndex = steps.indexOf(status);
+  if (currentStepIndex === -1) currentStepIndex = 0; // Default to confirmed
+
+  let stepsHTML = steps.map((s, i) => {
+    const isDone = i <= currentStepIndex;
+    const isActive = i === currentStepIndex;
+    return `
+      <div class="track-step ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}">
+        <div class="ts-icon">${isDone ? '✓' : ''}</div>
+        <div class="ts-info">
+          <h4 style="text-transform:capitalize;">${s}</h4>
+          <p>${isActive ? 'Your order is currently here' : (isDone ? 'Completed' : 'Pending')}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div style="background:white; padding:32px; border-radius:32px; box-shadow:0 20px 50px rgba(0,0,0,0.05); border:1px solid #f0f0f0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:20px; border-bottom:1px solid #f5f5f5;">
+        <div>
+          <span style="font-size:10px; font-weight:900; color:#888; text-transform:uppercase; letter-spacing:3px;">${type} REFERENCE</span>
+          <div style="font-size:24px; font-weight:900; color:#1b391b;">#${id}</div>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:10px; font-weight:900; color:#888; text-transform:uppercase; letter-spacing:3px;">PLACED ON</span>
+          <div style="font-size:16px; font-weight:700; color:#444;">${date}</div>
+        </div>
+      </div>
+      <div class="track-steps-container" style="margin-top:20px;">
+        ${stepsHTML}
+      </div>
+      <div style="margin-top:32px; padding-top:24px; border-top:1px solid #f5f5f5; text-align:center;">
+        <p style="font-size:13px; color:#777;">Need help? <a href="https://wa.me/917708847977" style="color:#22c55e; font-weight:700;">Chat with Estate Manager</a></p>
+      </div>
+    </div>
+  `;
 }
 const trackOrder = handleTrack;
 

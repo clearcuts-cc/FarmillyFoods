@@ -1360,10 +1360,14 @@
       left: 0;
       right: 0;
       z-index: 1000;
-      background: #fff;
-      border-top: 1px solid #f0f0f0;
-      padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
-      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-top: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
     }
 
     .mob-nav-inner {
@@ -4491,9 +4495,9 @@
 
     /* TRACK PAGE */
     .track-wrap {
-      max-width: 540px;
+      max-width: 600px;
       margin: 0 auto;
-      padding: 40px 20px 100px;
+      padding: 80px 24px 120px;
       text-align: center
     }
 
@@ -5518,9 +5522,10 @@
         <p class="text-gray-400 mb-12 italic">Enter the reference number you received after placing your bespoke
           request.</p>
         <div class="flex gap-4 w-full max-w-xl">
-          <input type="text" placeholder="CE-1234567"
+          <input type="text" id="corp-track-id" placeholder="CE-1234567"
             class="flex-1 border-2 border-gray-100 rounded-2xl px-8 py-5 outline-none focus:border-emerald-950 font-mono text-xl uppercase">
           <button
+            onclick="const id = document.getElementById('corp-track-id').value; if(id){ showPage('track'); setTimeout(() => { document.getElementById('tr-oid').value = id; handleTrack(); }, 200); } else { showToast('Enter Reference ID'); }"
             class="bg-emerald-950 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[2px] transition-all active:scale-95 shadow-xl shadow-emerald-950/10">Check
             Status</button>
         </div>
@@ -5996,15 +6001,17 @@
         setTimeout(() => {
           const list = window.products || [];
           const variants = list.filter(p => {
-             const baseP = p.name.replace(/\(.*\)/, '')
+             const baseP = (p.name || '').replace(/\(.*\)/, '')
                                  .replace(/ mangoes/i, '')
                                  .replace(/ powder/i, '')
                                  .trim().toLowerCase();
              const baseV = cleanVariety.toLowerCase();
-             return baseP === baseV;
+             // Loose match: either direct match or or one contains the other
+             return baseP === baseV || baseP.includes(baseV) || baseV.includes(baseP);
           });
 
           if (!variants.length) {
+            console.warn("openVariantSheet: No variants found for", cleanVariety, "in list of", list.length);
             options.innerHTML = '<div style="text-align:center;padding:60px;"><p style="color:#aaa;">No variants found.</p></div>';
             return;
           }
@@ -6083,7 +6090,7 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=2.3"></script>
+  <script src="app.js?v=2.6"></script>
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
