@@ -80,7 +80,7 @@ window.rmCart = rmCart;
 function addToCart(id) {
   const nid = Number(id);
   const p = window.products.find(x => Number(x.id) === nid);
-  if (!p || !p.inStock) return;
+  if (!p || p.inStock === false) return;
   const ex = window.cart.find(x => Number(x.id) === nid);
   if (ex) ex.qty++; else window.cart.push({ id: nid, qty: 1 });
   saveCart();
@@ -201,70 +201,117 @@ function refreshCurrentView() {
 function goBack() { showPage(prevPage === 'product' ? 'shop' : prevPage); }
 
 function stars(r) { return '<span style="color:var(--secondary)">' + String.fromCharCode(9733).repeat(Math.floor(r)) + String.fromCharCode(9734).repeat(5 - Math.floor(r)) + '</span>'; }
+window.getWeightMultiplier = function(wt) {
+  const w = (wt || '').toLowerCase();
+  const nm = w.match(/[\d.]+/);
+  const nVal = nm ? parseFloat(nm[0]) : 0;
+  if (nVal > 0) {
+    if (w.includes('ml')) return nVal / 1000;
+    if (w.includes('kg') || (w.includes('l') && !w.includes('ml'))) return nVal;
+    if (w.includes('g') && !w.includes('kg')) return nVal / 1000;
+  }
+  return 1;
+};
+
+window.getUnitPrice = function(price, wt) {
+  const pVal = parseFloat(price || 0);
+  const mult = window.getWeightMultiplier(wt);
+  const rate = mult > 0 ? Math.round(pVal / mult) : pVal;
+  const w = (wt || '').toLowerCase();
+  const unit = (w.includes('l') && !w.includes('ml')) || w.includes('lit') || w.includes('ml') ? 'L' : 'kg';
+  return { rate, unit };
+};
+
+window.getItemPrice = function(price, qty) {
+  // Price is total for 1 unit. qty is count in basket.
+  return price * Number(qty || 1);
+};
 
 // ===== PRODUCT CARD HTML ====
 function pcardHTML(p) {
-  const isMango = (p.name || '').toLowerCase().includes('mango') || (p.cat && p.cat.toLowerCase().includes('mango'));
-  const ex = (typeof window.cart !== 'undefined' ? window.cart.find(x => x.id === p.id) : null);
-  const qty = ex ? ex.qty : 0;
+  const variants = p.variants || [];
+  const hasOptions = variants.length > 1;
+  const v0 = hasOptions ? variants[0] : p;
+  
+  // High-precision unit price calculation
+  const unitInfo = window.getUnitPrice(v0.price || p.price, v0.wt || p.wt);
+  const rate = unitInfo.rate;
+  const unitLabel = unitInfo.unit;
 
-  if (isMango) {
-    const actionArea = qty > 0 ? `
-      <div class="m-qty-ctrl" onclick="event.stopPropagation()">
-          <button onclick="updCart(${p.id}, -1)">-</button>
-          <span>${qty}</span>
-          <button onclick="updCart(${p.id}, 1)">+</button>
-      </div>` : `
-      <div class="m-add-btn-image" onclick="event.stopPropagation(); addToCart(${p.id})">
-          ADD TO CART
-      </div>`;
-
-    return `
-            <div class="premium-mango-card">
-                <div class="m-img-wrap" style="background: ${getColorForVariety(p.name)}" onclick="if(window.showPremiumDetail) window.showPremiumDetail('${p.name}')">
-                    <img src="${p.img}" alt="${p.name}">
-                    ${actionArea}
-                </div>
-                <div class="m-info">
-                    <div class="m-top-row">
-                        <div class="m-wt-tag">${p.wt || '3 kg'}</div>
-                        <div class="m-stats">
-                            <div class="m-stars">★★★★★</div>
-                            <span class="m-rating-val">${p.rating || '5.0'}</span>
-                        </div>
-                    </div>
-                    <h3 class="m-title">${p.name}</h3>
-                    <span class="m-subtitle">${p.cat || 'Premium Selection'}</span>
-                    <div class="m-price-row"><div class="m-price-box"><span class="m-currency">₹</span><span class="m-amt">${p.price}</span></div></div>
-                </div>
-            </div>
-        `;
+  // Cart quantity
+  let gQty = 0;
+  if (typeof window.cart !== 'undefined') {
+    if (hasOptions) {
+      variants.forEach(v => { const ex = window.cart.find(x => x.id === v.id); if (ex) gQty += ex.qty; });
+    } else {
+      const ex = window.cart.find(x => x.id === p.id); if (ex) gQty = ex.qty;
+    }
   }
 
+  const isOutOfStock = p.in_stock === false;
+  const bg = getProductBG(p);
+  const action = isOutOfStock ? `
+    <div class="m-add-btn-image" style="background: #94a3b8 !important; color: white !important; cursor: not-allowed; opacity: 0.7;" onclick="event.stopPropagation()">
+        SOLD OUT
+    </div>` : `
+    <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('${p.name.replace(/'/g, "\\'")}')">
+        ADD
+    </div>`;
+
   return `
-        <div class="p-card" onclick="showProduct(${p.id})">
-            ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
-            <div class="p-img"><img src="${p.img}" alt="${p.name}" loading="lazy"></div>
-            <div class="p-info">
-                <div class="p-cat">${p.cat || ''}</div>
-                <h3 class="p-name">${p.name}</h3>
-                <div class="p-wt">${p.wt}</div>
-                <div class="p-bot" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="p-price">₹${p.price}</span>
-                    <button class="add-btn" style="background:var(--primary); color:white; border:none; width:30px; height:30px; border-radius:50%;" onclick="event.stopPropagation();addToCart(${p.id})">+</button>
+    <div class="premium-mango-card" onclick="showProduct(${v0.id})">
+        <div class="m-img-wrap" style="background: ${bg}">
+            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            ${action}
+        </div>
+        <div class="m-info">
+            <div class="m-top-row">
+                <div class="m-stats">
+                    <div class="m-stars">★★★★★</div>
+                    <span class="m-rating-val">${p.rating || '5.0'}</span>
                 </div>
+                <div class="m-wt-tag" style="display:inline-block !important;">${v0.wt}</div>
+            </div>
+            <h3 class="m-title" style="margin-bottom:0px;">${p.name}</h3>
+            <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 ${unitLabel.toUpperCase()} PRICE RATE</div>
+            <span class="m-subtitle" style="margin-bottom:8px;">${p.cat || 'Premium Selection'}</span>
+            <div class="m-price-row">
+                <div class="m-price-box">
+                    <span class="m-currency">₹</span>
+                    <span class="m-amt">${rate}</span>
+                    <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/${unitLabel}</span>
+                </div>
+                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹${v0.price} for ${v0.wt}</div>
             </div>
         </div>
-    `;
+    </div>
+  `;
 }
 
-function getColorForVariety(name) {
-  const n = (name || '').toLowerCase();
+window.getUnitLabel = function(wt) {
+  const w = (wt || '').toLowerCase();
+  return (w.includes('l') && !w.includes('ml')) || w.includes('lit') || w.includes('ml') ? 'L' : 'kg';
+};
+
+function getProductBG(p) {
+  const c = (p.cat || '').toLowerCase();
+  const n = (p.name || '').toLowerCase();
+  
+  // Variety based specifics
   if (n.includes('imam')) return '#FFF9C4';
   if (n.includes('alph')) return '#FFE0B2';
   if (n.includes('bang')) return '#FFF17644';
   if (n.includes('sent')) return '#FFEBEE';
-  return '#f0fdf4';
+  
+  // Category based defaults
+  if (c.includes('ghee') || c.includes('oil')) return '#FFFDE7';
+  if (c.includes('honey')) return '#FFF8E1';
+  if (c.includes('spice')) return '#FBE9E7';
+  if (c.includes('bee')) return '#FFF9C4';
+  if (c.includes('beverage')) return '#E0F2F1';
+  if (c.includes('mango')) return '#F9FBE7';
+  
+  return '#f5f8f5';
 }
 
 function showProduct(id) { openProduct(id); }
@@ -289,8 +336,9 @@ function renderHome() {
 
   const fr = document.getElementById('feat-row');
   if (fr) {
-    const featuredProds = window.products.filter(p => p.isFeatured).slice(0, 8);
-    const displayProds = featuredProds.length ? featuredProds : window.products.slice(0, 8);
+    const baseList = window.displayProducts || window.products;
+    const featuredProds = baseList.filter(p => p.isFeatured).slice(0, 8);
+    const displayProds = featuredProds.length ? featuredProds : baseList.slice(0, 8);
     fr.innerHTML = displayProds.length ? displayProds.map(pcardHTML).join('') : '<p style="text-align:center;width:100%;color:#888;">Harvesting fresh products for you...</p>';
   }
 }
@@ -316,7 +364,10 @@ function filterProds() {
   if (!grid) return;
   const q = (document.getElementById('shop-srch')?.value || '').toLowerCase();
   
-  let list = window.products.filter(p => {
+  // Use grouped products for display
+  const displayList = window.displayProducts || window.products;
+
+  let list = displayList.filter(p => {
     const matchCat = activeFilter === 'All' || p.cat === activeFilter;
     const matchQ = !q || p.name.toLowerCase().includes(q);
     return matchCat && matchQ;
@@ -360,15 +411,16 @@ function renderCart() {
   const items = window.cart.map(ci => {
     const p = window.products.find(x => Number(x.id) === Number(ci.id));
     if (!p) return '';
-    sub += p.price * ci.qty;
+    const itemTotal = p.price * ci.qty;
+    sub += itemTotal;
     return `
       <div class="citem">
         <img src="${p.img}">
         <div>
           <div class="ci-name">${p.name}</div>
-          <div class="ci-wt">${p.wt}</div>
+          <div class="ci-wt">${p.wt} <span style="color:#22c55e; font-weight:700; margin-left:8px;">(₹${window.getUnitPrice(p.price, p.wt)}/${window.getUnitLabel(p.wt)})</span></div>
           <div class="ci-bot">
-            <span class="ci-price">₹${p.price * ci.qty}</span>
+            <span class="ci-price">₹${Math.round(itemTotal)}</span>
             <div class="ci-qty">
               <button class="ci-qbtn" onclick="updCart(${p.id},-1)">-</button>
               <span class="ci-qval">${ci.qty}</span>
@@ -497,11 +549,34 @@ async function loadCategories() {
   }
   const { data } = await supabaseClient.from('categories').select('*').eq('active', true);
   if (data) {
-    cats = data.map(c => ({
-      id: c.id,
-      name: c.name,
-      svg: c.image_url || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>'
-    }));
+    cats = data.map(c => {
+      const lowName = c.name.toLowerCase();
+      let iconHtml = '';
+
+      // Premium Minimalist Icon Set (Gold & Green)
+      if (lowName.includes('ghee') || lowName.includes('oil')) {
+        iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2c-4 4-6 8-6 11a6 6 0 0 0 12 0c0-3-2-7-6-11z"/><path d="M12 18a3 3 0 0 1 0-6" stroke="#22c55e"/></svg>`;
+      } else if (lowName.includes('honey') || lowName.includes('jaggery')) {
+        iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2l2 2m-4 0l2-2m6 10a8 8 0 1 1-16 0c0-4 3-7 8-7s8 3 8 7z"/><path d="M12 12v6" stroke="#22c55e"/></svg>`;
+      } else if (lowName.includes('spice')) {
+        iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2c-1 3-5 3-5 8s2 8 5 8 5-3 5-8-4-5-5-8z"/><circle cx="12" cy="12" r="2" stroke="#22c55e"/></svg>`;
+      } else if (lowName.includes('bee')) {
+        iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 8l4 2.25v4.5L12 17l-4-2.25v-4.5L12 8z" stroke="#22c55e"/></svg>`;
+      } else if (lowName.includes('beverage')) {
+        iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M6 8h12l-1 11H7L6 8z"/><path d="M18 11a3 3 0 0 1 0 6M9 4l1 4m4-4l-1 4" stroke="#22c55e"/></svg>`;
+      } else if (lowName.includes('mango')) {
+        iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2C7 2 4 6 4 11s3 9 8 9 8-4 8-9-3-9-8-9z"/><path d="M12 2c1 2 2 4 1 6" stroke="#22c55e"/></svg>`;
+      } else {
+        // Fallback generic icon
+        iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8" stroke="#22c55e"/></svg>`;
+      }
+      
+      return {
+        id: c.id,
+        name: c.name,
+        svg: iconHtml
+      };
+    });
   }
   renderHome();
   renderCatLists();
@@ -556,7 +631,8 @@ function renderShop() {
 
 async function loadProducts() {
   if (!supabaseClient) { handleRawProducts([]); return; }
-  const { data } = await supabaseClient.from('products').select('*');
+  // Only load products that are active (not hidden)
+  const { data } = await supabaseClient.from('products').select('*').neq('is_active', false);
   handleRawProducts(data || []);
 }
 
@@ -564,23 +640,43 @@ function handleRawProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
   const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png' };
   
-  const raw = (data || []).map(p => {
+  const allProds = (data || []).map(p => {
     let img = p.image_url;
     const low = (p.name||'').toLowerCase();
     for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
-    
-    // Find category name
     const category = cats.find(c => c.id === p.category_id)?.name || 'Products';
 
     return { 
-       id: p.id, name: cap(p.name), price: p.price, wt: p.weight, 
+       id: p.id, name: cap(p.name), price: Number(p.price), wt: p.weight, 
        img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
        rating: p.rating || 5.0, revs: p.review_count || 10, desc: p.description,
-       isFeatured: p.is_featured
+       isFeatured: p.is_featured, rawName: p.name
     };
   });
   
-  window.products = raw;
+  window.products = allProds;
+
+  const grouped = {};
+  allProds.forEach(p => {
+    const isMango = (p.cat === 'Heritage Mangoes' || (p.name||'').toLowerCase().includes('mango'));
+    if (isMango) {
+      const baseName = p.name.replace(/\(.*\)/, '').replace(/ mangoes/i, '').trim();
+      if (!grouped[baseName]) {
+        grouped[baseName] = { ...p, name: baseName, variants: [] };
+      }
+      grouped[baseName].variants.push(p);
+    } else {
+      // Show non-mangoes individually
+      grouped['u_' + p.id] = { ...p, variants: [p] };
+    }
+  });
+
+  Object.values(grouped).forEach(g => {
+    g.variants.sort((a,b) => a.price - b.price);
+    if (g.variants.length > 0) g.img = g.variants[0].img;
+  });
+
+  window.displayProducts = Object.values(grouped);
   refreshCurrentView();
 }
 
@@ -681,10 +777,91 @@ async function initApp() {
   updateCartCount();
   await loadCategories();
   await loadProducts();
+
+  // Realtime Subscriptions
+  if (supabaseClient) {
+    supabaseClient
+      .channel('public:products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, payload => {
+        console.log('Product update detected, refreshing...', payload);
+        loadProducts(); // Re-fetch and re-render
+      })
+      .subscribe();
+      
+    supabaseClient
+      .channel('public:categories')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, payload => {
+        loadCategories();
+      })
+      .subscribe();
+  }
 }
+
+function openSearch() {
+  const hdr = document.getElementById('header');
+  const bar = document.getElementById('nav-search-bar');
+  if (hdr) hdr.classList.add('search-open');
+  if (bar) {
+    bar.classList.add('active');
+    const inp = document.getElementById('srch-in');
+    if (inp) setTimeout(() => inp.focus(), 100);
+  }
+}
+window.openSearch = openSearch;
+
+function closeSearch() {
+  const hdr = document.getElementById('header');
+  const bar = document.getElementById('nav-search-bar');
+  const res = document.getElementById('srch-res');
+  if (hdr) hdr.classList.remove('search-open');
+  if (bar) bar.classList.remove('active');
+  if (res) res.style.display = 'none';
+  const inp = document.getElementById('srch-in');
+  if (inp) inp.value = '';
+}
+window.closeSearch = closeSearch;
+
+function liveSearch(q) {
+  const res = document.getElementById('srch-res');
+  if (!res) return;
+  if (!q.trim()) { res.style.display = 'none'; return; }
+
+  const list = (window.products || []).filter(p => 
+    p.name.toLowerCase().includes(q.toLowerCase()) || 
+    p.cat.toLowerCase().includes(q.toLowerCase())
+  ).slice(0, 6);
+
+  if (!list.length) {
+    res.innerHTML = '<div style="padding:15px; color:#999; font-size:13px;">No products found</div>';
+    res.style.display = 'block';
+    return;
+  }
+
+  res.innerHTML = list.map(p => `
+    <div class="srch-item" onclick="showProduct(${p.id}); closeSearch();" style="display:flex; align-items:center; gap:12px; padding:10px 15px; cursor:pointer; border-bottom:1px solid #f5f5f5;">
+      <img src="${p.img}" style="width:40px; height:40px; border-radius:8px; object-fit:cover;">
+      <div style="flex:1">
+        <div style="font-size:14px; font-weight:600; color:#333;">${p.name}</div>
+        <div style="font-size:11px; color:#22c55e; font-weight:700;">₹${p.price}</div>
+      </div>
+    </div>
+  `).join('');
+  res.style.display = 'block';
+}
+window.liveSearch = liveSearch;
 
 initApp();
 window.handleTrack = handleTrack;
 window.trackOrder = trackOrder;
 window.updCart = updCart;
 window.addToCartAndFeedback = function(b, id) { addToCart(id); refreshCurrentView(); };
+
+window.showProduct = function(id) {
+  const p = (window.products || []).find(x => Number(x.id) === Number(id));
+  if (!p) return;
+  
+  // ALWAYS open detail view when clicking the card body
+  if (typeof window.showPremiumDetail === 'function') {
+    window.showPremiumDetail(p.name);
+  }
+};

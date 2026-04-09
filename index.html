@@ -58,18 +58,12 @@
       background: white !important;
       border-radius: 32px !important;
       padding: 12px !important;
-      transition: var(--tr) !important;
       cursor: pointer !important;
       font-family: 'Poppins', sans-serif !important;
       position: relative !important;
       border: 1px solid var(--border) !important;
       box-shadow: var(--sh) !important;
-    }
-
-    .premium-mango-card:hover {
-      transform: translateY(-10px);
-      box-shadow: var(--sh2);
-      border-color: var(--secondary) !important;
+      transition: var(--tr) !important;
     }
 
     .m-img-wrap {
@@ -82,19 +76,14 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      padding: 30px !important;
+      padding: 0px !important;
       transition: var(--tr) !important;
     }
 
     .m-img-wrap img {
       width: 100% !important;
       height: 100% !important;
-      object-fit: contain !important;
-      transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-    }
-
-    .premium-mango-card:hover .m-img-wrap img {
-      transform: scale(1.15) rotate(4deg);
+      object-fit: cover !important;
     }
 
     .m-add-btn-image {
@@ -169,7 +158,7 @@
     }
 
     .m-wt-tag {
-      display: inline-block !important;
+      display: none !important;
       background: rgba(10, 26, 10, 0.04) !important;
       color: var(--primary) !important;
       padding: 6px 14px !important;
@@ -1439,8 +1428,7 @@
         padding: 0 16px !important;
       }
 
-      .desktop-nav,
-      .nav-search-wrap {
+      .desktop-nav {
         display: none !important;
       }
 
@@ -1876,7 +1864,7 @@
 
     /* LAYOUT */
     .sec {
-      padding: 60px 20px
+      padding: 40px 20px
     }
 
     .inner {
@@ -1886,7 +1874,7 @@
 
     .sec-title {
       text-align: center;
-      margin-bottom: 40px
+      margin-bottom: 24px
     }
 
     .sec-title h2 {
@@ -2564,9 +2552,9 @@
       display: flex;
       gap: 16px;
       overflow-x: auto;
-      padding: 4px 4px 12px;
+      padding: 20px 20px;
       scrollbar-width: none;
-      justify-content: center
+      -ms-overflow-style: none
     }
 
     .cats-row::-webkit-scrollbar {
@@ -2574,8 +2562,8 @@
     }
 
     .cat-card {
-      flex: 0 0 86px;
-      width: 86px;
+      flex: 0 0 100px;
+      width: 100px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -2621,14 +2609,14 @@
       justify-content: center;
       transition: var(--tr);
       box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
-      flex-shrink: 0
+      flex-shrink: 0;
+      overflow: hidden
     }
 
     .cat-icon-wrap svg {
-      width: 30px;
-      height: 30px;
-      color: var(--primary);
-      transition: color .2s
+      width: 36px;
+      height: 36px;
+      transition: transform .2s
     }
 
     .cn {
@@ -2639,7 +2627,7 @@
       white-space: normal;
       word-break: break-word;
       line-height: 1.3;
-      width: 86px
+      width: 100px
     }
 
     /* FEATURED SCROLL */
@@ -3084,7 +3072,7 @@
       gap: 8px;
       overflow-x: auto;
       scrollbar-width: none;
-      padding-bottom: 4px;
+      padding: 8px 20px;
       margin-bottom: 12px
     }
 
@@ -4881,12 +4869,11 @@
           </svg> Global Gap Certified</div>
       </div>
     </div>
-    <section class="sec" id="categories-sec">
+    <section class="sec" id="categories-sec" style="padding-top: 50px; padding-bottom: 20px;">
       <div class="inner">
         <div class="sec-title">
-          <h2>Shop By Category</h2>
-          <p>Explore our range of farm-fresh organic products</p>
-          <div class="title-bar"></div>
+          <h2 style="margin-bottom: 4px;">Shop By Category</h2>
+          <div class="title-bar" style="margin-top: 8px;"></div>
         </div>
         <div class="cats-row" id="cats-row"></div>
       </div>
@@ -4905,11 +4892,11 @@
 
         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
           <!-- IMAM PASAND -->
-          <div class="premium-mango-card">
-            <div class="m-img-wrap" style="background: #FFF9C4;" onclick="showPremiumDetail('Imam Pasand')">
+          <div class="premium-mango-card" onclick="showPremiumDetail('Imam Pasand')">
+            <div class="m-img-wrap" style="background: #FFF9C4;">
               <img src="assets/imam.png" alt="Imam Pasand">
               <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Imam Pasand')">
-                ADD <span>2 options</span>
+                ADD
               </div>
             </div>
             <div class="m-info">
@@ -4920,23 +4907,26 @@
                   <span class="m-rating-val">5.0</span>
                 </div>
               </div>
-              <h3 class="m-title">Imam pasand mangoes</h3>
+              <h3 class="m-title" style="margin-bottom:0px;">Imam pasand mangoes</h3>
+              <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 KG PRICE RATE</div>
               <span class="m-subtitle">Heritage Mambalam Series</span>
               <div class="m-price-row">
                 <div class="m-price-box">
                   <span class="m-currency">₹</span>
-                  <span class="m-amt">1047</span>
+                  <span class="m-amt">349</span>
+                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
                 </div>
+                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹1047 for 3 kg</div>
               </div>
             </div>
           </div>
 
           <!-- ALPHONSO -->
-          <div class="premium-mango-card">
-            <div class="m-img-wrap" style="background: #FFE0B2;" onclick="showPremiumDetail('Alphonso')">
+          <div class="premium-mango-card" onclick="showPremiumDetail('Alphonso')">
+            <div class="m-img-wrap" style="background: #FFE0B2;">
               <img src="assets/alphonso.png" alt="Alphonso">
               <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Alphonso')">
-                ADD <span>2 options</span>
+                ADD
               </div>
             </div>
             <div class="m-info">
@@ -4947,23 +4937,26 @@
                   <span class="m-rating-val">4.3</span>
                 </div>
               </div>
-              <h3 class="m-title">Alphonso mangoes</h3>
+              <h3 class="m-title" style="margin-bottom:0px;">Alphonso mangoes</h3>
+              <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 KG PRICE RATE</div>
               <span class="m-subtitle">Heritage Mambalam Series</span>
               <div class="m-price-row">
                 <div class="m-price-box">
                   <span class="m-currency">₹</span>
-                  <span class="m-amt">897</span>
+                  <span class="m-amt">299</span>
+                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
                 </div>
+                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹897 for 3 kg</div>
               </div>
             </div>
           </div>
 
           <!-- BANGANAPALLI -->
-          <div class="premium-mango-card">
-            <div class="m-img-wrap" style="background: #FFF17644;" onclick="showPremiumDetail('Banganapalli')">
+          <div class="premium-mango-card" onclick="showPremiumDetail('Banganapalli')">
+            <div class="m-img-wrap" style="background: #FFF17644;">
               <img src="assets/banganapalli.png" alt="Banganapalli">
               <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Banganapalli')">
-                ADD <span>2 options</span>
+                ADD
               </div>
             </div>
             <div class="m-info">
@@ -4974,23 +4967,26 @@
                   <span class="m-rating-val">4.9</span>
                 </div>
               </div>
-              <h3 class="m-title">Banganapalli mangoes</h3>
+              <h3 class="m-title" style="margin-bottom:0px;">Banganapalli mangoes</h3>
+              <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 KG PRICE RATE</div>
               <span class="m-subtitle">Heritage Mambalam Series</span>
               <div class="m-price-row">
                 <div class="m-price-box">
                   <span class="m-currency">₹</span>
-                  <span class="m-amt">777</span>
+                  <span class="m-amt">259</span>
+                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
                 </div>
+                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹777 for 3 kg</div>
               </div>
             </div>
           </div>
 
           <!-- SENTHURA -->
-          <div class="premium-mango-card">
-            <div class="m-img-wrap" style="background: #FFEBEE;" onclick="showPremiumDetail('Senthura')">
+          <div class="premium-mango-card" onclick="showPremiumDetail('Senthura')">
+            <div class="m-img-wrap" style="background: #FFEBEE;">
               <img src="assets/senthura.png" alt="Senthura">
               <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Senthura')">
-                ADD <span>2 options</span>
+                ADD
               </div>
             </div>
             <div class="m-info">
@@ -5001,13 +4997,16 @@
                   <span class="m-rating-val">4.5</span>
                 </div>
               </div>
-              <h3 class="m-title">Senthura mangoes</h3>
+              <h3 class="m-title" style="margin-bottom:0px;">Senthura mangoes</h3>
+              <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 KG PRICE RATE</div>
               <span class="m-subtitle">Heritage Mambalam Series</span>
               <div class="m-price-row">
                 <div class="m-price-box">
                   <span class="m-currency">₹</span>
-                  <span class="m-amt">717</span>
+                  <span class="m-amt">239</span>
+                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
                 </div>
+                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹717 for 3 kg</div>
               </div>
             </div>
           </div>
@@ -5018,15 +5017,13 @@
 
 
     <!-- STORY - THE NEW FIELD -->
-    <footer class="bg-white py-32 text-center border-t border-orange-100">
+    <footer class="bg-white py-12 text-center border-t border-orange-100">
       <h2 class="text-4xl font-serif mb-8 italic text-emerald-950">The Stones to Stories Journey</h2>
-      <p class="max-w-3xl mx-auto text-gray-500 text-lg leading-relaxed mb-16 px-6 font-light">
+      <p class="max-w-3xl mx-auto text-gray-500 text-lg leading-relaxed px-6 font-light">
         Remember the pure taste of farm-fresh food from your childhood? We've brought that honesty back. 100% Organic,
         purity-verified, and nourished by age-old <b>Panchagavya</b> wisdom. Every product tells the story of a return to the
         soil.
       </p>
-      <div class="text-[12px] font-black text-emerald-900/40 tracking-[12px] uppercase">DPIIT RECOGNIZED • 2026 HARVEST
-      </div>
     </footer>
     <section class="why-sec" id="about-sec">
       <div class="inner">
@@ -5287,7 +5284,7 @@
           <h2>Our Heritage Collection</h2>
           <p>Hand-picked, sun-ripened heritage mangoes from our private estates.</p>
         </div>
-        <div class="cats-row" id="shop-cats-row" style="margin-bottom:40px; justify-content:center;"></div>
+        <div class="cats-row" id="shop-cats-row" style="margin-bottom:40px;"></div>
         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8" id="shop-grid">
           <!-- Dynamic products -->
         </div>
@@ -5854,11 +5851,20 @@
 
         const cleanVariety = (variety || '').replace(/\(.*\)/, '').trim();
         const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-        title.innerText = cap(cleanVariety) + ' Mangoes ( Mambalam )';
-        desc.innerText = mangoDescriptions[cleanVariety] || 'Premium quality mangoes harvested fresh from our heritage farms.';
+        
+        let variants = (window.products || []).filter(p => {
+           const bP = (p.name||'').replace(/\(.*\)/, '').trim().toLowerCase();
+           const bV = cleanVariety.toLowerCase();
+           return bP.includes(bV) || bV.includes(bP);
+        });
 
-        let variants = (window.products || []).filter(p => (p.name || '').toLowerCase().includes(cleanVariety.toLowerCase()));
         if (!variants.length) {
+          const item = (window.products || []).find(x => x.name === variety);
+          if (item) variants = [item];
+        }
+
+        if (!variants.length) {
+          // Standard Mango fallback
           const basePrice = cleanVariety.toLowerCase().includes('imam') ? 1047 : (cleanVariety.toLowerCase().includes('alph') ? 897 : 717);
           const img = cleanVariety.toLowerCase().includes('imam') ? 'assets/imam.png' :
             (cleanVariety.toLowerCase().includes('alph') ? 'assets/alphonso.png' : 'assets/banganapalli.png');
@@ -5868,21 +5874,30 @@
           ];
         }
 
+        title.innerText = cap(cleanVariety).replace(/ mangoes/i, '') + (cleanVariety.toLowerCase().includes('mango') ? ' Mangoes' : '');
+        desc.innerText = mangoDescriptions[cleanVariety] || variants[0].desc || 'Premium quality selection harvested fresh from our heritage farms.';
+
         hero.src = variants[0].img;
         selectedPdVariant = variants[0];
-        document.getElementById('v-foot-wt').innerText = selectedPdVariant.wt;
-        document.getElementById('v-foot-pr').innerText = '₹' + selectedPdVariant.price;
+        
+        // Calculate unit rate from total price:
+        const unitInfo = window.getUnitPrice(selectedPdVariant.price, selectedPdVariant.wt);
+        document.getElementById('v-foot-wt').innerText = '1 ' + unitInfo.unit.toUpperCase() + ' RATE';
+        document.getElementById('v-foot-pr').innerText = '₹' + unitInfo.rate;
 
         refreshPdActionArea();
 
         variants = variants.slice(0, 2);
-        variantsDiv.innerHTML = variants.map((v, i) => `
+        variantsDiv.innerHTML = variants.map((v, i) => {
+          const uInfo = window.getUnitPrice(v.price, v.wt);
+          return `
                 <div class="pd-v-chip ${i === 0 ? 'active' : ''}" onclick="window.selectPdVariant(this, ${JSON.stringify(v).replace(/"/g, '&quot;')})" 
                   style="border:2px solid ${i === 0 ? '#1b391b' : '#eee'}; border-radius:32px; padding:24px 20px; text-align:center; cursor:pointer; background:${i === 0 ? '#f0fdf4' : 'transparent'}; transition:all 0.4s cubic-bezier(.165,.84,.44,1); box-shadow: ${i === 0 ? '0 12px 30px rgba(27,57,27,0.08)' : 'none'};">
-                    <div style="font-size:10px; font-weight:900; color:${i === 0 ? '#1b391b' : '#aaa'}; text-transform:uppercase; letter-spacing:3px; margin-bottom:8px;">${v.wt}</div>
+                    <div style="font-size:10px; font-weight:900; color:${i === 0 ? '#1b391b' : '#aaa'}; text-transform:uppercase; letter-spacing:3px; margin-bottom:8px;">${v.wt} pack</div>
                     <div style="font-size:22px; font-weight:900; color:#111;">₹${v.price}</div>
+                    <div style="font-size:10px; color:#22c55e; font-weight:700;">₹${uInfo.rate}/${uInfo.unit} rate</div>
                 </div>
-            `).join('');
+            `;}).join('');
 
         pd.style.display = 'block';
         document.body.style.overflow = 'hidden';
@@ -5927,8 +5942,9 @@
         el.style.boxShadow = '0 12px 30px rgba(27,57,27,0.08)';
         el.querySelector('div').style.color = '#1b391b';
         selectedPdVariant = v;
-        document.getElementById('v-foot-wt').innerText = selectedPdVariant.wt;
-        document.getElementById('v-foot-pr').innerText = '₹' + selectedPdVariant.price;
+        const uI = window.getUnitPrice(v.price, v.wt);
+        document.getElementById('v-foot-wt').innerText = '1 ' + uI.unit.toUpperCase() + ' RATE';
+        document.getElementById('v-foot-pr').innerText = '₹' + uI.rate;
         document.getElementById('pd-hero').querySelector('img').src = v.img;
         
         refreshPdActionArea();
@@ -5959,7 +5975,7 @@
 
         const cleanVariety = (variety || '').replace(/\(.*\)/, '').replace(/mangoes/i, '').trim();
         const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-        title.innerHTML = cap(cleanVariety) + ' Mangoes (Mambalam)';
+        title.innerHTML = cap(cleanVariety);
         title.style.textAlign = 'center';
         title.style.fontWeight = '900';
         title.style.fontSize = '24px';
@@ -5975,28 +5991,32 @@
         }
 
         setTimeout(() => {
-          let variants = (window.products || []).filter(p => (p.name || '').toLowerCase().includes(cleanVariety.toLowerCase()));
+          const list = window.products || [];
+          const variants = list.filter(p => {
+             const baseP = p.name.replace(/\(.*\)/, '').replace(/ mangoes/i, '').trim().toLowerCase();
+             const baseV = cleanVariety.toLowerCase();
+             return baseP === baseV;
+          });
+
           if (!variants.length) {
-            const basePrice = cleanVariety.toLowerCase().includes('imam') ? 1047 : (cleanVariety.toLowerCase().includes('alph') ? 897 : 717);
-            const img = cleanVariety.toLowerCase().includes('imam') ? 'assets/imam.png' :
-              (cleanVariety.toLowerCase().includes('alph') ? 'assets/alphonso.png' : 'assets/banganapalli.png');
-            variants = [
-              { id: 101, wt: '3 kg', price: basePrice, img: img },
-              { id: 102, wt: '5 kg', price: Math.round(basePrice * 1.6), img: img }
-            ];
+            options.innerHTML = '<div style="text-align:center;padding:60px;"><p style="color:#aaa;">No variants found.</p></div>';
+            return;
           }
 
-          variants = variants.slice(0, 2);
           options.innerHTML = variants.map(v => {
             const cartItem = (window.cart || []).find(ci => ci.id === v.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;
-
+            const uV = window.getUnitPrice(v.price, v.wt);
+            
             return `
                     <div class="variant-item">
                         <div class="vi-img">
                             <img src="${v.img}" style="width:100%; height:100%; object-fit:contain;">
                         </div>
-                        <div class="vi-wt" style="flex:1; font-size:16px; font-weight:700; color:#333;">${v.wt}</div>
+                        <div style="flex:1">
+                            <div class="vi-wt" style="font-size:16px; font-weight:700; color:#333;">${v.wt}</div>
+                            <div style="font-size:11px; color:#22c55e; font-weight:700;">₹${uV.rate}/${uV.unit} rate</div>
+                        </div>
                         <div class="vi-pr" style="font-size:20px; font-weight:900; color:#111; margin-right:10px;">₹${v.price}</div>
                         ${qtyInCart > 0 ? `
                         <div class="v-qty-ctrl" style="display:flex; align-items:center; gap:16px; background:#f0fdf4; border:2px solid #22c55e; border-radius:18px; padding:6px 12px;">
@@ -6057,7 +6077,7 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=2.0"></script>
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
