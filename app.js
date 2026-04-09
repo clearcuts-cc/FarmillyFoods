@@ -34,7 +34,7 @@ window.saveCart = saveCart;
 function updateCartCount() {
   const n = window.cart.reduce((s, i) => s + i.qty, 0);
   const totalPrice = window.cart.reduce((s, i) => {
-    const p = window.products.find(x => Number(x.id) === Number(i.id));
+    const p = i.p || window.products.find(x => Number(x.id) === Number(i.id));
     return s + (p ? p.price * i.qty : 0);
   }, 0);
 
@@ -77,16 +77,14 @@ function rmCart(id) {
 }
 window.rmCart = rmCart;
 
-function addToCart(id) {
+function addToCart(id, customProduct = null) {
   const nid = Number(id);
   if (!nid) { console.error("addToCart: Invalid ID", id); return; }
 
-  const p = (window.products || []).find(x => Number(x.id) === nid);
+  const p = customProduct || (window.products || []).find(x => Number(x.id) === nid);
   if (!p) {
-    console.error("addToCart: Product not found in window.products", nid);
-    // showToast("Item error. Please refresh.");
-    // return; 
-    // Proceed anyway if we can? No, we need metadata. 
+    console.error("addToCart: Product not found", nid);
+    return;
   }
 
   if (p && p.inStock === false) {
@@ -98,7 +96,7 @@ function addToCart(id) {
   if (ex) {
     ex.qty++;
   } else {
-    window.cart.push({ id: nid, qty: 1 });
+    window.cart.push({ id: nid, qty: 1, p: customProduct });
   }
 
   saveCart();
@@ -259,31 +257,41 @@ function pcardHTML(p) {
 
   // Cart quantity
   let gQty = 0;
-  if (typeof window.cart !== 'undefined') {
+  if (window.cart && Array.isArray(window.cart)) {
     if (hasOptions) {
       variants.forEach(v => { const ex = window.cart.find(x => x.id === v.id); if (ex) gQty += ex.qty; });
     } else {
       const ex = window.cart.find(x => x.id === p.id); if (ex) gQty = ex.qty;
     }
   }
+  const qty = gQty;
 
-  const isOutOfStock = variants.length > 0 ? variants.every(v => v.in_stock === false || v.inStock === false) : (p.in_stock === false || p.inStock === false);
+  const isOutOfStock = hasOptions ? variants.every(v => v.inStock === false) : (p.inStock === false);
   const bg = getProductBG(p);
   const badgeHTML = isOutOfStock ? `<div class="p-badge" style="background:#ef4444 !important; color:white !important; position:absolute; top:12px; left:12px; z-index:10; padding:4px 12px; border-radius:12px; font-size:10px; font-weight:900;">OUT OF STOCK</div>` : (p.badge ? `<div class="p-badge" style="position:absolute; top:12px; left:12px; z-index:10; font-size:10px; font-weight:900;">${p.badge}</div>` : '');
 
+  // If grouped, show "CHOOSE SIZES" else show ADD/QTY
   const action = isOutOfStock ? `
-    <div class="m-add-btn-image" style="background: #94a3b8 !important; color: white !important; cursor: not-allowed; opacity: 0.7;" onclick="event.stopPropagation()">
+    <div class="m-add-btn-image" style="background: rgba(148, 163, 184, 0.9) !important; color: white !important; cursor: not-allowed; opacity: 0.7;" onclick="event.stopPropagation()">
         SOLD OUT
-    </div>` : `
-    <div class="m-add-btn-image" onclick="event.stopPropagation(); openVariantSheet('${p.name.replace(/'/g, "\\'")}')">
+    </div>` : (hasOptions ? `
+    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet('${p.name.replace(/'/g, "\\'")}')">
         ADD
-    </div>`;
+    </div>` : (qty > 0 ? `
+    <div class="m-add-btn-image" style="background:#f0fdf4 !important; color:#1b391b !important; border:1px solid #22c55e !important;" onclick="event.stopPropagation()">
+        <span onclick="window.updCart(${p.id}, -1)">–</span>
+        <span>${qty}</span>
+        <span onclick="window.updCart(${p.id}, 1)">+</span>
+    </div>` : `
+    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.addToCartAndFeedback(this, ${p.id})">
+        ADD
+    </div>`));
 
   return `
-    <div class="premium-mango-card" onclick="showProduct(${v0.id})">
+    <div class="premium-mango-card" onclick="window.showProduct(${p.id})">
         <div class="m-img-wrap" style="background: ${bg}">
             ${badgeHTML}
-            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='0'; this.parentElement.style.background='#f0f4f0'">
             ${action}
         </div>
         <div class="m-info">
@@ -292,7 +300,7 @@ function pcardHTML(p) {
                     <div class="m-stars">★★★★★</div>
                     <span class="m-rating-val">${p.rating || '5.0'}</span>
                 </div>
-                <div class="m-wt-tag" style="display:inline-block !important;">${v0.wt}</div>
+                <div class="m-wt-tag" style="display:inline-block !important;">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
             </div>
             <h3 class="m-title" style="margin-bottom:0px;">${p.name}</h3>
             <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 ${unitLabel.toUpperCase()} PRICE RATE</div>
@@ -303,7 +311,11 @@ function pcardHTML(p) {
                     <span class="m-amt">${rate}</span>
                     <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/${unitLabel}</span>
                 </div>
-                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹${v0.price} for ${v0.wt}</div>
+                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px; display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
+                    ${v0.originalPrice && v0.originalPrice > v0.price ? `<span style="text-decoration:line-through; opacity:0.5; font-weight:500;">₹${v0.originalPrice}</span>` : ''}
+                    ${v0.originalPrice && v0.originalPrice > v0.price ? `<span style="background:#fefce8; color:#a16207; font-size:9px; padding:1px 5px; border-radius:4px; font-weight:800; border:1px solid #fef08a;">${Math.round(((v0.originalPrice - v0.price) / v0.originalPrice) * 100)}% OFF</span>` : ''}
+                    <span>${hasOptions ? 'from ₹' + v0.price : '₹' + v0.price + ' (' + v0.wt + ')'}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -431,16 +443,22 @@ function renderCart() {
   }
   let sub = 0;
   const items = window.cart.map(ci => {
-    const p = window.products.find(x => Number(x.id) === Number(ci.id));
+    const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
     if (!p) return '';
     const itemTotal = p.price * ci.qty;
     sub += itemTotal;
+    
+    // For custom products, we use the stored description
+    const weightLabel = p.wt || '';
+    const unitInfo = (window.getUnitPrice && !p.isCustom) ? window.getUnitPrice(p.price, p.wt) : null;
+    const rateText = unitInfo ? ` (₹${unitInfo.rate}/${unitInfo.unit} rate)` : (p.desc ? ` <span style="font-size:10px; color:#666; display:block; margin-top:4px;">${p.desc}</span>` : '');
+
     return `
       <div class="citem">
         <img src="${p.img}">
         <div>
           <div class="ci-name">${p.name}</div>
-          <div class="ci-wt">${p.wt} <span style="color:#22c55e; font-weight:700; margin-left:8px;">(₹${window.getUnitPrice(p.price, p.wt)}/${window.getUnitLabel(p.wt)})</span></div>
+          <div class="ci-wt" style="font-size:11px; color:#888;">${weightLabel}${rateText}</div>
           <div class="ci-bot">
             <span class="ci-price">₹${Math.round(itemTotal)}</span>
             <div class="ci-qty">
@@ -562,15 +580,16 @@ function placeOrder() {
           if (orderData) {
             // 2. Add line items
             const itemInserts = window.cart.map(ci => {
-              const p = window.products.find(x => Number(x.id) === Number(ci.id));
+              const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
               return {
                 order_id: orderData.id,
-                product_id: p.id,
+                product_id: p.id > 999000 ? null : p.id, // Supabase FK handles null for custom items
                 product_name: p.name,
                 quantity: ci.qty,
                 unit_price: p.price,
                 total_price: p.price * ci.qty,
-                weight: p.wt
+                weight: p.wt,
+                description: p.desc || ''
               };
             });
             await supabaseClient.from('order_items').insert(itemInserts);
@@ -728,7 +747,9 @@ function handleRawProducts(data) {
     const category = cats.find(c => c.id === p.category_id)?.name || 'Products';
 
     return {
-      id: p.id, name: cap(p.name), price: Number(p.price), wt: p.weight,
+      id: p.id, name: cap(p.name), price: Number(p.price), 
+      originalPrice: p.original_price ? Number(p.original_price) : null,
+      wt: p.weight,
       img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
       rating: p.rating || 5.0, revs: p.review_count || 10, desc: p.description,
       isFeatured: p.is_featured, rawName: p.name
@@ -737,7 +758,36 @@ function handleRawProducts(data) {
 
   window.products = allProds;
 
-  window.displayProducts = allProds;
+  const grouped = {};
+  allProds.forEach(p => {
+    // 1. Remove parentheses content: "Senthura Mango (3kg)" -> "Senthura Mango"
+    // 2. Remove trailing weights: "Honey 500g" -> "Honey"
+    // 3. Remove common product suffixes for better grouping
+    let baseName = p.name
+      .replace(/\(.*\)/g, '')
+      .replace(/\s+\d+\s*(kg|g|l|ml|litres|litre|lit|kilo|gram|oz|lb)\s*$/i, '')
+      .replace(/ mangoes$/i, '')
+      .replace(/ mango$/i, '')
+      .replace(/ powder$/i, '')
+      .replace(/ oil$/i, '')
+      .replace(/ ghee$/i, '')
+      .trim();
+      
+    if (!grouped[baseName]) {
+      grouped[baseName] = { ...p, name: baseName, variants: [] };
+    }
+    grouped[baseName].variants.push(p);
+  });
+
+  Object.values(grouped).forEach(g => {
+    g.variants.sort((a, b) => a.price - b.price);
+    const v0 = g.variants[0];
+    g.id = v0.id; g.price = v0.price; g.wt = v0.wt; g.img = v0.img;
+    g.originalPrice = v0.originalPrice;
+    g.inStock = g.variants.some(v => v.inStock);
+  });
+
+  window.displayProducts = Object.values(grouped);
   refreshCurrentView();
 }
 
@@ -755,7 +805,11 @@ async function submitCorpOrder() {
   const cCounts = window.corpCounts || { imam: 0, alph: 0, bang: 0, sent: 0 };
   const cLimit = window.corpLimit || 3;
 
-  const rates = { imam: 349, alph: 299, bang: 259, sent: 239 };
+  const getR = k => {
+    const p = (window.products || []).find(x => x.name.toLowerCase().includes(k));
+    return p ? window.getUnitPrice(p.price, p.wt).rate : ({ imam: 349, alph: 299, bang: 259, sent: 239 }[k] || 250);
+  };
+  const rates = { imam: getR('imam'), alph: getR('alph'), bang: getR('bang'), sent: getR('sent') };
   let pricePerCrate = 0, totalKg = 0;
   for (const v of ['imam', 'alph', 'bang', 'sent']) {
     const qty = cCounts[v] || 0;
@@ -968,9 +1022,9 @@ function liveSearch(q) {
   if (!res) return;
   if (!q.trim()) { res.style.display = 'none'; return; }
 
-  const list = (window.products || []).filter(p =>
+  const list = (window.displayProducts || []).filter(p =>
     p.name.toLowerCase().includes(q.toLowerCase()) ||
-    p.cat.toLowerCase().includes(q.toLowerCase())
+    (p.cat && p.cat.toLowerCase().includes(q.toLowerCase()))
   ).slice(0, 6);
 
   if (!list.length) {
@@ -991,6 +1045,200 @@ function liveSearch(q) {
   res.style.display = 'block';
 }
 window.liveSearch = liveSearch;
+
+// ===== CUSTOM CRATE BUILDER =====
+let crateLimit = 3;
+let crateMix = {}; // { id: qty }
+let mangoVarieties = [];
+
+window.openCrateBuilder = function() {
+  const overlay = document.getElementById('crate-overlay');
+  const modal = document.getElementById('crate-builder');
+  if (!overlay || !modal) return;
+
+  // Initialize mangoes - exclude the Custom Crate itself!
+  mangoVarieties = (window.displayProducts || []).filter(p => {
+    const isMangoCrate = p.name.toLowerCase().includes('custom') || p.name.toLowerCase().includes('crate');
+    const isMango = (p.cat && p.cat.toLowerCase().includes('mango')) || 
+                    p.name.toLowerCase().includes('mango');
+    return isMango && !isMangoCrate;
+  });
+  
+  crateMix = {};
+  mangoVarieties.forEach(v => crateMix[v.id] = 0);
+  crateLimit = 3;
+  
+  window.renderCrateVarieties();
+  window.updateCrateUI();
+  
+  overlay.style.display = 'block';
+  modal.style.display = 'block';
+  setTimeout(() => {
+    modal.style.transform = 'translateY(0)';
+    overlay.style.opacity = '1';
+  }, 10);
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeCrateBuilder = function() {
+  const overlay = document.getElementById('crate-overlay');
+  const modal = document.getElementById('crate-builder');
+  if (modal) modal.style.transform = 'translateY(100%)';
+  if (overlay) overlay.style.opacity = '0';
+  setTimeout(() => {
+    if (overlay) overlay.style.display = 'none';
+    if (modal) modal.style.display = 'none';
+  }, 400);
+  document.body.style.overflow = '';
+};
+
+window.setCrateLimit = function(lim) {
+  crateLimit = lim;
+  console.log("Crate limit changed to:", lim);
+  
+  // Reset previous mixes to avoid weight overflow
+  if (mangoVarieties && mangoVarieties.length) {
+    mangoVarieties.forEach(v => crateMix[String(v.id)] = 0);
+  } else {
+    crateMix = {};
+  }
+  
+  // Update Tab UI
+  document.querySelectorAll('.crate-size-tab').forEach(t => {
+    t.style.background = '#f8fafc';
+    t.style.borderColor = '#eee';
+    t.style.color = '#64748b';
+    t.classList.remove('active');
+  });
+  
+  const activeTab = document.getElementById(`tab-${lim}kg`);
+  if (activeTab) {
+    activeTab.style.background = '#f0fdf4';
+    activeTab.style.borderColor = '#22c55e';
+    activeTab.style.color = '#166534';
+    activeTab.classList.add('active');
+  }
+
+  window.renderCrateVarieties();
+  window.updateCrateUI();
+};
+
+window.updateCrateVariety = function(id, delta) {
+  const cid = String(id);
+  const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
+  
+  if (delta > 0 && currentTotal + delta > crateLimit) {
+    showToast(`Crate limit reached (${crateLimit} KG)`);
+    return;
+  }
+  
+  const currentQty = crateMix[cid] || 0;
+  if (currentQty + delta < 0) return;
+  
+  crateMix[cid] = currentQty + delta;
+  console.log(`Updated ${cid} to ${crateMix[cid]}`);
+  
+  window.renderCrateVarieties();
+  window.updateCrateUI();
+};
+
+window.renderCrateVarieties = function() {
+  const container = document.getElementById('crate-varieties');
+  if (!container) return;
+  
+  container.innerHTML = mangoVarieties.map(v => {
+    const qty = crateMix[String(v.id)] || 0;
+    // Get the accurate 1KG rate
+    const unitPrice = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
+    
+    return `
+    <div style="display:flex; align-items:center; gap:15px; padding:15px; border-bottom:1px solid #f1f5f9;">
+        <img src="${v.img}" style="width:60px; height:60px; border-radius:12px; object-fit:cover;">
+        <div style="flex:1">
+            <div style="font-weight:700; color:#1b391b;">${v.name}</div>
+            <div style="font-size:12px; color:#22c55e; font-weight:700;">₹${unitPrice} / KG</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; background:#f8fafc; border-radius:50px; padding:6px 14px; border:1px solid #e2e8f0;">
+            <button onclick="window.updateCrateVariety('${v.id}', -1)" style="background:none; border:none; font-weight:900; color:#ef4444; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">–</button>
+            <span style="font-weight:900; min-width:20px; text-align:center; font-size:16px; color:#1b391b;">${qty}</span>
+            <button onclick="window.updateCrateVariety('${v.id}', 1)" style="background:none; border:none; font-weight:900; color:#22c55e; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">+</button>
+        </div>
+    </div>
+  `}).join('');
+};
+
+window.updateCrateUI = function() {
+  const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
+  let totalPrice = 0;
+  
+  mangoVarieties.forEach(v => {
+    const qty = crateMix[String(v.id)] || 0;
+    const unitPrice = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
+    totalPrice += qty * unitPrice;
+  });
+  
+  const curWtEl = document.getElementById('crate-current-wt');
+  const maxLimEl = document.getElementById('crate-max-limit');
+  const totPrEl = document.getElementById('crate-total-price');
+  
+  if (curWtEl) curWtEl.textContent = currentTotal;
+  if (maxLimEl) maxLimEl.textContent = crateLimit;
+  if (totPrEl) totPrEl.textContent = totalPrice.toLocaleString('en-IN');
+  
+  const btn = document.getElementById('add-crate-btn');
+  if (btn) {
+    if (currentTotal === crateLimit) {
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.style.background = '#1b391b';
+      btn.disabled = false;
+      btn.textContent = `ADD ${crateLimit}KG MIX TO CART - ₹${totalPrice.toLocaleString('en-IN')}`;
+    } else {
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      btn.style.background = '#64748b';
+      btn.disabled = true;
+      btn.textContent = `SELECT ${crateLimit - currentTotal} KG MORE...`;
+    }
+  }
+};
+
+window.crateLimit = crateLimit;
+window.crateMix = crateMix;
+
+window.addCustomCrateToCart = function() {
+  const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
+  if (currentTotal !== crateLimit) return;
+  
+  let totalPrice = 0;
+  let summary = [];
+  mangoVarieties.forEach(v => {
+    const qty = crateMix[String(v.id)] || 0;
+    if (qty > 0) {
+      const perKgRate = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
+      totalPrice += qty * perKgRate;
+      summary.push(`${qty}kg ${v.name}`);
+    }
+  });
+
+  const customId = 999000 + (Date.now() % 10000);
+  const customProduct = {
+    id: customId,
+    name: `Custom Crate (${crateLimit}kg)`,
+    price: totalPrice,
+    img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=60&w=400&fit=crop',
+    desc: `Mixed Pack: ${summary.join(', ')}`,
+    wt: `${crateLimit}kg`,
+    is_active: true,
+    inStock: true,
+    isCustom: true
+  };
+  
+  addToCart(customId, customProduct);
+  showToast('Custom Crate added to harvest bag!');
+  window.closeCrateBuilder();
+  refreshCurrentView();
+};
 
 initApp();
 window.handleTrack = handleTrack;
