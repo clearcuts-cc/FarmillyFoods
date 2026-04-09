@@ -5973,7 +5973,10 @@
 
         if (!sheet || !overlay || !options || !title) return;
 
-        const cleanVariety = (variety || '').replace(/\(.*\)/, '').replace(/mangoes/i, '').trim();
+        const cleanVariety = (variety || '').replace(/\(.*\)/, '')
+                                            .replace(/ mangoes/i, '')
+                                            .replace(/ powder/i, '')
+                                            .trim();
         const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
         title.innerHTML = cap(cleanVariety);
         title.style.textAlign = 'center';
@@ -5993,7 +5996,10 @@
         setTimeout(() => {
           const list = window.products || [];
           const variants = list.filter(p => {
-             const baseP = p.name.replace(/\(.*\)/, '').replace(/ mangoes/i, '').trim().toLowerCase();
+             const baseP = p.name.replace(/\(.*\)/, '')
+                                 .replace(/ mangoes/i, '')
+                                 .replace(/ powder/i, '')
+                                 .trim().toLowerCase();
              const baseV = cleanVariety.toLowerCase();
              return baseP === baseV;
           });
@@ -6077,7 +6083,7 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=2.0"></script>
+  <script src="app.js?v=2.3"></script>
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
