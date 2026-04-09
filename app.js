@@ -56,11 +56,11 @@ function updateCartCount() {
 
   if (el) { el.textContent = n; n > 0 ? el.classList.add('show') : el.classList.remove('show'); }
   if (m) { m.textContent = n; n > 0 ? m.classList.add('show') : m.classList.remove('show'); }
-  
+
   const mb = document.getElementById('mob-badge');
-  if (mb) { 
-    mb.textContent = n; 
-    n > 0 ? mb.classList.add('show') : mb.classList.remove('show'); 
+  if (mb) {
+    mb.textContent = n;
+    n > 0 ? mb.classList.add('show') : mb.classList.remove('show');
   }
 
   refreshCurrentView();
@@ -80,7 +80,7 @@ window.rmCart = rmCart;
 function addToCart(id) {
   const nid = Number(id);
   if (!nid) { console.error("addToCart: Invalid ID", id); return; }
-  
+
   const p = (window.products || []).find(x => Number(x.id) === nid);
   if (!p) {
     console.error("addToCart: Product not found in window.products", nid);
@@ -88,7 +88,7 @@ function addToCart(id) {
     // return; 
     // Proceed anyway if we can? No, we need metadata. 
   }
-  
+
   if (p && p.inStock === false) {
     showToast("This item is currently sold out.");
     return;
@@ -100,7 +100,7 @@ function addToCart(id) {
   } else {
     window.cart.push({ id: nid, qty: 1 });
   }
-  
+
   saveCart();
   console.log("Cart updated:", window.cart);
 }
@@ -140,7 +140,7 @@ function showPage(page) {
     p.classList.remove('active');
     p.style.display = 'none';
   });
-  
+
   const el = document.getElementById('page-' + page);
   if (el) {
     el.style.display = 'block';
@@ -154,11 +154,11 @@ function showPage(page) {
       else a.classList.remove('active');
     });
   }
-  
+
   if (page === 'home') renderHome();
   if (page === 'shop') renderShop();
   if (page === 'cart') renderCart();
-  
+
   closeMob();
 }
 window.showPage = showPage;
@@ -220,7 +220,7 @@ function refreshCurrentView() {
 function goBack() { showPage(prevPage === 'product' ? 'shop' : prevPage); }
 
 function stars(r) { return '<span style="color:var(--secondary)">' + String.fromCharCode(9733).repeat(Math.floor(r)) + String.fromCharCode(9734).repeat(5 - Math.floor(r)) + '</span>'; }
-window.getWeightMultiplier = function(wt) {
+window.getWeightMultiplier = function (wt) {
   const w = (wt || '').toLowerCase();
   const nm = w.match(/[\d.]+/);
   const nVal = nm ? parseFloat(nm[0]) : 0;
@@ -232,7 +232,7 @@ window.getWeightMultiplier = function(wt) {
   return 1;
 };
 
-window.getUnitPrice = function(price, wt) {
+window.getUnitPrice = function (price, wt) {
   const pVal = parseFloat(price || 0);
   const mult = window.getWeightMultiplier(wt);
   const rate = mult > 0 ? Math.round(pVal / mult) : pVal;
@@ -241,7 +241,7 @@ window.getUnitPrice = function(price, wt) {
   return { rate, unit };
 };
 
-window.getItemPrice = function(price, qty) {
+window.getItemPrice = function (price, qty) {
   // Price is total for 1 unit. qty is count in basket.
   return price * Number(qty || 1);
 };
@@ -251,7 +251,7 @@ function pcardHTML(p) {
   const variants = p.variants || [];
   const hasOptions = variants.length > 1;
   const v0 = hasOptions ? variants[0] : p;
-  
+
   // High-precision unit price calculation
   const unitInfo = window.getUnitPrice(v0.price || p.price, v0.wt || p.wt);
   const rate = unitInfo.rate;
@@ -310,7 +310,7 @@ function pcardHTML(p) {
   `;
 }
 
-window.getUnitLabel = function(wt) {
+window.getUnitLabel = function (wt) {
   const w = (wt || '').toLowerCase();
   return (w.includes('l') && !w.includes('ml')) || w.includes('lit') || w.includes('ml') ? 'L' : 'kg';
 };
@@ -318,13 +318,13 @@ window.getUnitLabel = function(wt) {
 function getProductBG(p) {
   const c = (p.cat || '').toLowerCase();
   const n = (p.name || '').toLowerCase();
-  
+
   // Variety based specifics
   if (n.includes('imam')) return '#FFF9C4';
   if (n.includes('alph')) return '#FFE0B2';
   if (n.includes('bang')) return '#FFF17644';
   if (n.includes('sent')) return '#FFEBEE';
-  
+
   // Category based defaults
   if (c.includes('ghee') || c.includes('oil')) return '#FFFDE7';
   if (c.includes('honey')) return '#FFF8E1';
@@ -332,7 +332,7 @@ function getProductBG(p) {
   if (c.includes('bee')) return '#FFF9C4';
   if (c.includes('beverage')) return '#E0F2F1';
   if (c.includes('mango')) return '#F9FBE7';
-  
+
   return '#f5f8f5';
 }
 
@@ -385,7 +385,7 @@ function filterProds() {
   const grid = document.getElementById('shop-grid');
   if (!grid) return;
   const q = (document.getElementById('shop-srch')?.value || '').toLowerCase();
-  
+
   // Use grouped products for display
   const displayList = window.displayProducts || window.products;
 
@@ -394,7 +394,7 @@ function filterProds() {
     const matchQ = !q || p.name.toLowerCase().includes(q);
     return matchCat && matchQ;
   });
-  
+
   grid.innerHTML = list.length ? list.map(pcardHTML).join('') : '<div style="text-align:center;width:100%;padding:100px 20px;color:#888;">No results found.</div>';
 }
 
@@ -453,15 +453,15 @@ function renderCart() {
         </div>
       </div>`;
   }).join('');
-  
+
   const deliveryFee = sub > 1000 ? 0 : 49;
   const total = sub + deliveryFee;
-  
+
   el.innerHTML = `
     <div class="clist">${items}</div>
     <div class="csummary">
       <div class="srow"><span>Subtotal</span><span>₹${sub}</span></div>
-      <div class="srow"><span style="color:#666;">Delivery</span><span style="color:${deliveryFee === 0 ? '#22c55e' : '#666'};">${deliveryFee === 0 ? 'Free' : '₹'+deliveryFee}</span></div>
+      <div class="srow"><span style="color:#666;">Delivery</span><span style="color:${deliveryFee === 0 ? '#22c55e' : '#666'};">${deliveryFee === 0 ? 'Free' : '₹' + deliveryFee}</span></div>
       <div class="srow total" style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;"><span>Total</span><span style="font-size:24px; font-weight:900;">₹${total}</span></div>
       <div id="co-tot" style="display:none">${total}</div>
       <div class="slide-wrap" id="cart-slider" style="margin-top:24px;">
@@ -475,7 +475,7 @@ function renderCart() {
       </div>
     </div>
   `;
-  
+
   setTimeout(() => initSlider(), 50);
 }
 
@@ -493,7 +493,7 @@ function initSlider() {
     startX = (e.type === 'mousedown') ? e.pageX : e.touches[0].pageX;
     handle.style.transition = 'none';
     text.style.transition = 'none';
-    if(bg) bg.style.transition = 'none';
+    if (bg) bg.style.transition = 'none';
   };
 
   const onMove = (e) => {
@@ -511,14 +511,14 @@ function initSlider() {
     isDragging = false;
     if (currentPos >= maxTravel * 0.9) {
       handle.style.transform = `translateX(${maxTravel}px)`;
-      if(bg) bg.style.width = '100%';
+      if (bg) bg.style.width = '100%';
       slider.classList.add('completed');
       text.innerText = 'PROCESSING...';
       placeOrder();
     } else {
       handle.style.transition = 'all 0.3s cubic-bezier(.2,.8,.2,1)';
       handle.style.transform = 'translateX(0)';
-      if(bg) { bg.style.transition = 'all 0.3s'; bg.style.width = '0'; }
+      if (bg) { bg.style.transition = 'all 0.3s'; bg.style.width = '0'; }
       text.style.transition = 'all 0.3s';
       text.style.opacity = '1';
     }
@@ -536,12 +536,12 @@ function placeOrder() {
   const totEl = document.getElementById('co-tot');
   const tot = totEl ? parseInt(totEl.innerText) : 0;
   if (!tot) return;
-  
+
   const options = {
     key: "rzp_test_SYaf8btoC5VUyk", amount: tot * 100, currency: "INR", name: "Farmmily Foods",
     handler: async response => {
       showToast('Payment Successful!');
-      
+
       if (supabaseClient) {
         try {
           // 1. Create main order (order_number is generated by DB default)
@@ -587,7 +587,7 @@ function placeOrder() {
             // 4. Update Success UI and Navigate
             const succIdEl = document.getElementById('succ-oid');
             if (succIdEl) succIdEl.textContent = orderData.order_number;
-            
+
             window.cart = [];
             saveCart();
             showPage('success');
@@ -603,15 +603,15 @@ function placeOrder() {
       }
     },
     modal: {
-      ondismiss: function() {
+      ondismiss: function () {
         const slider = document.getElementById('cart-slider');
-        if(slider) {
+        if (slider) {
           slider.classList.remove('completed');
           slider.querySelector('.slide-text').innerText = 'SLIDE TO PAY';
           const handle = slider.querySelector('.slide-handle');
           const bg = slider.querySelector('.slide-bg');
           handle.style.transform = 'translateX(0)';
-          if(bg) bg.style.width = '0';
+          if (bg) bg.style.width = '0';
         }
       }
     }
@@ -622,11 +622,11 @@ function placeOrder() {
 
 // ===== SUPABASE LOAD =====
 async function loadCategories() {
-  if (!supabaseClient) { 
+  if (!supabaseClient) {
     cats = [{ name: 'Products', svg: '' }];
     renderHome();
     renderCatLists();
-    return; 
+    return;
   }
   const { data } = await supabaseClient.from('categories').select('*').eq('active', true);
   if (data) {
@@ -651,7 +651,7 @@ async function loadCategories() {
         // Fallback generic icon
         iconHtml = `<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8" stroke="#22c55e"/></svg>`;
       }
-      
+
       return {
         id: c.id,
         name: c.name,
@@ -705,7 +705,7 @@ function renderShop() {
     chips.innerHTML = list.map(c =>
       '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
     ).join('');
-    chips.style.display = 'flex'; 
+    chips.style.display = 'flex';
   }
   filterProds();
 }
@@ -720,45 +720,24 @@ async function loadProducts() {
 function handleRawProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
   const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png' };
-  
+
   const allProds = (data || []).map(p => {
     let img = p.image_url;
-    const low = (p.name||'').toLowerCase();
+    const low = (p.name || '').toLowerCase();
     for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
     const category = cats.find(c => c.id === p.category_id)?.name || 'Products';
 
-    return { 
-       id: p.id, name: cap(p.name), price: Number(p.price), wt: p.weight, 
-       img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
-       rating: p.rating || 5.0, revs: p.review_count || 10, desc: p.description,
-       isFeatured: p.is_featured, rawName: p.name
+    return {
+      id: p.id, name: cap(p.name), price: Number(p.price), wt: p.weight,
+      img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
+      rating: p.rating || 5.0, revs: p.review_count || 10, desc: p.description,
+      isFeatured: p.is_featured, rawName: p.name
     };
   });
-  
+
   window.products = allProds;
 
-  const grouped = {};
-  allProds.forEach(p => {
-    // Clean base name by removing parentheses and common suffixes
-    const baseName = p.name.replace(/\(.*\)/, '')
-                           .replace(/ mangoes/i, '')
-                           .replace(/ powder/i, '')
-                           .trim();
-    
-    if (!grouped[baseName]) {
-      grouped[baseName] = { ...p, name: baseName, variants: [] };
-    }
-    grouped[baseName].variants.push(p);
-  });
-
-  Object.values(grouped).forEach(g => {
-    g.variants.sort((a,b) => a.price - b.price);
-    if (g.variants.length > 0) g.img = g.variants[0].img;
-    // If only one variant, the display name should be the full product name for clarity?
-    // Actually, for consistency, we use the grouped baseName on the card.
-  });
-
-  window.displayProducts = Object.values(grouped);
+  window.displayProducts = allProds;
   refreshCurrentView();
 }
 
@@ -826,10 +805,10 @@ async function handleTrack(manualId = null) {
   const inp = document.getElementById('tr-oid');
   const res = document.getElementById('tr-res');
   if (!res) return;
-  
+
   const idValue = manualId || (inp ? inp.value : '');
   const id = idValue.trim().toUpperCase().replace('#', '');
-  
+
   if (!id) { showToast('Enter Reference ID'); return; }
 
   res.style.display = 'block';
@@ -875,7 +854,7 @@ function renderTrackResult(data, type, container) {
   const status = (data.status || 'confirmed').toLowerCase();
   const id = data.order_number || data.enquiry_ref;
   const date = new Date(data.created_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-  
+
   const steps = ['confirmed', 'packed', 'shipped', 'delivered'];
   let currentStepIndex = steps.indexOf(status);
   if (currentStepIndex === -1) currentStepIndex = 0; // Default to confirmed
@@ -939,7 +918,7 @@ async function initApp() {
         loadProducts(); // Re-fetch and re-render
       })
       .subscribe();
-      
+
     supabaseClient
       .channel('public:categories')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, payload => {
@@ -989,8 +968,8 @@ function liveSearch(q) {
   if (!res) return;
   if (!q.trim()) { res.style.display = 'none'; return; }
 
-  const list = (window.products || []).filter(p => 
-    p.name.toLowerCase().includes(q.toLowerCase()) || 
+  const list = (window.products || []).filter(p =>
+    p.name.toLowerCase().includes(q.toLowerCase()) ||
     p.cat.toLowerCase().includes(q.toLowerCase())
   ).slice(0, 6);
 
@@ -1017,12 +996,25 @@ initApp();
 window.handleTrack = handleTrack;
 window.trackOrder = trackOrder;
 window.updCart = updCart;
-window.addToCartAndFeedback = function(b, id) { addToCart(id); refreshCurrentView(); };
+window.addToCartAndFeedback = function (b, id) { addToCart(id); refreshCurrentView(); };
 
-window.showProduct = function(id) {
+window.showProduct = function (id) {
   const p = (window.products || []).find(x => Number(x.id) === Number(id));
   if (!p) return;
-  
+
+  // ALWAYS open detail view when clicking the card body
+  if (typeof window.showPremiumDetail === 'function') {
+    window.showPremiumDetail(p.name);
+  }
+};
+window.trackOrder = trackOrder;
+window.updCart = updCart;
+window.addToCartAndFeedback = function (b, id) { addToCart(id); refreshCurrentView(); };
+
+window.showProduct = function (id) {
+  const p = (window.products || []).find(x => Number(x.id) === Number(id));
+  if (!p) return;
+
   // ALWAYS open detail view when clicking the card body
   if (typeof window.showPremiumDetail === 'function') {
     window.showPremiumDetail(p.name);
