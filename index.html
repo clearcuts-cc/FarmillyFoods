@@ -5926,37 +5926,62 @@
       const el = document.getElementById(elId);
       if (!el) return;
       let startY = 0, currentY = 0, isDragging = false;
+      let rafId = null;
+
       el.addEventListener('touchstart', (e) => {
         const isHandle = e.target.classList.contains('sheet-handle');
-        if (isHandle || el.scrollTop <= 0) {
+        // Only start drag if on handle or if at very top of scroll
+        if ((isHandle || el.scrollTop <= 0)) {
           startY = e.touches[0].pageY;
           isDragging = true;
+          // IMPORTANT: Kill transitions immediately
           el.style.transition = 'none';
+          el.style.willChange = 'transform';
         }
       }, { passive: true });
+
       el.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         currentY = e.touches[0].pageY;
         const delta = currentY - startY;
+
         if (delta > 0) {
           if (e.cancelable) e.preventDefault();
-          el.style.transform = `translateY(${delta}px)`;
-        } else {
-          // If they swipe up, let the native scroll take over
-          isDragging = false;
-          el.style.transform = '';
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(() => {
+            el.style.transform = `translate3d(0, ${delta}px, 0)`;
+          });
         }
       }, { passive: false });
+
       el.addEventListener('touchend', () => {
         if (!isDragging) return;
         isDragging = false;
-        el.style.transition = 'transform 0.4s cubic-bezier(0.2,0.8,0.2,1)';
+        if (rafId) cancelAnimationFrame(rafId);
+        
+        el.style.willChange = 'auto';
         const delta = currentY - startY;
+        
+        // Reset transition for snapping
+        el.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        
         if (delta > 100) {
+          // Finish close
+          el.style.transform = 'translate3d(0, 100%, 0)';
           if (window[closeFnName]) window[closeFnName]();
         } else {
-          el.style.transform = 'translateY(0)';
+          // Snap back
+          el.style.transform = 'translate3d(0, 0, 0)';
+          // Cleanup inline transform after snap
+          setTimeout(() => {
+            if (!isDragging) {
+               el.style.transform = '';
+               el.style.transition = '';
+            }
+          }, 400);
         }
+        // Force reset currentY to prevent old values on next tap
+        currentY = 0; startY = 0;
       });
     }
 
@@ -6481,7 +6506,12 @@
         window.currentSheetVariety = null;
         const sheet = document.getElementById('variant-sheet');
         const overlay = document.getElementById('variant-sheet-overlay');
-        if (sheet) sheet.classList.remove('active');
+        if (sheet) {
+          sheet.classList.remove('active');
+          // Clear any inline styles from swipe-to-dismiss
+          sheet.style.transform = '';
+          sheet.style.transition = '';
+        }
         if (overlay) overlay.classList.remove('active');
         document.body.style.overflow = '';
       };

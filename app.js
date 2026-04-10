@@ -608,10 +608,18 @@ window.openDeliveryModal = function() {
 window.closeDeliveryModal = function() {
   const overlay = document.getElementById('delivery-overlay');
   const modal = document.getElementById('delivery-modal');
-  if (modal) { modal.style.transform = 'translateY(100%)'; }
+  if (modal) { 
+    modal.style.transform = 'translateY(100%)'; 
+    modal.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+    modal.classList.remove('active');
+  }
   setTimeout(() => {
     if (overlay) overlay.style.display = 'none';
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+      modal.style.display = 'none';
+      modal.style.transform = '';
+      modal.style.transition = '';
+    }
     // Reset slider on cancel
     const slider = document.getElementById('cart-slider');
     if (slider) {
@@ -645,7 +653,7 @@ function openRazorpayWithDetails(customerName, phone, address) {
   if (!tot) return;
 
   const options = {
-    key: "rzp_test_SYaf8btoC5VUyk", amount: tot * 100, currency: "INR", name: "Farmmily Foods",
+    key: "rzp_live_SblSXsCRc6GjPo", amount: tot * 100, currency: "INR", name: "Farmmily Foods",
     handler: async response => {
       showToast('Payment Successful!');
 
@@ -937,7 +945,7 @@ async function submitCorpOrder() {
   const enquiryRef = 'CE-' + Math.floor(1000000 + Math.random() * 9000000);
 
   const options = {
-    key: 'rzp_test_SYaf8btoC5VUyk', amount: totalAmount * 100, currency: 'INR',
+    key: 'rzp_live_SblSXsCRc6GjPo', amount: totalAmount * 100, currency: 'INR',
     name: 'Farmmily Executive B2B', description: `${totalUnits} Crates`,
     image: 'assets/farmmily logo.png', prefill: { contact: contactPhone, email: contactEmail },
     handler: async function (response) {
@@ -1016,12 +1024,30 @@ async function handleTrack(manualId = null) {
 }
 
 function renderTrackResult(data, type, container) {
-  const status = (data.status || 'confirmed').toLowerCase();
+  const rawStatus = (data.status || 'confirmed').toLowerCase();
   const id = data.order_number || data.enquiry_ref;
   const date = new Date(data.created_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
+  // Map backend statuses to simple UI steps
+  let status = rawStatus;
+  if (type === 'CORPORATE') {
+    if (rawStatus === 'new') status = 'confirmed';
+    if (rawStatus === 'contacted') status = 'packed'; // or similar stage
+    if (rawStatus === 'fulfilled') status = 'delivered';
+  }
+
   const steps = ['confirmed', 'packed', 'shipped', 'delivered'];
   let currentStepIndex = steps.indexOf(status);
+  if (currentStepIndex === -1 && status === 'cancelled') {
+     // Special handle for cancelled
+     container.innerHTML = `<div style="padding:40px; text-align:center; background:#fff5f5; border-radius:32px; border:1px solid #fed7d7;">
+       <div style="font-size:32px; margin-bottom:12px;">🚫</div>
+       <h3 style="color:#c53030; margin-bottom:8px;">Order Cancelled</h3>
+       <p style="color:#718096; font-size:14px;">This reference <b>${id}</b> has been cancelled. Please contact support if this is an error.</p>
+     </div>`;
+     return;
+  }
+  
   if (currentStepIndex === -1) currentStepIndex = 0; // Default to confirmed
 
   let stepsHTML = steps.map((s, i) => {
@@ -1192,13 +1218,19 @@ window.openCrateBuilder = function() {
 };
 
 window.closeCrateBuilder = function() {
-  const overlay = document.getElementById('crate-overlay');
-  const modal = document.getElementById('crate-builder');
-  if (modal) modal.style.transform = 'translateY(100%)';
-  if (overlay) overlay.style.opacity = '0';
+  const c = document.getElementById('crate-builder');
+  const o = document.getElementById('crate-overlay');
+  if (c) { 
+    c.style.transform = 'translateY(100%)';
+    c.classList.remove('active');
+  }
   setTimeout(() => {
-    if (overlay) overlay.style.display = 'none';
-    if (modal) modal.style.display = 'none';
+    if (o) o.style.display = 'none';
+    if (c) {
+      c.style.display = 'none';
+      c.style.transform = '';
+      c.style.transition = '';
+    }
   }, 400);
   document.body.style.overflow = '';
 };
