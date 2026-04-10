@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+  <channel>
+    <title>Farmmily Boutique Products</title>
+    <link>https://farmmilyfoods.com</link>
+    <description>Premium Heritage Mangoes, A2 Ghee &amp; Raw Honey from our private estates.</description>
+    
+    <!-- Imam Pasand -->
+    <item>
+      <g:id>IMAM_3KG</g:id>
+      <g:title>Imam Pasand Mangoes - 3kg Elite Crate</g:title>
+      <g:description>Hand-picked, sun-ripened heritage Imam Pasand mangoes from our Mambalam estates.</g:description>
+      <g:link>https://farmmilyfoods.com/shop?p=imam-pasand</g:link>
+      <g:image_link>https://farmmilyfoods.com/assets/imam.png</g:image_link>
+      <g:brand>Farmmily</g:brand>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:price>1047 INR</g:price>
+      <g:google_product_category>Food, Beverages &amp; Tobacco &gt; Food Items &gt; Fruits &amp; Vegetables &gt; Fresh &amp; Frozen Fruits</g:google_product_category>
+    </item>
+
+    <!-- Alphonso -->
+    <item>
+      <g:id>ALPH_3KG</g:id>
+      <g:title>Alphonso Mangoes - 3kg Heritage Crate</g:title>
+      <g:description>The King of mangoes, sweet and creamy Alphonso direct from our farm.</g:description>
+      <g:link>https://farmmilyfoods.com/shop?p=alphonso</g:link>
+      <g:image_link>https://farmmilyfoods.com/assets/alphonso.png</g:image_link>
+      <g:brand>Farmmily</g:brand>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:price>897 INR</g:price>
+      <g:google_product_category>Food, Beverages &amp; Tobacco &gt; Food Items &gt; Fruits &amp; Vegetables &gt; Fresh &amp; Frozen Fruits</g:google_product_category>
+    </item>
+
+  </channel>
+</rss>

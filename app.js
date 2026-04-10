@@ -146,6 +146,28 @@ function showPage(page) {
     prevPage = curPage;
     curPage = page;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // --- Dynamic SEO Tracking ---
+    const pageTitles = {
+      'home': 'Farmmily Farms — Premium Organic Mangoes & A2 Ghee',
+      'shop': 'Shop Online — Organic Heritage Mangoes & Farm Fresh Goods',
+      'corporate': 'Corporate Gifting — Bespoke Mango Crates & Luxury Hampers',
+      'track': 'Track Your Order — Farmmily Delivery Status',
+      'cart': 'Your Shopping Cart — Farmmily Boutique'
+    };
+    const pageDescs = {
+      'home': 'Direct from our estates to your family. Experience the legendary purity of our seasonal harvest.',
+      'shop': 'Explore our collection of Imam Pasand, Alphonso, and Banganapalli mangoes along with artisan ghee.',
+      'corporate': 'Premium B2B gifting solutions. Hand-curated mango boxes for your brand partners.',
+      'track': 'Enter your order number or enquiry reference to track your farm-fresh delivery live.',
+      'cart': 'Complete your purchase of heritage products from Farmmily Farms.'
+    };
+
+    if (pageTitles[page]) document.title = pageTitles[page];
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && pageDescs[page]) metaDesc.setAttribute('content', pageDescs[page]);
+    // ----------------------------
+
     document.querySelectorAll('#mob-nav .mob-nav-item, #desktop-nav a').forEach(a => {
       const oc = a.getAttribute('onclick') || '';
       if (oc.includes(`'${page}'`)) a.classList.add('active');
