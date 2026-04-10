@@ -5103,11 +5103,6 @@
             <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg> Same-Day Farm Dispatch</div>
-        <div class="tdiv"></div>
-        <div class="ti"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ea9800" stroke-width="2.5"
-            stroke-linecap="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg> Global Gap Certified</div>
       </div>
     </div>
     <section class="sec" id="categories-sec" style="padding-top: 10px; padding-bottom: 0px;">
@@ -5553,18 +5548,13 @@
           <ul>
             <li><a onclick="document.getElementById('about-sec').scrollIntoView({behavior:'smooth'})">Our Vision</a>
             </li>
-            <li><a>Sustainability</a></li>
-            <li><a>Our Farms</a></li>
-            <li><a>Certifications</a></li>
           </ul>
         </div>
         <div class="fcol">
           <h4>Help Center</h4>
           <ul>
             <li><a onclick="showPage('track')">Order Tracking</a></li>
-            <li><a>Return Policy</a></li>
             <li><a href="https://wa.me/917708847977" target="_blank">WhatsApp Chat</a></li>
-            <li><a>Contact Support</a></li>
           </ul>
         </div>
       </div>
@@ -6329,7 +6319,7 @@
         }
       };
 
-      function openVariantSheet(variety) {
+      function openVariantSheet(variety, variantIds) {
         currentSheetVariety = variety;
         window.currentSheetVariety = variety;
         const sheet = document.getElementById('variant-sheet');
@@ -6363,15 +6353,24 @@
 
         setTimeout(() => {
           const list = window.products || [];
-          const variants = list.filter(p => {
-            const baseP = (p.name || '').replace(/\(.*\)/, '')
-              .replace(/ mangoes/i, '')
-              .replace(/ powder/i, '')
-              .trim().toLowerCase();
-            const baseV = cleanVariety.toLowerCase();
-            // Loose match: either direct match or or one contains the other
-            return baseP === baseV || baseP.includes(baseV) || baseV.includes(baseP);
-          });
+          let variants;
+
+          // ✅ Prefer direct ID lookup (fast, accurate, no name-matching bugs)
+          if (variantIds && variantIds.length > 0) {
+            const idSet = new Set(variantIds.map(Number));
+            variants = list.filter(p => idSet.has(Number(p.id)));
+          } else {
+            // Fallback: name-based matching
+            variants = list.filter(p => {
+              const baseP = (p.name || '').replace(/\(.*\)/, '')
+                .replace(/\s+\d+\s*(kg|g|l|ml|litres?|lit|kilo|gram|oz|lb)\s*$/i, '')
+                .replace(/ mangoes$/i, '').replace(/ mango$/i, '')
+                .replace(/ powder$/i, '').replace(/ oil$/i, '').replace(/ ghee$/i, '')
+                .trim().toLowerCase();
+              const baseV = cleanVariety.toLowerCase();
+              return baseP === baseV || baseP.includes(baseV) || baseV.includes(baseP);
+            });
+          }
 
           if (!variants.length) {
             console.warn("openVariantSheet: No variants found for", cleanVariety, "in list of", list.length);
@@ -6527,7 +6526,7 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=5.4"></script>
+  <script src="app.js?v=5.5"></script>
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
@@ -6562,6 +6561,46 @@
       </div>
     </div>
   </nav>
+
+  <!-- DELIVERY DETAILS MODAL -->
+  <div id="delivery-overlay" onclick="window.closeDeliveryModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); z-index:9100;"></div>
+  <div id="delivery-modal" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#fff; border-radius:28px 28px 0 0; z-index:9101; box-shadow:0 -10px 50px rgba(0,0,0,0.15); padding:28px 24px 40px; transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1);">
+    <div style="width:40px; height:5px; background:#e2e8f0; border-radius:10px; margin:0 auto 22px;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+      <div>
+        <div style="font-size:10px; font-weight:800; color:#ea9800; letter-spacing:3px; text-transform:uppercase; margin-bottom:4px;">Delivery Details</div>
+        <h3 style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#1b391b; margin:0;">Where should we deliver?</h3>
+      </div>
+      <button onclick="window.closeDeliveryModal()" style="background:#f1f5f9; border:none; width:36px; height:36px; border-radius:50%; font-size:20px; color:#666; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+    </div>
+    <p style="color:#888; font-size:0.85rem; margin-bottom:24px;">These details help us deliver your fresh harvest to the right place.</p>
+
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div>
+        <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Full Name *</label>
+        <input id="del-name" type="text" placeholder="e.g. Anitha Kumar" maxlength="100"
+          style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:1rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Phone Number *</label>
+        <input id="del-phone" type="tel" placeholder="e.g. 9876543210" maxlength="15"
+          style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:1rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Delivery Address *</label>
+        <textarea id="del-address" placeholder="House no, Street, City, PIN code" rows="3" maxlength="300"
+          style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; resize:none; transition:border-color 0.2s; line-height:1.6;"
+          onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+      </div>
+    </div>
+
+    <button onclick="window.submitDeliveryAndPay()" style="width:100%; margin-top:20px; padding:18px; background:linear-gradient(135deg,#1b391b,#2d6a2d); color:#fff; border:none; border-radius:16px; font-size:1rem; font-weight:900; letter-spacing:1px; cursor:pointer; font-family:inherit; transition:opacity 0.2s; display:flex; align-items:center; justify-content:center; gap:10px;">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      PROCEED TO PAY
+    </button>
+  </div>
   <!-- CUSTOM CRATE BUILDER MODAL -->
   <div id="crate-overlay" onclick="window.closeCrateBuilder()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter:blur(10px); z-index:9000; transition:all 0.3s ease;"></div>
   <div id="crate-builder" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#fff; border-radius:32px 32px 0 0; z-index:9001; box-shadow:0 -10px 40px rgba(0,0,0,0.1); padding:24px; transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1); transform:translateY(100%);">

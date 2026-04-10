@@ -246,6 +246,37 @@ window.getItemPrice = function (price, qty) {
 
 // ===== PRODUCT CARD HTML ====
 function pcardHTML(p) {
+  if ((p.name || '').toLowerCase().includes('custom heritage')) {
+    return `<div class="premium-mango-card" onclick="window.openCrateBuilder()">
+            <div class="m-img-wrap" style="background: #e0f2f1;">
+              <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
+              <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
+                CUSTOM
+              </div>
+            </div>
+            <div class="m-info">
+              <div class="m-top-row">
+                <div class="m-wt-tag">3-5 KG</div>
+                <div class="m-stats">
+                  <div class="m-stars">★★★★★</div>
+                  <span class="m-rating-val">5.0</span>
+                </div>
+              </div>
+              <h3 class="m-title" style="margin-bottom:0px;">Custom Heritage Mango Crate</h3>
+              <div style="font-size:10px; color:#0d47a1; font-weight:700; background:#e3f2fd; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">MIX ALL VARIETIES</div>
+              <span class="m-subtitle">Create Your Signature Blend</span>
+              <div class="m-price-row">
+                <div class="m-price-box">
+                  <span class="m-currency">₹</span>
+                  <span class="m-amt">299</span>
+                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg avg</span>
+                </div>
+                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Build your own mix!</div>
+              </div>
+            </div>
+          </div>`;
+  }
+
   const variants = p.variants || [];
   const hasOptions = variants.length > 1;
   const v0 = hasOptions ? variants[0] : p;
@@ -275,7 +306,7 @@ function pcardHTML(p) {
     <div class="m-add-btn-image" style="background: rgba(148, 163, 184, 0.9) !important; color: white !important; cursor: not-allowed; opacity: 0.7;" onclick="event.stopPropagation()">
         SOLD OUT
     </div>` : (hasOptions ? `
-    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet('${p.name.replace(/'/g, "\\'")}')">
+    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet('${p.name.replace(/'/g, "\\'")}',[${variants.map(v=>v.id).join(',')}])">
         ADD
     </div>` : (qty > 0 ? `
     <div class="m-add-btn-image" style="background:#f0fdf4 !important; color:#1b391b !important; border:1px solid #22c55e !important;" onclick="event.stopPropagation()">
@@ -289,11 +320,11 @@ function pcardHTML(p) {
 
   return `
     <div class="premium-mango-card" onclick="window.showProduct(${p.id})">
-        <div class="m-img-wrap" style="background: ${bg}">
-            ${badgeHTML}
-            <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='0'; this.parentElement.style.background='#f0f4f0'">
-            ${action}
-        </div>
+          <div class="m-img-wrap" style="background: ${bg}">
+              ${badgeHTML}
+              <img src="${p.img}" alt="${p.name}" loading="lazy" style="${(p.name || '').toLowerCase().includes('custom') ? 'mix-blend-mode: multiply; opacity: 0.9;' : ''}" onerror="this.style.opacity='0'; this.parentElement.style.background='#f0f4f0'">
+              ${action}
+          </div>
         <div class="m-info">
             <div class="m-top-row">
                 <div class="m-stats">
@@ -336,6 +367,7 @@ function getProductBG(p) {
   if (n.includes('alph')) return '#FFE0B2';
   if (n.includes('bang')) return '#FFF17644';
   if (n.includes('sent')) return '#FFEBEE';
+  if (n.includes('custom')) return '#e0f2f1';
 
   // Category based defaults
   if (c.includes('ghee') || c.includes('oil')) return '#FFFDE7';
@@ -545,12 +577,65 @@ function initSlider() {
   handle.addEventListener('mousedown', onStart);
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onEnd);
+  handle.addEventListener('mouseup', onEnd);
   handle.addEventListener('touchstart', onStart);
   window.addEventListener('touchmove', onMove);
-  window.addEventListener('touchend', onEnd);
+  handle.addEventListener('touchend', onEnd);
 }
 
+// Opens delivery details modal before payment
 function placeOrder() {
+  const totEl = document.getElementById('co-tot');
+  const tot = totEl ? parseInt(totEl.innerText) : 0;
+  if (!tot) return;
+  window.openDeliveryModal();
+}
+
+window.openDeliveryModal = function() {
+  const overlay = document.getElementById('delivery-overlay');
+  const modal = document.getElementById('delivery-modal');
+  if (overlay) { overlay.style.display = 'block'; }
+  if (modal) {
+    modal.style.display = 'block';
+    setTimeout(() => { modal.style.transform = 'translateY(0)'; }, 10);
+  }
+};
+
+window.closeDeliveryModal = function() {
+  const overlay = document.getElementById('delivery-overlay');
+  const modal = document.getElementById('delivery-modal');
+  if (modal) { modal.style.transform = 'translateY(100%)'; }
+  setTimeout(() => {
+    if (overlay) overlay.style.display = 'none';
+    if (modal) modal.style.display = 'none';
+    // Reset slider on cancel
+    const slider = document.getElementById('cart-slider');
+    if (slider) {
+      slider.classList.remove('completed','ready');
+      const st = slider.querySelector('.slide-text');
+      const sh = slider.querySelector('.slide-handle');
+      const sb = slider.querySelector('.slide-bg');
+      if (st) st.innerText = 'SLIDE TO PAY';
+      if (sh) sh.style.transform = 'translateX(0)';
+      if (sb) sb.style.width = '0';
+    }
+  }, 400);
+};
+
+window.submitDeliveryAndPay = function() {
+  const name    = (document.getElementById('del-name')?.value || '').trim();
+  const phone   = (document.getElementById('del-phone')?.value || '').trim();
+  const address = (document.getElementById('del-address')?.value || '').trim();
+
+  if (!name)    { showToast('Please enter your full name'); return; }
+  if (!phone || phone.length < 10) { showToast('Please enter a valid phone number'); return; }
+  if (!address) { showToast('Please enter your delivery address'); return; }
+
+  window.closeDeliveryModal();
+  setTimeout(() => openRazorpayWithDetails(name, phone, address), 450);
+};
+
+function openRazorpayWithDetails(customerName, phone, address) {
   const totEl = document.getElementById('co-tot');
   const tot = totEl ? parseInt(totEl.innerText) : 0;
   if (!tot) return;
@@ -570,7 +655,10 @@ function placeOrder() {
               delivery_charge: (tot > 1000 ? 0 : 49),
               total: tot,
               payment_status: 'paid',
-              status: 'confirmed'
+              status: 'confirmed',
+              customer_name: customerName,
+              phone: phone,
+              address: address
             }])
             .select()
             .single();
@@ -738,7 +826,7 @@ async function loadProducts() {
 
 function handleRawProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-  const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png' };
+  const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
 
   const allProds = (data || []).map(p => {
     let img = p.image_url;
@@ -788,6 +876,7 @@ function handleRawProducts(data) {
   });
 
   window.displayProducts = Object.values(grouped);
+  updateCartCount();
   refreshCurrentView();
 }
 
@@ -1268,3 +1357,33 @@ window.showProduct = function (id) {
     window.showPremiumDetail(p.name);
   }
 };
+
+function setupMobileMarquee() {
+  const trowNode = document.querySelector('.trow');
+  if (trowNode && window.innerWidth < 900 && !trowNode.classList.contains('marquee-enabled')) {
+    trowNode.classList.add('marquee-enabled');
+    const wrapper = document.createElement('div');
+    wrapper.style.overflow = 'hidden';
+    wrapper.style.width = '100%';
+    trowNode.parentNode.insertBefore(wrapper, trowNode);
+    wrapper.appendChild(trowNode);
+    const children = Array.from(trowNode.children);
+    children.forEach(c => {
+      const clone = c.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      trowNode.appendChild(clone);
+    });
+    trowNode.style.width = 'max-content';
+    trowNode.style.overflowX = 'visible';
+    trowNode.style.animation = 'marqueeMob 20s linear infinite';
+    const style = document.createElement('style');
+    style.textContent = '@keyframes marqueeMob { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-50% - 12px)); } } .trow:active { animation-play-state: paused !important; }';
+    document.head.appendChild(style);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupMobileMarquee);
+} else {
+  setupMobileMarquee();
+}
