@@ -302,24 +302,28 @@ function pcardHTML(p) {
   const badgeHTML = isOutOfStock ? `<div class="p-badge" style="background:#ef4444 !important; color:white !important; position:absolute; top:12px; left:12px; z-index:10; padding:4px 12px; border-radius:12px; font-size:10px; font-weight:900;">OUT OF STOCK</div>` : (p.badge ? `<div class="p-badge" style="position:absolute; top:12px; left:12px; z-index:10; font-size:10px; font-weight:900;">${p.badge}</div>` : '');
 
   // If grouped, show "CHOOSE SIZES" else show ADD/QTY
+  // If grouped, show "CHOOSE SIZES" else show ADD/QTY
   const action = isOutOfStock ? `
     <div class="m-add-btn-image" style="background: rgba(148, 163, 184, 0.9) !important; color: white !important; cursor: not-allowed; opacity: 0.7;" onclick="event.stopPropagation()">
         SOLD OUT
     </div>` : (hasOptions ? `
-    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet('${p.name.replace(/'/g, "\\'")}',[${variants.map(v=>v.id).join(',')}])">
+    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet(arguments[0], '${p.name.replace(/'/g, "\\'")}',[${variants.map(v=>v.id).join(',')}])">
         ADD
     </div>` : (qty > 0 ? `
     <div class="m-add-btn-image" style="background:#f0fdf4 !important; color:#1b391b !important; border:1px solid #22c55e !important;" onclick="event.stopPropagation()">
         <span onclick="window.updCart(${p.id}, -1)">–</span>
-        <span>${qty}</span>
+        <span style="font-size:14px; font-weight:900; min-width:24px; text-align:center;">${qty}</span>
         <span onclick="window.updCart(${p.id}, 1)">+</span>
     </div>` : `
-    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.addToCartAndFeedback(this, ${p.id})">
+    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet(arguments[0], '${p.name.replace(/'/g, "\\'")}', [${p.id}])">
         ADD
     </div>`));
 
+  // All product clicks now open the "pop-up" (Variant Sheet) for consistency
+  const cardOnclick = `window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v=>v.id).join(',') : p.id}])`;
+
   return `
-    <div class="premium-mango-card" onclick="window.showProduct(${p.id})">
+    <div class="premium-mango-card" onclick="${cardOnclick}">
           <div class="m-img-wrap" style="background: ${bg}">
               ${badgeHTML}
               <img src="${p.img}" alt="${p.name}" loading="lazy" style="${(p.name || '').toLowerCase().includes('custom') ? 'mix-blend-mode: multiply; opacity: 0.9;' : ''}" onerror="this.style.opacity='0'; this.parentElement.style.background='#f0f4f0'">
@@ -331,7 +335,7 @@ function pcardHTML(p) {
                     <div class="m-stars">★★★★★</div>
                     <span class="m-rating-val">${p.rating || '5.0'}</span>
                 </div>
-                <div class="m-wt-tag" style="display:inline-block !important;">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
+                <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); ${cardOnclick}">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
             </div>
             <h3 class="m-title" style="margin-bottom:0px;">${p.name}</h3>
             <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 ${unitLabel.toUpperCase()} PRICE RATE</div>
