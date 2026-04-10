@@ -5148,7 +5148,7 @@
           <div class="premium-mango-card" onclick="showPremiumDetail('Imam Pasand')">
             <div class="m-img-wrap" style="background: #FFF9C4;">
               <img src="assets/imam.png" alt="Imam Pasand">
-              <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Imam Pasand')">
+              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Imam Pasand')">
                 ADD
               </div>
             </div>
@@ -5180,7 +5180,7 @@
           <div class="premium-mango-card" onclick="showPremiumDetail('Alphonso')">
             <div class="m-img-wrap" style="background: #FFE0B2;">
               <img src="assets/alphonso.png" alt="Alphonso">
-              <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Alphonso')">
+              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Alphonso')">
                 ADD
               </div>
             </div>
@@ -5212,7 +5212,7 @@
           <div class="premium-mango-card" onclick="showPremiumDetail('Banganapalli')">
             <div class="m-img-wrap" style="background: #FFF17644;">
               <img src="assets/banganapalli.png" alt="Banganapalli">
-              <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Banganapalli')">
+              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Banganapalli')">
                 ADD
               </div>
             </div>
@@ -5244,7 +5244,7 @@
           <div class="premium-mango-card" onclick="showPremiumDetail('Senthura')">
             <div class="m-img-wrap" style="background: #FFEBEE;">
               <img src="assets/senthura.png" alt="Senthura">
-              <div class="m-add-btn-image" onclick="event.stopPropagation();openVariantSheet('Senthura')">
+              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Senthura')">
                 ADD
               </div>
             </div>
@@ -6373,9 +6373,17 @@
       };
 
       function openVariantSheet(e, variety, variantIds) {
+        // Robust parameter handling (check if first param is actually the variety string)
+        if (typeof e === 'string' && !variety) {
+          variety = e;
+          e = null;
+        }
+        
         if (e && e.stopPropagation) e.stopPropagation();
+        
         currentSheetVariety = variety;
         window.currentSheetVariety = variety;
+        
         const sheet = document.getElementById('variant-sheet');
         const overlay = document.getElementById('variant-sheet-overlay');
         const options = document.getElementById('sheet-options');
@@ -6387,6 +6395,12 @@
           .replace(/ mangoes/i, '')
           .replace(/ powder/i, '')
           .trim();
+          
+        if (!cleanVariety) {
+           console.error("openVariantSheet: No variety provided");
+           return;
+        }
+
         const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
         title.innerHTML = cap(cleanVariety);
         title.style.textAlign = 'center';
@@ -6398,7 +6412,7 @@
         title.style.letterSpacing = '-1px';
 
         if (!sheet.classList.contains('active')) {
-          options.innerHTML = '<div style="text-align:center;padding:60px;"><p style="color:#aaa;">Harvesting variants...</p></div>';
+          options.innerHTML = '<div style="text-align:center;padding:60px;"><div class="spinner"></div><p style="color:#aaa;margin-top:20px;">Fetching Heritage variants...</p></div>';
           sheet.style.display = 'flex';
           overlay.classList.add('active');
           setTimeout(() => { sheet.classList.add('active'); }, 10);
