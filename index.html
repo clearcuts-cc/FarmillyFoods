@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   
   <!-- Favicon / Brand Icons -->
-  <link rel="icon" type="image/png" href="assets/farmmily logo.png">
-  <link rel="apple-touch-icon" href="assets/farmmily logo.png">
-  <link rel="shortcut icon" type="image/x-icon" href="assets/farmmily logo.png">
+  <link rel="icon" type="image/png" href="assets/farmmily%20logo.png">
+  <link rel="apple-touch-icon" href="assets/farmmily%20logo.png">
+  <link rel="shortcut icon" type="image/x-icon" href="assets/farmmily%20logo.png">
   
   <!-- Primary Meta Tags -->
   <title>Farmmily Farms — Premium Organic Mangoes, A2 Ghee & Raw Honey</title>
@@ -4944,85 +4944,145 @@
       .acc-side { padding: 4px 0 !important; }
     }
 
-    /* PC RESPONSIVENESS FOR PRODUCT DETAILS */
+    /* PC RESPONSIVENESS FOR PRODUCT DETAILS (PREMIUM AMAZON-STYLE NATIVE VIEW) */
     @media (min-width: 1024px) {
       #premium-detail.active {
         display: flex !important;
         flex-direction: row !important;
-        overflow: hidden !important;
-        align-items: stretch !important;
+        flex-wrap: nowrap !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        align-items: flex-start !important;
         opacity: 1 !important;
         visibility: visible !important;
+        background: #fff !important; /* Pure white seamless background */
+        padding: 60px 80px !important; /* Increased padding for elegant spacing */
+        gap: 40px !important;
       }
 
       #pd-hero {
-        flex: 1.2 !important;
-        height: 100vh !important;
-        background: #fdfcf8 !important;
-        border-right: 1px solid #f5f5f5 !important;
+        flex: 0 0 35% !important;
+        height: max-content !important;
+        min-height: 450px !important;
+        background: transparent !important;
+        border: none !important;
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-start !important;
         justify-content: center !important;
-        padding: 40px !important;
+        padding: 0 !important;
+        position: sticky !important;
+        top: 60px !important;
+        box-shadow: none !important;
       }
 
       #pd-hero img {
-        width: 80% !important;
-        height: 80% !important;
-        max-width: 600px !important;
-        max-height: 85% !important;
+        width: 100% !important;
+        max-width: 450px !important;
+        max-height: 500px !important;
         object-fit: contain !important;
-        transform: scale(1.1) !important;
-        transition: opacity 0.3s ease !important;
+        transition: transform 0.4s ease !important;
+      }
+
+      #pd-hero:hover img {
+        transform: scale(1.05) !important;
       }
 
       #pd-content {
         flex: 1 !important;
-        height: 100vh !important;
-        overflow-y: auto !important;
-        padding: 80px 60px 250px !important;
+        height: auto !important;
+        padding: 0 !important;
         margin: 0 !important;
         max-width: none !important;
-        background: #fff !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Desktop Typography Scaling */
+      #pd-title {
+        font-size: 28px !important;
+        margin-bottom: 24px !important;
+      }
+
+      #pd-desc {
+        font-size: 14px !important;
+        line-height: 1.6 !important;
       }
 
       #pd-footer {
-        position: fixed !important;
-        width: 48% !important;
-        right: 0 !important;
+        position: sticky !important;
+        top: 40px !important;
+        width: 300px !important;
+        flex: 0 0 300px !important;
+        height: max-content !important;
+        right: auto !important;
         left: auto !important;
-        border-left: 1px solid #f0f0f0 !important;
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(20px) !important;
-        padding: 24px 60px 60px !important;
-        box-shadow: 0 -20px 50px rgba(0,0,0,0.03) !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 12px !important;
+        background: #fff !important;
+        backdrop-filter: none !important;
+        padding: 24px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
       }
 
       #pd-action-area {
-        flex-direction: row !important;
+        flex-direction: column !important;
         max-width: none !important;
         width: 100% !important;
-        gap: 40px !important;
-        align-items: center !important;
-      }
-
-      #pd-btn-container {
-        flex: 2 !important;
-      }
-
-      .p-foot-price {
-        flex: 1 !important;
+        gap: 20px !important;
+        align-items: flex-start !important;
         justify-content: flex-start !important;
       }
 
+      #pd-btn-container {
+        flex: auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .p-foot-price {
+        flex: auto !important;
+        justify-content: flex-start !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+      }
+
+      .p-foot-price > div:nth-child(2) {
+        display: none !important; /* Hide separator line on desktop */
+      }
+
+      .v-foot-wt {
+        font-size: 12px !important;
+        letter-spacing: 1px !important;
+        color: #555 !important;
+      }
+
+      .v-foot-pr {
+        font-size: 32px !important;
+        color: #b12704 !important; /* Amazon red for price emphasis */
+      }
+
       .pd-close {
-        top: 30px !important;
-        right: 30px !important;
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
         width: 44px !important;
         height: 44px !important;
-        background: white !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
-        border: none !important;
+        background: #fff !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        border: 1px solid #ddd !important;
+        transition: all 0.2s ease !important;
+        z-index: 5005 !important;
+      }
+
+      .pd-close:hover {
+        background: #f9f9f9 !important;
+        transform: scale(1.1) !important;
+      }
+
+      .desktop-info {
+        display: block !important;
       }
     }
   </style>
@@ -6317,6 +6377,37 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="desktop-info" style="display: none; margin-bottom: 32px; border-top: 1px solid #f0f0f0; padding-top: 24px;">
+        <h3 style="font-size:16px; font-weight:800; color:#1b391b; margin-bottom:16px;">About this item</h3>
+        <ul style="list-style-type:disc; padding-left:20px; font-size:13px; color:#444; line-height:1.6; display:flex; flex-direction:column; gap:8px;">
+          <li><strong style="color:#111;">100% Certified Organic:</strong> Directly sourced from our private heritage estates with zero artificial additives or processing.</li>
+          <li><strong style="color:#111;">Hand-Harvested:</strong> Each individual item is meticulously assessed for peak maturity and potency before collection.</li>
+          <li><strong style="color:#111;">Zero Adulteration:</strong> Extensive zero-residue lab checks ensure absolute safety and pure, honest flavor for your family.</li>
+          <li><strong style="color:#111;">Eco-Conscious Packaging:</strong> Delivered in premium, sustainable, and ventilated materials to preserve maximum freshness.</li>
+        </ul>
+        
+        <h3 style="font-size:16px; font-weight:800; color:#1b391b; margin-bottom:16px; margin-top:24px;">Technical Details</h3>
+        <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+          <tbody>
+            <tr style="border-bottom:1px solid #eee;">
+              <th style="padding:10px 0; color:#666; font-weight:600; width:40%;">Brand</th>
+              <td style="padding:10px 0; color:#111; font-weight:800;">Farmmily Foods</td>
+            </tr>
+            <tr style="border-bottom:1px solid #eee;">
+              <th style="padding:10px 0; color:#666; font-weight:600;">Specialty</th>
+              <td style="padding:10px 0; color:#111; font-weight:600;">Organic, Pesticide-Free</td>
+            </tr>
+            <tr style="border-bottom:1px solid #eee;">
+              <th style="padding:10px 0; color:#666; font-weight:600;">Form</th>
+              <td style="padding:10px 0; color:#111; font-weight:600;">Fresh / Unprocessed</td>
+            </tr>
+            <tr>
+              <th style="padding:10px 0; color:#666; font-weight:600;">Origin</th>
+              <td style="padding:10px 0; color:#111; font-weight:600;">South India (Heritage Estates)</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:40px;">
