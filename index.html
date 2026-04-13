@@ -2309,27 +2309,29 @@
       }
     }
 
-    /* REFINED TOAST NOTIFICATION */
+    /* REFINED TOAST NOTIFICATION - MOVED TO TOP TO AVOID OVERLAP */
     #toast {
       position: fixed;
-      bottom: 120px;
+      top: 85px; /* Stay clear of header and top safe areas */
       left: 50%;
-      transform: translateX(-50%) translateY(40px);
-      background: #22c55e !important;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1b391b !important;
       color: white !important;
-      padding: 14px 28px !important;
-      border-radius: 20px !important;
-      font-size: 14px !important;
+      padding: 12px 24px !important;
+      border-radius: 12px !important;
+      font-size: 13px !important;
       font-weight: 700 !important;
       z-index: 100000 !important;
       opacity: 0;
       visibility: hidden;
       transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-      white-space: nowrap;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+      white-space: normal; /* Allow wrapping for long error messages */
+      width: calc(100% - 40px);
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
       pointer-events: none;
-      min-width: 200px;
       text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
     #toast.show {
@@ -4208,7 +4210,8 @@
       }
 
       #toast {
-        bottom: 130px
+        top: 20px;
+        bottom: auto;
       }
 
 
@@ -6909,10 +6912,11 @@
       <div>
         <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Google Maps Link (Optional)</label>
         <div style="display:flex; gap:8px;">
-          <input id="del-maplink" type="text" placeholder="Paste link..."
-            style="flex:1; width:100%; min-width:0; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:1rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
-            onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
-          <button type="button" onclick="window.autoDetectLocation()" style="background:#22c55e; color:#fff; border:none; border-radius:14px; padding:14px 16px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; flex-shrink:0; white-space:nowrap;">
+          <input id="del-maplink" type="text" placeholder="Paste link here..."
+            oninput="if(this.value.includes('maps')) window.autoDetectLocation()"
+            style="flex:1; width:100%; min-width:0; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:0.9rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s; background: #fdfdfd;"
+            onfocus="this.style.borderColor='#22c55e'; this.style.background='#fff';" onblur="this.style.borderColor='#e2e8f0'; this.style.background='#fdfdfd';">
+          <button type="button" onclick="window.autoDetectLocation()" style="background:#22c55e; color:#fff; border:none; border-radius:14px; padding:14px 16px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; flex-shrink:0; white-space:nowrap; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Detect
           </button>
         </div>
