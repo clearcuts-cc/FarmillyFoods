@@ -678,17 +678,67 @@ window.closeDeliveryModal = function() {
 window.submitDeliveryAndPay = function() {
   const name    = (document.getElementById('del-name')?.value || '').trim();
   const phone   = (document.getElementById('del-phone')?.value || '').trim();
-  const address = (document.getElementById('del-address')?.value || '').trim();
+  const bldg    = (document.getElementById('del-building')?.value || '').trim();
+  const street  = (document.getElementById('del-street')?.value || '').trim();
+  const city    = (document.getElementById('del-city')?.value || '').trim();
+  const state   = (document.getElementById('del-state')?.value || '').trim();
+  const pin     = (document.getElementById('del-pincode')?.value || '').trim();
+  const mapLink = (document.getElementById('del-maplink')?.value || '').trim();
 
   if (!name)    { showToast('Please enter your full name'); return; }
   if (!phone || phone.length < 10) { showToast('Please enter a valid phone number'); return; }
-  if (!address) { showToast('Please enter your delivery address'); return; }
+  if (!bldg || !street || !city || !state || !pin) { showToast('Please fill all address fields'); return; }
+
+  let fullAddress = `${bldg}, ${street}, ${city}, ${state} - ${pin}`;
+  if (mapLink) fullAddress += ` (Map: ${mapLink})`;
 
   window.closeDeliveryModal();
-  setTimeout(() => openRazorpayWithDetails(name, phone, address), 450);
+  setTimeout(() => openRazorpayWithDetails(name, phone, fullAddress, city, state, pin), 450);
 };
 
-function openRazorpayWithDetails(customerName, phone, address) {
+window.autoDetectLocation = function() {
+  if (navigator.geolocation) {
+    showToast('Detecting location...');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const link = `https://maps.google.com/?q=${lat},${lon}`;
+        const mapInput = document.getElementById('del-maplink');
+        if (mapInput) mapInput.value = link;
+        
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+          const data = await res.json();
+          if (data && data.address) {
+             const addr = data.address;
+             const streetEl = document.getElementById('del-street');
+             if (streetEl && !streetEl.value) streetEl.value = addr.road || addr.suburb || addr.neighbourhood || '';
+             const cityEl = document.getElementById('del-city');
+             if (cityEl && !cityEl.value) cityEl.value = addr.city || addr.town || addr.village || addr.county || '';
+             const stateEl = document.getElementById('del-state');
+             if (stateEl && !stateEl.value) stateEl.value = addr.state || '';
+             const pinEl = document.getElementById('del-pincode');
+             if (pinEl && !pinEl.value) pinEl.value = addr.postcode || '';
+             showToast('Location and address detected!');
+          } else {
+             showToast('Location found! Please fill address manually.');
+          }
+        } catch (e) {
+          showToast('Location link generated!');
+        }
+      },
+      (err) => {
+        showToast('Unable to detect location. Please type manually.');
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  } else {
+    showToast('Geolocation not supported by this browser.');
+  }
+};
+
+function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest', stateVal = 'Order', pinVal = '000000') {
   const totEl = document.getElementById('co-tot');
   const tot = totEl ? parseInt(totEl.innerText) : 0;
   if (!tot) return;
@@ -709,9 +759,9 @@ function openRazorpayWithDetails(customerName, phone, address) {
                 full_name: customerName, 
                 phone: phone, 
                 address_line: address, 
-                city: 'Guest', 
-                state: 'Order', 
-                pincode: '000000' 
+                city: cityVal, 
+                state: stateVal, 
+                pincode: pinVal 
               }])
               .select().single();
             if (addrData) addressId = addrData.id;
