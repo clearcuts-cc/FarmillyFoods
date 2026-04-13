@@ -6895,13 +6895,13 @@
     <div style="display:flex; flex-direction:column; gap:14px;">
       <div>
         <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Full Name *</label>
-        <input id="del-name" type="text" placeholder="e.g. Anitha Kumar" maxlength="100"
+        <input id="del-name" type="text" placeholder="e.g. Anitha Kumar" maxlength="100" required
           style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:1rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
           onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
       </div>
       <div>
         <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Phone Number *</label>
-        <input id="del-phone" type="tel" placeholder="e.g. 9876543210" maxlength="15"
+        <input id="del-phone" type="tel" placeholder="e.g. 9876543210" maxlength="15" required
           style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:1rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
           onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
       </div>
@@ -6909,8 +6909,8 @@
       <div>
         <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Google Maps Link (Optional)</label>
         <div style="display:flex; gap:8px;">
-          <input id="del-maplink" type="text" placeholder="Paste map link here"
-            style="flex:1; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:1rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
+          <input id="del-maplink" type="text" placeholder="Paste link..."
+            style="flex:1; width:100%; min-width:0; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:1rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
             onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
           <button type="button" onclick="window.autoDetectLocation()" style="background:#22c55e; color:#fff; border:none; border-radius:14px; padding:14px 16px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; flex-shrink:0; white-space:nowrap;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Detect
@@ -6922,13 +6922,13 @@
       <div style="display:flex; gap:10px;">
         <div style="flex:1;">
           <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Bldg / Apt No *</label>
-          <input id="del-building" type="text" placeholder="e.g. Apt 4B"
+          <input id="del-building" type="text" placeholder="e.g. Apt 4B" required
             style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
             onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="flex:1.5;">
           <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Street *</label>
-          <input id="del-street" type="text" placeholder="e.g. Main St"
+          <input id="del-street" type="text" placeholder="e.g. Main St" required
             style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
             onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
@@ -6937,20 +6937,20 @@
       <div style="display:flex; gap:10px;">
         <div style="flex:1.2;">
           <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">City *</label>
-          <input id="del-city" type="text" placeholder="e.g. Chennai"
+          <input id="del-city" type="text" placeholder="e.g. Chennai" required
             style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
             onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="flex:1;">
           <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">Pincode *</label>
-          <input id="del-pincode" type="tel" placeholder="e.g. 600001" maxlength="6"
+          <input id="del-pincode" type="tel" placeholder="e.g. 600001" maxlength="6" required
             style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
             onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
       </div>
       <div>
         <label style="font-size:11px; font-weight:800; color:#1b391b; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px;">State *</label>
-        <input id="del-state" type="text" placeholder="e.g. Tamil Nadu"
+        <input id="del-state" type="text" placeholder="e.g. Tamil Nadu" required
           style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:14px; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
           onfocus="this.style.borderColor='#1b391b'" onblur="this.style.borderColor='#e2e8f0'">
       </div>

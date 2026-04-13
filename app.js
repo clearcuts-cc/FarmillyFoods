@@ -696,46 +696,78 @@ window.submitDeliveryAndPay = function() {
   setTimeout(() => openRazorpayWithDetails(name, phone, fullAddress, city, state, pin), 450);
 };
 
-window.autoDetectLocation = function() {
+window.autoDetectLocation = async function() {
+  const mapInput = document.getElementById('del-maplink');
+  const pastedLink = (mapInput?.value || '').trim();
+
+  // Helper to fetch address from coords
+  const fetchAddress = async (lat, lon) => {
+    try {
+      showToast('Extracting address details...');
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+      const data = await res.json();
+      if (data && data.address) {
+        const addr = data.address;
+        const streetEl = document.getElementById('del-street');
+        if (streetEl) streetEl.value = addr.road || addr.suburb || addr.neighbourhood || addr.pedestrian || '';
+        const cityEl = document.getElementById('del-city');
+        if (cityEl) cityEl.value = addr.city || addr.town || addr.village || addr.city_district || '';
+        const stateEl = document.getElementById('del-state');
+        if (stateEl) stateEl.value = addr.state || '';
+        const pinEl = document.getElementById('del-pincode');
+        if (pinEl) pinEl.value = addr.postcode || '';
+        showToast('Address details captured!');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Found location, but details need manual entry.');
+    }
+  };
+
+  // Choice 1: Paste a link
+  if (pastedLink.includes('google.com/maps') || pastedLink.includes('goo.gl/maps') || pastedLink.includes('maps.app.goo.gl')) {
+    const coords = window.parseMapLink(pastedLink);
+    if (coords) {
+      await fetchAddress(coords.lat, coords.lon);
+      return;
+    }
+  }
+
+  // Choice 2: Browser Geo
   if (navigator.geolocation) {
-    showToast('Detecting location...');
+    showToast('Detecting live location...');
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        const link = `https://maps.google.com/?q=${lat},${lon}`;
-        const mapInput = document.getElementById('del-maplink');
-        if (mapInput) mapInput.value = link;
-        
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-          const data = await res.json();
-          if (data && data.address) {
-             const addr = data.address;
-             const streetEl = document.getElementById('del-street');
-             if (streetEl && !streetEl.value) streetEl.value = addr.road || addr.suburb || addr.neighbourhood || '';
-             const cityEl = document.getElementById('del-city');
-             if (cityEl && !cityEl.value) cityEl.value = addr.city || addr.town || addr.village || addr.county || '';
-             const stateEl = document.getElementById('del-state');
-             if (stateEl && !stateEl.value) stateEl.value = addr.state || '';
-             const pinEl = document.getElementById('del-pincode');
-             if (pinEl && !pinEl.value) pinEl.value = addr.postcode || '';
-             showToast('Location and address detected!');
-          } else {
-             showToast('Location found! Please fill address manually.');
-          }
-        } catch (e) {
-          showToast('Location link generated!');
-        }
+        if (mapInput) mapInput.value = `https://maps.google.com/?q=${lat},${lon}`;
+        await fetchAddress(lat, lon);
       },
       (err) => {
-        showToast('Unable to detect location. Please type manually.');
+        let msg = 'Unable to detect location. Please paste a Google Maps link or type manually.';
+        if (err.code === 1) msg = 'Location access denied. Please allow it in settings or paste a link.';
+        showToast(msg);
       },
-      { timeout: 10000, enableHighAccuracy: true }
+      { timeout: 8000, enableHighAccuracy: true }
     );
   } else {
-    showToast('Geolocation not supported by this browser.');
+    showToast('Browser geolocation not supported. Please paste a link.');
   }
+};
+
+window.parseMapLink = function(url) {
+  try {
+    // Standard link: ?q=lat,lon or @lat,lon
+    let match = url.match(/q=([\d.-]+),([\d.-]+)/) || url.match(/@([\d.-]+),([\d.-]+)/);
+    if (match) return { lat: match[1], lon: match[2] };
+    
+    // Some shortened links might need to be resolved, but we can't easily do that client-side
+    // without a proxy. However, we can try to find anything that looks like lat,lon
+    match = url.match(/ll=([\d.-]+),([\d.-]+)/);
+    if (match) return { lat: match[1], lon: match[2] };
+
+    return null;
+  } catch (e) { return null; }
 };
 
 function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest', stateVal = 'Order', pinVal = '000000') {
