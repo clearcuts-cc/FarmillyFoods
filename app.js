@@ -222,12 +222,11 @@ window.toggleMobCat = toggleMobCat;
 
 function refreshCurrentView() {
   if (curPage === 'home') renderHome();
-  else if (curPage === 'shop') filterProds();
+  else if (curPage === 'shop') renderShop();
   else if (curPage === 'cart') renderCart();
-  else if (curPage === 'product') {
-    if (curProd) openProduct(curProd.id);
-  }
-
+  else if (curPage === 'track') renderTrackRecent();
+  else if (curPage === 'corporate') { /* corporate rendering if needed */ }
+  
   // REFRESH VARIANT SHEET IF OPEN
   const vSheet = document.getElementById('variant-sheet');
   if (window.currentSheetVariety && vSheet && vSheet.classList.contains('active')) {
@@ -341,8 +340,8 @@ function pcardHTML(p) {
         ADD
     </div>`));
 
-  // All product clicks now open the "pop-up" (Variant Sheet) for consistency
-  const cardOnclick = `window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v=>v.id).join(',') : p.id}])`;
+  // Product card click now opening full beautiful details
+  const cardOnclick = `window.showProduct(${p.id})`;
 
   return `
     <div class="premium-mango-card" onclick="${cardOnclick}">
@@ -357,7 +356,7 @@ function pcardHTML(p) {
                     <div class="m-stars">★★★★★</div>
                     <span class="m-rating-val">${p.rating || '5.0'}</span>
                 </div>
-                <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); ${cardOnclick}">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
+                <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v=>v.id).join(',') : p.id}])">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
             </div>
             <h3 class="m-title" style="margin-bottom:0px;">${p.name}</h3>
             <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 ${unitLabel.toUpperCase()} PRICE RATE</div>
@@ -406,7 +405,18 @@ function getProductBG(p) {
   return '#f5f8f5';
 }
 
-function showProduct(id) { openProduct(id); }
+function showProduct(id) {
+  const p = (window.products || []).find(x => Number(x.id) === Number(id));
+  if (!p) return;
+
+  // Prefer Premium Detail View for the full story
+  if (typeof window.showPremiumDetail === 'function') {
+    window.showPremiumDetail(p.name);
+  } else {
+    openProduct(id);
+  }
+}
+window.showProduct = showProduct;
 
 function addToCartAnim(btn, id) {
   addToCart(id);
@@ -723,25 +733,43 @@ function openRazorpayWithDetails(customerName, phone, address) {
               const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
               return {
                 order_id: orderData.id,
-                product_id: p.id > 999000 ? null : p.id, // Supabase FK handles null for custom items
-                product_name: p.name,
+                product_id: (p && p.id > 999000) ? null : (p ? p.id : null), 
+                product_name: p ? p.name : 'Unknown Product',
+                product_image: p ? p.img : null,
                 quantity: ci.qty,
-                unit_price: p.price,
-                total_price: p.price * ci.qty,
-                weight: p.wt,
-                description: p.desc || ''
+                unit_price: p ? p.price : 0,
+                total_price: (p ? p.price : 0) * ci.qty,
+                weight: p ? p.wt : '',
+                description: p ? (p.desc || '') : ''
               };
             });
-            await supabaseClient.from('order_items').insert(itemInserts);
+            const { error: itemsErr } = await supabaseClient.from('order_items').insert(itemInserts);
+            if (itemsErr) console.error("Order items sync failed:", itemsErr);
 
             // 3. Record payment
-            await supabaseClient.from('payments').insert([{
+            const { error: payErr } = await supabaseClient.from('payments').insert([{
               order_id: orderData.id,
               razorpay_payment_id: response.razorpay_payment_id,
               amount: tot,
               status: 'paid',
               method: 'card'
             }]);
+            if (payErr) console.error("Payment record failed:", payErr);
+
+            // 3.5 Update Stock (Admin Side Sync)
+            for (const item of itemInserts) {
+              if (item.product_id) {
+                // Fetch current stock
+                const { data: pData } = await supabaseClient.from('products').select('stock_count').eq('id', item.product_id).single();
+                if (pData) {
+                  const newStock = Math.max(0, pData.stock_count - item.quantity);
+                  await supabaseClient.from('products').update({ 
+                    stock_count: newStock,
+                    in_stock: newStock > 0 
+                  }).eq('id', item.product_id);
+                }
+              }
+            }
 
             // 4. Update Success UI and Navigate
             const succIdEl = document.getElementById('succ-oid');
@@ -871,9 +899,15 @@ function renderShop() {
 
 async function loadProducts() {
   if (!supabaseClient) { handleRawProducts([]); return; }
-  // Only load products that are active (not hidden)
-  const { data } = await supabaseClient.from('products').select('*').neq('is_active', false);
-  handleRawProducts(data || []);
+  
+  // Fetch active products with positive stock
+  const { data: prods } = await supabaseClient
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .gt('stock_count', 0);
+  
+  handleRawProducts(prods || []);
 }
 
 function handleRawProducts(data) {
@@ -979,7 +1013,9 @@ async function submitCorpOrder() {
           total_units: totalUnits, heritage_message: heritageMsg,
           total_amount: totalAmount, contact_phone: contactPhone,
           contact_email: contactEmail, razorpay_payment_id: response.razorpay_payment_id,
-          enquiry_ref: enquiryRef, status: 'confirmed'
+          enquiry_ref: enquiryRef, status: 'confirmed',
+          // Legacy fields for Admin Side compatibility
+          phone: contactPhone, email: contactEmail
         };
         await supabaseClient.from('corporate_orders').insert([obj]);
         const overlay = document.getElementById('corp-success-overlay');
@@ -996,52 +1032,94 @@ async function submitCorpOrder() {
 window.submitCorpOrder = submitCorpOrder;
 
 // ===== TRACKING & HISTORY =====
+// ===== TRACKING & HISTORY =====
 async function handleTrack(manualId = null) {
   const inp = document.getElementById('tr-oid');
   const res = document.getElementById('tr-res');
+  const btn = document.getElementById('track-btn');
   if (!res) return;
 
   const idValue = manualId || (inp ? inp.value : '');
-  const id = idValue.trim().toUpperCase().replace('#', '');
+  const query = idValue.trim();
+  if (!query) { showToast('Enter Reference ID or Phone'); return; }
 
-  if (!id) { showToast('Enter Reference ID'); return; }
+  const id = query.toUpperCase().replace('#', '');
+  const isPhone = /^\d{10}$/.test(id.replace(/\s/g, ''));
+  const cleanPhone = id.replace(/\s/g, '');
 
   res.style.display = 'block';
   res.innerHTML = '<div style="text-align:center;padding:40px;color:#888;"><div class="spinner" style="margin:0 auto 15px;"></div>Locating your harvest...</div>';
+  
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add('loading');
+  }
 
   try {
-    // 1. Try regular orders (FM- prefix or direct number)
-    const { data: orderData } = await supabaseClient
-      .from('orders')
-      .select('*, order_items(*)')
-      .or(`order_number.eq.${id},order_number.eq.FM-${id}`)
-      .maybeSingle();
+    let standardOrders = [];
+    let corporateOrders = [];
 
-    if (orderData) {
-      renderTrackResult(orderData, 'ORDER', res);
-      return;
+    if (isPhone) {
+      // Find ALL standard orders by phone
+      const { data: stdData } = await supabaseClient
+        .from('orders')
+        .select('*, order_items(*)')
+        .eq('phone', cleanPhone)
+        .order('created_at', { ascending: false });
+      standardOrders = stdData || [];
+
+      // Find ALL corporate orders by phone
+      const { data: corpData } = await supabaseClient
+        .from('corporate_orders')
+        .select('*')
+        .eq('contact_phone', cleanPhone)
+        .order('created_at', { ascending: false });
+      corporateOrders = corpData || [];
+    } else {
+      // Find standard order by number
+      const { data: stdData } = await supabaseClient
+        .from('orders')
+        .select('*, order_items(*)')
+        .or(`order_number.eq.${id},order_number.eq.FM-${id}`)
+        .maybeSingle();
+      if (stdData) standardOrders = [stdData];
+
+      // Find corporate order by ref
+      const { data: corpData } = await supabaseClient
+        .from('corporate_orders')
+        .select('*')
+        .or(`enquiry_ref.eq.${id},enquiry_ref.eq.CE-${id}`)
+        .maybeSingle();
+      if (corpData) corporateOrders = [corpData];
     }
 
-    // 2. Try corporate orders (CE- prefix)
-    const { data: corpData } = await supabaseClient
-      .from('corporate_orders')
-      .select('*')
-      .or(`enquiry_ref.eq.${id},enquiry_ref.eq.CE-${id}`)
-      .maybeSingle();
+    const combined = [
+      ...standardOrders.map(o => ({ ...o, type: 'ORDER' })),
+      ...corporateOrders.map(c => ({ ...c, type: 'CORPORATE' }))
+    ];
 
-    if (corpData) {
-      renderTrackResult(corpData, 'CORPORATE', res);
+    if (combined.length > 0) {
+      if (combined.length === 1) {
+        renderTrackResult(combined[0], combined[0].type, res);
+      } else {
+        renderMultiOrderResults(combined, res);
+      }
     } else {
       res.innerHTML = `
         <div style="padding:40px; text-align:center; background:#fff5f5; border-radius:24px; border:1px solid #fed7d7;">
           <div style="font-size:32px; margin-bottom:12px;">🔍</div>
-          <h3 style="color:#c53030; margin-bottom:8px;">Reference Not Found</h3>
-          <p style="color:#718096; font-size:14px;">We couldn't find any order with ID: <b>${id}</b>. Please check your confirmation SMS/Email.</p>
+          <h3 style="color:#c53030; margin-bottom:8px;">Not Found</h3>
+          <p style="color:#718096; font-size:14px;">We couldn't find any order with ${isPhone ? 'Phone' : 'ID'}: <b>${query}</b>.</p>
         </div>`;
     }
   } catch (err) {
     console.error("Tracking error:", err);
     res.innerHTML = '<div style="padding:20px;color:#e74c3c;text-align:center;">Connection error. Please try again.</div>';
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
   }
 }
 
@@ -1107,6 +1185,41 @@ function renderTrackResult(data, type, container) {
     </div>
   `;
 }
+function renderMultiOrderResults(orders, container) {
+  const html = orders.map(o => {
+    const id = o.order_number || o.enquiry_ref;
+    const date = new Date(o.created_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    const status = (o.status || 'confirmed').toLowerCase();
+    
+    return `
+      <div onclick="window.renderOneOrder('${id}')" style="background:white; padding:20px; border-radius:20px; margin-bottom:12px; border:1px solid #eee; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div style="width:40px; height:40px; background:#f0fdf4; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px;">📦</div>
+          <div>
+            <div style="font-size:14px; font-weight:900; color:#1b391b;">#${id}</div>
+            <div style="font-size:11px; color:#888;">Order placed ${date}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px; font-weight:900; background:#f0fdf4; color:#22c55e; padding:4px 8px; border-radius:6px; text-transform:uppercase;">${status}</div>
+          <div style="font-size:11px; color:#22c55e; margin-top:4px; font-weight:700;">Track →</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div style="margin-top:20px;">
+      <h3 style="font-size:13px; font-weight:900; color:#1b391b; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; margin-left:8px;">Orders Found (${orders.length})</h3>
+      ${html}
+    </div>
+  `;
+}
+window.renderMultiOrderResults = renderMultiOrderResults;
+
+window.renderOneOrder = function(id) {
+  handleTrack(id);
+};
 const trackOrder = handleTrack;
 
 function renderRecentHistory() {
@@ -1118,6 +1231,7 @@ function saveToHistory(id) {
 }
 
 async function initApp() {
+  showPage('home');
   updateCartCount();
   await loadCategories();
   await loadProducts();
@@ -1409,30 +1523,7 @@ initApp();
 window.handleTrack = handleTrack;
 window.trackOrder = trackOrder;
 window.updCart = updCart;
-window.addToCartAndFeedback = function (b, id) { addToCart(id); refreshCurrentView(); };
-
-window.showProduct = function (id) {
-  const p = (window.products || []).find(x => Number(x.id) === Number(id));
-  if (!p) return;
-
-  // ALWAYS open detail view when clicking the card body
-  if (typeof window.showPremiumDetail === 'function') {
-    window.showPremiumDetail(p.name);
-  }
-};
-window.trackOrder = trackOrder;
-window.updCart = updCart;
-window.addToCartAndFeedback = function (b, id) { addToCart(id); refreshCurrentView(); };
-
-window.showProduct = function (id) {
-  const p = (window.products || []).find(x => Number(x.id) === Number(id));
-  if (!p) return;
-
-  // ALWAYS open detail view when clicking the card body
-  if (typeof window.showPremiumDetail === 'function') {
-    window.showPremiumDetail(p.name);
-  }
-};
+// End of App logic
 
 function setupMobileMarquee() {
   const trowNode = document.querySelector('.trow');
