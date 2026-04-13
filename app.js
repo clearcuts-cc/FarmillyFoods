@@ -20,6 +20,7 @@ var products = [];
 var cats = [];
 window.products = products;
 window.cats = cats;
+window.deliveryConfig = { charge: 49, free_above: 999 };
 
 var curPage = 'home';
 var prevPage = 'home', curProd = null, detQty = 1, activeFilter = 'All';
@@ -224,7 +225,14 @@ function refreshCurrentView() {
   if (curPage === 'home') renderHome();
   else if (curPage === 'shop') renderShop();
   else if (curPage === 'cart') renderCart();
-  else if (curPage === 'track') renderTrackRecent();
+  else if (curPage === 'track') {
+    if (window.lastTrackQuery) {
+       handleTrack(window.lastTrackQuery);
+    } else {
+       const res = document.getElementById('tr-res');
+       if (res) res.innerHTML = '';
+    }
+  }
   else if (curPage === 'corporate') { /* corporate rendering if needed */ }
   
   // REFRESH VARIANT SHEET IF OPEN
@@ -540,7 +548,8 @@ function renderCart() {
       </div>`;
   }).join('');
 
-  const deliveryFee = sub > 1000 ? 0 : 49;
+  const config = window.deliveryConfig || { charge: 49, free_above: 999 };
+  const deliveryFee = sub >= config.free_above ? 0 : config.charge;
   const total = sub + deliveryFee;
 
   el.innerHTML = `
@@ -884,19 +893,6 @@ function filterBycat(c) {
 }
 window.filterBycat = filterBycat;
 
-// ===== SHOP =====
-function renderShop() {
-  const chips = document.getElementById('shop-cats-row');
-  if (chips) {
-    const list = ['All', ...cats.map(c => c.name)];
-    chips.innerHTML = list.map(c =>
-      '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
-    ).join('');
-    chips.style.display = 'flex';
-  }
-  filterProds();
-}
-
 async function loadProducts() {
   if (!supabaseClient) { handleRawProducts([]); return; }
   
@@ -1032,16 +1028,15 @@ async function submitCorpOrder() {
 window.submitCorpOrder = submitCorpOrder;
 
 // ===== TRACKING & HISTORY =====
-// ===== TRACKING & HISTORY =====
 async function handleTrack(manualId = null) {
   const inp = document.getElementById('tr-oid');
   const res = document.getElementById('tr-res');
   const btn = document.getElementById('track-btn');
   if (!res) return;
 
-  const idValue = manualId || (inp ? inp.value : '');
-  const query = idValue.trim();
+  const query = (manualId || (inp ? inp.value : '')).trim();
   if (!query) { showToast('Enter Reference ID or Phone'); return; }
+  window.lastTrackQuery = query;
 
   const id = query.toUpperCase().replace('#', '');
   const isPhone = /^\d{10}$/.test(id.replace(/\s/g, ''));
@@ -1150,6 +1145,40 @@ function renderTrackResult(data, type, container) {
   
   if (currentStepIndex === -1) currentStepIndex = 0; // Default to confirmed
 
+  // --- ITEM SUMMARY LOGIC ---
+  let itemsSummaryHTML = '';
+  if (type === 'ORDER' && data.order_items && data.order_items.length) {
+    itemsSummaryHTML = `
+      <div style="margin-top:24px; padding:16px; background:#f9fafb; border-radius:16px; border:1px solid #f0f0f0;">
+        <h5 style="font-size:10px; font-weight:900; color:#888; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Items Summary</h5>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${data.order_items.map(item => `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:13px; font-weight:600; color:#333;">${item.product_name} <span style="font-size:11px; color:#999;">x${item.quantity}</span></div>
+              <div style="font-size:12px; color:#666; font-weight:700;">₹${Math.round(item.total_price)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  } else if (type === 'CORPORATE') {
+    const corpItems = [];
+    if (data.imam_qty) corpItems.push(`${data.imam_qty}kg Imam Pasand`);
+    if (data.alph_qty) corpItems.push(`${data.alph_qty}kg Alphonso`);
+    if (data.bang_qty) corpItems.push(`${data.bang_qty}kg Banganapalli`);
+    if (data.sent_qty) corpItems.push(`${data.sent_qty}kg Senthura`);
+
+    if (corpItems.length) {
+      itemsSummaryHTML = `
+        <div style="margin-top:24px; padding:16px; background:#f0f9ff; border-radius:16px; border:1px solid #e0f2fe;">
+          <h5 style="font-size:10px; font-weight:900; color:#0369a1; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">B2B Mix (per crate)</h5>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            ${corpItems.map(txt => `<span style="font-size:11px; font-weight:700; background:#fff; padding:4px 10px; border-radius:8px; border:1px solid #e0f2fe; color:#0c4a6e;">${txt}</span>`).join('')}
+          </div>
+          <div style="margin-top:12px; font-size:12px; font-weight:900; color:#0369a1;">Total Units: ${data.total_units} Crates</div>
+        </div>`;
+    }
+  }
+
   let stepsHTML = steps.map((s, i) => {
     const isDone = i <= currentStepIndex;
     const isActive = i === currentStepIndex;
@@ -1179,6 +1208,9 @@ function renderTrackResult(data, type, container) {
       <div class="track-steps-container" style="margin-top:20px;">
         ${stepsHTML}
       </div>
+      
+      ${itemsSummaryHTML}
+
       <div style="margin-top:32px; padding-top:24px; border-top:1px solid #f5f5f5; text-align:center;">
         <p style="font-size:13px; color:#777;">Need help? <a href="https://wa.me/917708847977" style="color:#22c55e; font-weight:700;">Chat with Estate Manager</a></p>
       </div>
@@ -1220,21 +1252,13 @@ window.renderMultiOrderResults = renderMultiOrderResults;
 window.renderOneOrder = function(id) {
   handleTrack(id);
 };
-const trackOrder = handleTrack;
-
-function renderRecentHistory() {
-  // Logic to show recent searches
-}
-
-function saveToHistory(id) {
-  // Logic to save search history
-}
 
 async function initApp() {
-  showPage('home');
-  updateCartCount();
+  await fetchDeliveryConfig();
   await loadCategories();
   await loadProducts();
+  showPage('home');
+  updateCartCount();
 
   // Realtime Subscriptions
   if (supabaseClient) {
@@ -1519,11 +1543,47 @@ window.addCustomCrateToCart = function() {
   refreshCurrentView();
 };
 
+// End of App logic
+
+async function initApp() {
+  await fetchDeliveryConfig();
+  await loadCategories();
+  await loadProducts();
+  loadCart();
+  refreshCurrentView();
+
+  // Realtime Subscriptions
+  if (supabaseClient) {
+    supabaseClient.channel('public:products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts).subscribe();
+    supabaseClient.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories).subscribe();
+    supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, fetchDeliveryConfig).subscribe();
+    
+    // Track Order Updates live
+    supabaseClient.channel('public:orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+       if (curPage === 'track' && window.lastTrackQuery) handleTrack(window.lastTrackQuery);
+    }).subscribe();
+    supabaseClient.channel('public:corporate_orders').on('postgres_changes', { event: '*', schema: 'public', table: 'corporate_orders' }, () => {
+       if (curPage === 'track' && window.lastTrackQuery) handleTrack(window.lastTrackQuery);
+    }).subscribe();
+  }
+}
+
+async function fetchDeliveryConfig() {
+  try {
+    const { data } = await supabaseClient.from('store_settings').select('value').eq('key', 'delivery_config').maybeSingle();
+    if (data && data.value) {
+      window.deliveryConfig = data.value;
+      if (curPage === 'cart') renderCart();
+    }
+  } catch (err) {
+    console.error("Error fetching delivery config:", err);
+  }
+}
+
 initApp();
 window.handleTrack = handleTrack;
-window.trackOrder = trackOrder;
+window.trackOrder = handleTrack;
 window.updCart = updCart;
-// End of App logic
 
 function setupMobileMarquee() {
   const trowNode = document.querySelector('.trow');
