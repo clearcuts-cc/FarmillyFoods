@@ -693,7 +693,7 @@ window.submitDeliveryAndPay = function() {
   if (mapLink) fullAddress += ` (Map: ${mapLink})`;
 
   window.closeDeliveryModal();
-  setTimeout(() => openRazorpayWithDetails(name, phone, fullAddress, city, state, pin), 450);
+  setTimeout(() => openRazorpayWithDetails(name, phone, bldg + ', ' + street, city, state, pin, mapLink), 450);
 };
 
 window.autoDetectLocation = async function() {
@@ -770,7 +770,7 @@ window.parseMapLink = function(url) {
   } catch (e) { return null; }
 };
 
-function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest', stateVal = 'Order', pinVal = '000000') {
+function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest', stateVal = 'Order', pinVal = '000000', mapLink = '') {
   const totEl = document.getElementById('co-tot');
   const tot = totEl ? parseInt(totEl.innerText) : 0;
   if (!tot) return;
@@ -793,7 +793,8 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
                 address_line: address, 
                 city: cityVal, 
                 state: stateVal, 
-                pincode: pinVal 
+                pincode: pinVal,
+                map_link: mapLink
               }])
               .select().single();
             if (addrData) addressId = addrData.id;
@@ -810,7 +811,7 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
               status: 'confirmed', 
               customer_name: customerName, 
               phone: phone, 
-              address: address, 
+              address: `${address}, ${cityVal}, ${stateVal} - ${pinVal}${mapLink ? ' (Map: ' + mapLink + ')' : ''}`, 
               address_id: addressId 
             }])
             .select()
@@ -1276,7 +1277,10 @@ function renderTrackResult(data, type, container) {
   }).join('');
 
   container.innerHTML = `
-    <div style="background:white; padding:32px; border-radius:32px; box-shadow:0 20px 50px rgba(0,0,0,0.05); border:1px solid #f0f0f0;">
+    <div style="background:white; padding:32px; border-radius:32px; box-shadow:0 20px 50px rgba(0,0,0,0.05); border:1px solid #f0f0f0; position:relative;">
+      <!-- Invoice Label -->
+      <div style="position:absolute; top:-12px; right:32px; background:#1b391b; color:white; padding:4px 15px; border-radius:30px; font-size:10px; font-weight:900; letter-spacing:1px; box-shadow:0 5px 15px rgba(27,57,27,0.2);">DIGITAL INVOICE</div>
+      
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:20px; border-bottom:1px solid #f5f5f5;">
         <div>
           <span style="font-size:10px; font-weight:900; color:#888; text-transform:uppercase; letter-spacing:3px;">${type} REFERENCE</span>
@@ -1287,15 +1291,38 @@ function renderTrackResult(data, type, container) {
           <div style="font-size:16px; font-weight:700; color:#444;">${date}</div>
         </div>
       </div>
+
       <div class="track-steps-container" style="margin-top:20px;">
         ${stepsHTML}
       </div>
       
       ${itemsSummaryHTML}
 
-      <div style="margin-top:32px; padding-top:24px; border-top:1px solid #f5f5f5; text-align:center;">
-        <p style="font-size:13px; color:#777;">Need help? <a href="https://wa.me/917708847977" style="color:#22c55e; font-weight:700;">Chat with Estate Manager</a></p>
+      <!-- Financial Detail -->
+      <div style="margin-top:20px; padding:16px; border-radius:16px; background:#fff; border:1px dashed #e2e8f0;">
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:6px;">
+          <span>Subtotal</span>
+          <span>₹${data.subtotal || data.total - (data.delivery_charge || 0)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #f1f5f9;">
+          <span>Delivery Charge</span>
+          <span>${data.delivery_charge > 0 ? '₹' + data.delivery_charge : 'FREE'}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:900; color:#1b391b;">
+          <span>Total Paid</span>
+          <span>₹${data.total}</span>
+        </div>
       </div>
+
+      <div style="margin-top:32px; display:flex; gap:12px; align-items:center;">
+        <button onclick="window.print()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg> Save PDF / Print
+        </button>
+        <a href="https://wa.me/917708847977" style="flex:1.5; background:#1b391b; color:white; text-decoration:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px;">
+           Estate Support Manager →
+        </a>
+      </div>
+      <p style="text-align:center; font-size:11px; color:#94a3b8; margin-top:20px;">Thank you for supporting heritage harvests! 🍃</p>
     </div>
   `;
 }
