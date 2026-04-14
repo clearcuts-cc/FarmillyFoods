@@ -1696,7 +1696,7 @@ window.renderCrateVarieties = function() {
     
     return `
     <div style="display:flex; align-items:center; gap:15px; padding:15px; border-bottom:1px solid #f1f5f9;">
-        <img src="${v.img}" style="width:60px; height:60px; border-radius:12px; object-fit:cover;">
+        <img src="${v.img}" style="width:60px; height:60px; border-radius:12px; object-fit:contain; background:#f8fafc; border:1px solid #f1f5f9; padding:4px;">
         <div style="flex:1">
             <div style="font-weight:700; color:#1b391b;">${v.name}</div>
             <div style="font-size:12px; color:#22c55e; font-weight:700;">₹${unitPrice} / KG</div>

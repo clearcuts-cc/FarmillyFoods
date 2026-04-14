@@ -142,7 +142,8 @@
     .m-img-wrap img {
       width: 100% !important;
       height: 100% !important;
-      object-fit: cover !important;
+      object-fit: contain !important;
+      padding: 10px !important;
     }
 
     .m-add-btn-image {
@@ -3618,8 +3619,11 @@
     .citem img {
       width: 78px;
       height: 78px;
-      border-radius: 10px;
-      object-fit: cover
+      border-radius: 12px;
+      object-fit: contain;
+      background: #fdfcf8;
+      border: 1px solid #f3f4f6;
+      padding: 6px;
     }
 
     .ci-name {
@@ -4942,7 +4946,7 @@
       
       /* Cart & Navigation Refinements */
       .citem { grid-template-columns: 60px 1fr !important; padding: 12px !important; }
-      .citem img { width: 60px !important; height: 60px !important; }
+      .citem img { width: 60px !important; height: 60px !important; object-fit: contain !important; background: #fdfcf8 !important; padding: 4px !important; }
       .slide-wrap { height: 58px !important; border-radius: 18px !important; }
       .slide-handle { width: 42px !important; height: 42px !important; border-radius: 12px !important; }
       
@@ -6310,7 +6314,7 @@
       <img src="" alt="Product Image" id="det-img-main"
         onload="this.style.opacity='1'; this.style.transform='scale(1)';"
         onerror="this.src='https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop'; this.style.opacity='0.8';"
-        style="max-width:90%; max-height:85%; object-fit:contain; transform:scale(1.1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0;">
+        style="max-width:92%; max-height:88%; object-fit:contain; transform:scale(1.1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.08));">
     </div>
     <div class="pd-content" id="pd-content" style="padding:0 16px 220px; max-width:800px; margin:0 auto;">
       <div class="pd-stars"
