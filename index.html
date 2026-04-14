@@ -6466,7 +6466,7 @@
 
       let selectedPdVariant = null;
 
-      function showPremiumDetail(variety) {
+      function showPremiumDetail(variety, push = true) {
         const pd = document.getElementById('premium-detail');
         const title = document.getElementById('pd-title');
         const desc = document.getElementById('pd-desc');
@@ -6547,6 +6547,27 @@
       }
       window.showPremiumDetail = showPremiumDetail;
 
+      window.closePremiumDetail = function (push = true) {
+        const pd = document.getElementById('premium-detail');
+        if (pd && pd.classList.contains('active')) {
+          pd.classList.remove('active');
+          pd.style.opacity = '0';
+          pd.style.visibility = 'hidden';
+          setTimeout(() => {
+            if (!pd.classList.contains('active')) pd.style.display = 'none';
+          }, 400);
+
+          if (push) {
+            // Navigate back to shop or home
+            const path = (window.activeFilter && window.activeFilter !== 'All') 
+              ? '/' + window.activeFilter.toLowerCase().replace(/\s+/g, '-')
+              : (window.prevPage === 'home' ? '/' : '/' + window.prevPage);
+            window.history.pushState({ page: window.prevPage }, '', path);
+          }
+        }
+        document.body.style.overflow = '';
+      };
+
       function refreshPdActionArea() {
         const container = document.getElementById('pd-btn-container');
         if (!container || !selectedPdVariant) return;
@@ -6599,17 +6620,6 @@
         refreshPdActionArea();
       }
       window.selectPdVariant = selectPdVariant;
-
-      window.closePremiumDetail = function () {
-        const pd = document.getElementById('premium-detail');
-        if (pd) {
-          pd.classList.remove('active');
-          pd.style.opacity = '0';
-          pd.style.visibility = 'hidden';
-          setTimeout(() => pd.style.display = 'none', 400);
-        }
-        document.body.style.overflow = '';
-      };
 
       window.addActiveVariantToCart = function () {
         if (selectedPdVariant && typeof window.addToCart === 'function') {

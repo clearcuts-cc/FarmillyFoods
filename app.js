@@ -133,7 +133,7 @@ function showToast(msg) {
 window.showToast = showToast;
 
 // ===== ROUTING =====
-function showPage(page) {
+function showPage(page, push = true) {
   const pages = document.querySelectorAll('.page');
   pages.forEach(p => {
     p.classList.remove('active');
@@ -154,20 +154,28 @@ function showPage(page) {
       'shop': 'Shop Online — Organic Heritage Mangoes & Farm Fresh Goods',
       'corporate': 'Corporate Gifting — Bespoke Mango Crates & Luxury Hampers',
       'track': 'Track Your Order — Farmmily Delivery Status',
-      'cart': 'Your Shopping Cart — Farmmily Boutique'
+      'cart': 'Your Shopping Cart — Farmmily Boutique',
+      'success': 'Order Success — Farmmily Foods'
     };
     const pageDescs = {
       'home': 'Direct from our estates to your family. Experience the legendary purity of our seasonal harvest.',
       'shop': 'Explore our collection of Imam Pasand, Alphonso, and Banganapalli mangoes along with artisan ghee.',
       'corporate': 'Premium B2B gifting solutions. Hand-curated mango boxes for your brand partners.',
       'track': 'Enter your order number or enquiry reference to track your farm-fresh delivery live.',
-      'cart': 'Complete your purchase of heritage products from Farmmily Farms.'
+      'cart': 'Complete your purchase of heritage products from Farmmily Farms.',
+      'success': 'Thank you for your order! Your harvest is being prepared.'
     };
 
     if (pageTitles[page]) document.title = pageTitles[page];
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc && pageDescs[page]) metaDesc.setAttribute('content', pageDescs[page]);
     // ----------------------------
+
+    // Sync URL
+    if (push) {
+      const path = page === 'home' ? '/' : '/' + page;
+      syncUrl(path);
+    }
 
     document.querySelectorAll('#mob-nav .mob-nav-item, #desktop-nav a').forEach(a => {
       const oc = a.getAttribute('onclick') || '';
@@ -181,8 +189,32 @@ function showPage(page) {
   if (page === 'cart') renderCart();
 
   closeMob();
+  
+  // Close detail view if open when switching pages (safety)
+  if (page !== 'product' && typeof window.closePremiumDetail === 'function') {
+    window.closePremiumDetail(false); // pass false to not update URL again
+  }
 }
 window.showPage = showPage;
+
+function syncUrl(targetPath) {
+  const currentPath = window.location.pathname;
+  let cleanTargetPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
+  let newUrl = cleanTargetPath;
+  
+  // Handling for /index.html environments
+  if (currentPath.includes('index.html')) {
+    const base = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+    newUrl = base + cleanTargetPath.substring(1);
+  }
+  
+  if (window.location.pathname + window.location.search !== newUrl) {
+    try {
+      window.history.pushState({ path: targetPath }, '', newUrl);
+    } catch(e) { console.error('Router failed:', e); }
+  }
+}
+window.syncUrl = syncUrl;
 
 function toggleMob() {
   const m = document.getElementById('mob-menu');
@@ -413,13 +445,17 @@ function getProductBG(p) {
   return '#f5f8f5';
 }
 
-function showProduct(id) {
+function showProduct(id, push = true) {
   const p = (window.products || []).find(x => Number(x.id) === Number(id));
   if (!p) return;
 
-  // Prefer Premium Detail View for the full story
+  if (push) {
+    const slug = p.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    syncUrl('/product/' + id + '/' + slug);
+  }
+
   if (typeof window.showPremiumDetail === 'function') {
-    window.showPremiumDetail(p.name);
+    window.showPremiumDetail(p.name, false); 
   } else {
     openProduct(id);
   }
@@ -453,7 +489,7 @@ function renderHome() {
   }
 }
 
-function filterBycat(cat) { activeFilter = cat; showPage('shop'); }
+// Removed redundant filterBycat
 
 // ===== SHOP =====
 function renderShop() {
@@ -467,7 +503,17 @@ function renderShop() {
   filterProds();
 }
 
-function setFilter(cat) { activeFilter = cat; renderShop(); }
+function setFilter(cat) { 
+  activeFilter = cat; 
+  renderShop(); 
+  
+  if (cat === 'All') {
+    syncUrl('/shop');
+  } else {
+    const path = '/' + cat.toLowerCase().replace(/\s+/g, '-');
+    syncUrl(path);
+  }
+}
 
 function filterProds() {
   const grid = document.getElementById('shop-grid');
@@ -495,7 +541,7 @@ function openProduct(id) {
   const nameEL = document.getElementById('det-name'); if (nameEL) nameEL.textContent = p.name;
   const priceEL = document.getElementById('det-price'); if (priceEL) priceEL.textContent = '₹' + p.price;
   const qtyEL = document.getElementById('det-qty'); if (qtyEL) qtyEL.textContent = 1;
-  showPage('product');
+  showPage('product', false);
 }
 
 function chQty(d) { detQty = Math.max(1, detQty + d); const q = document.getElementById('det-qty'); if (q) q.textContent = detQty; }
@@ -506,7 +552,7 @@ function addDetToCart() {
   if (ex) ex.qty += detQty; else window.cart.push({ id: curProd.id, qty: detQty });
   saveCart();
   showToast('Added to basket!');
-  showPage('shop');
+  showPage('shop', true);
 }
 
 // ===== CART =====
@@ -965,9 +1011,15 @@ function closeDeskCat() {
 }
 window.closeDeskCat = closeDeskCat;
 
-function filterBycat(c) {
+function filterBycat(c, push = true) {
   activeFilter = c;
-  showPage('shop');
+  showPage('shop', false);
+  
+  if (push) {
+    const path = '/' + c.toLowerCase().replace(/\s+/g, '-');
+    syncUrl(path);
+  }
+
   const chips = document.querySelectorAll('.chip');
   chips.forEach(ch => {
     if (ch.innerText === c) ch.classList.add('active');
@@ -975,6 +1027,83 @@ function filterBycat(c) {
   });
 }
 window.filterBycat = filterBycat;
+
+// ===== CLIENT-SIDE ROUTER =====
+function handleRoute() {
+  const path = window.location.pathname.toLowerCase();
+  const params = new URLSearchParams(window.location.search);
+  
+  // Basic Pages
+  if (path === '/' || path === '/home' || path === '/index.html') {
+    showPage('home', false);
+    return;
+  }
+  
+  if (path === '/shop') {
+    activeFilter = 'All';
+    showPage('shop', false);
+    return;
+  }
+
+  if (path === '/cart') {
+    showPage('cart', false);
+    return;
+  }
+
+  if (path === '/track') {
+    showPage('track', false);
+    return;
+  }
+
+  if (path === '/corporate') {
+    showPage('corporate', false);
+    return;
+  }
+
+  if (path === '/success') {
+    showPage('success', false);
+    return;
+  }
+
+  // Product Detail Route: /product/123/name
+  if (path.includes('/product/')) {
+    const segments = path.split('/');
+    const pIndex = segments.indexOf('product');
+    const id = segments[pIndex + 1];
+    if (id) {
+       const checkLoaded = setInterval(() => {
+         if (window.products && window.products.length) {
+            clearInterval(checkLoaded);
+            showProduct(id, false);
+         }
+       }, 100);
+       setTimeout(() => clearInterval(checkLoaded), 5000);
+    }
+    return;
+  }
+
+  // Category Route: /mango, /honey, etc.
+  const catSlug = path.substring(1).replace(/-/g, ' ');
+  const checkCats = setInterval(() => {
+    if (window.cats && window.cats.length) {
+      clearInterval(checkCats);
+      const found = window.cats.find(c => c.name.toLowerCase() === catSlug);
+      if (found) {
+        filterBycat(found.name, false);
+      } else {
+        // If not a category, maybe it's a page we don't know, default to home
+        showPage('home', false);
+      }
+    }
+  }, 100);
+  setTimeout(() => clearInterval(checkCats), 5000);
+}
+
+window.addEventListener('popstate', (event) => {
+  handleRoute();
+});
+
+// showProduct is defined above
 
 async function loadProducts() {
   if (!supabaseClient) { handleRawProducts([]); return; }
@@ -1659,7 +1788,11 @@ async function initApp() {
   await loadCategories();
   await loadProducts();
   loadCart();
-  refreshCurrentView();
+  
+  // router handles initial page selection
+  handleRoute();
+  
+  updateCartCount();
 
   // Realtime Subscriptions
   if (supabaseClient) {
