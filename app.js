@@ -189,7 +189,7 @@ function showPage(page, push = true) {
   if (page === 'cart') renderCart();
 
   closeMob();
-  
+
   // Close detail view if open when switching pages (safety)
   if (page !== 'product' && typeof window.closePremiumDetail === 'function') {
     window.closePremiumDetail(false); // pass false to not update URL again
@@ -201,17 +201,17 @@ function syncUrl(targetPath) {
   const currentPath = window.location.pathname;
   let cleanTargetPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
   let newUrl = cleanTargetPath;
-  
+
   // Handling for /index.html environments
   if (currentPath.includes('index.html')) {
     const base = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
     newUrl = base + cleanTargetPath.substring(1);
   }
-  
+
   if (window.location.pathname + window.location.search !== newUrl) {
     try {
       window.history.pushState({ path: targetPath }, '', newUrl);
-    } catch(e) { console.error('Router failed:', e); }
+    } catch (e) { console.error('Router failed:', e); }
   }
 }
 window.syncUrl = syncUrl;
@@ -233,7 +233,7 @@ function closeMob() {
   const o = document.getElementById('mob-menu-overlay');
   if (m && o) {
     m.classList.remove('active');
-    setTimeout(() => { if(!m.classList.contains('active')) o.style.display = 'none'; }, 300);
+    setTimeout(() => { if (!m.classList.contains('active')) o.style.display = 'none'; }, 300);
     document.body.style.overflow = 'auto';
   }
 }
@@ -261,14 +261,14 @@ function refreshCurrentView() {
   else if (curPage === 'cart') renderCart();
   else if (curPage === 'track') {
     if (window.lastTrackQuery) {
-       handleTrack(window.lastTrackQuery);
+      handleTrack(window.lastTrackQuery);
     } else {
-       const res = document.getElementById('tr-res');
-       if (res) res.innerHTML = '';
+      const res = document.getElementById('tr-res');
+      if (res) res.innerHTML = '';
     }
   }
   else if (curPage === 'corporate') { /* corporate rendering if needed */ }
-  
+
   // REFRESH VARIANT SHEET IF OPEN
   const vSheet = document.getElementById('variant-sheet');
   if (window.currentSheetVariety && vSheet && vSheet.classList.contains('active')) {
@@ -370,7 +370,7 @@ function pcardHTML(p) {
     <div class="m-add-btn-image" style="background: rgba(148, 163, 184, 0.9) !important; color: white !important; cursor: not-allowed; opacity: 0.7;" onclick="event.stopPropagation()">
         SOLD OUT
     </div>` : (hasOptions ? `
-    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet(arguments[0], '${p.name.replace(/'/g, "\\'")}',[${variants.map(v=>v.id).join(',')}])">
+    <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openVariantSheet(arguments[0], '${p.name.replace(/'/g, "\\'")}',[${variants.map(v => v.id).join(',')}])">
         ADD
     </div>` : (qty > 0 ? `
     <div class="m-add-btn-image" style="background:#f0fdf4 !important; color:#1b391b !important; border:1px solid #22c55e !important;" onclick="event.stopPropagation()">
@@ -398,7 +398,7 @@ function pcardHTML(p) {
                     <div class="m-stars">★★★★★</div>
                     <span class="m-rating-val">${p.rating || '5.0'}</span>
                 </div>
-                <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v=>v.id).join(',') : p.id}])">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
+                <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v => v.id).join(',') : p.id}])">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
             </div>
             <h3 class="m-title" style="margin-bottom:0px;">${p.name}</h3>
             <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 ${unitLabel.toUpperCase()} PRICE RATE</div>
@@ -457,7 +457,7 @@ function showProduct(id, push = true) {
   }
 
   if (typeof window.showPremiumDetail === 'function') {
-    window.showPremiumDetail(p.name, false); 
+    window.showPremiumDetail(p.name, false);
   } else {
     openProduct(id);
   }
@@ -505,10 +505,10 @@ function renderShop() {
   filterProds();
 }
 
-function setFilter(cat) { 
-  activeFilter = cat; 
-  renderShop(); 
-  
+function setFilter(cat) {
+  activeFilter = cat;
+  renderShop();
+
   if (cat === 'All') {
     syncUrl('/shop');
   } else {
@@ -571,7 +571,7 @@ function renderCart() {
     if (!p) return '';
     const itemTotal = p.price * ci.qty;
     sub += itemTotal;
-    
+
     // For custom products, we use the stored description
     const weightLabel = p.wt || '';
     const unitInfo = (window.getUnitPrice && !p.isCustom) ? window.getUnitPrice(p.price, p.wt) : null;
@@ -684,7 +684,7 @@ function placeOrder() {
   window.openDeliveryModal();
 }
 
-window.openDeliveryModal = function() {
+window.openDeliveryModal = function () {
   const overlay = document.getElementById('delivery-overlay');
   const modal = document.getElementById('delivery-modal');
   if (overlay) { overlay.style.display = 'block'; }
@@ -694,11 +694,11 @@ window.openDeliveryModal = function() {
   }
 };
 
-window.closeDeliveryModal = function() {
+window.closeDeliveryModal = function () {
   const overlay = document.getElementById('delivery-overlay');
   const modal = document.getElementById('delivery-modal');
-  if (modal) { 
-    modal.style.transform = 'translateY(100%)'; 
+  if (modal) {
+    modal.style.transform = 'translateY(100%)';
     modal.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
     modal.classList.remove('active');
   }
@@ -712,7 +712,7 @@ window.closeDeliveryModal = function() {
     // Reset slider on cancel
     const slider = document.getElementById('cart-slider');
     if (slider) {
-      slider.classList.remove('completed','ready');
+      slider.classList.remove('completed', 'ready');
       const st = slider.querySelector('.slide-text');
       const sh = slider.querySelector('.slide-handle');
       const sb = slider.querySelector('.slide-bg');
@@ -723,17 +723,17 @@ window.closeDeliveryModal = function() {
   }, 400);
 };
 
-window.submitDeliveryAndPay = function() {
-  const name    = (document.getElementById('del-name')?.value || '').trim();
-  const phone   = (document.getElementById('del-phone')?.value || '').trim();
-  const bldg    = (document.getElementById('del-building')?.value || '').trim();
-  const street  = (document.getElementById('del-street')?.value || '').trim();
-  const city    = (document.getElementById('del-city')?.value || '').trim();
-  const state   = (document.getElementById('del-state')?.value || '').trim();
-  const pin     = (document.getElementById('del-pincode')?.value || '').trim();
+window.submitDeliveryAndPay = function () {
+  const name = (document.getElementById('del-name')?.value || '').trim();
+  const phone = (document.getElementById('del-phone')?.value || '').trim();
+  const bldg = (document.getElementById('del-building')?.value || '').trim();
+  const street = (document.getElementById('del-street')?.value || '').trim();
+  const city = (document.getElementById('del-city')?.value || '').trim();
+  const state = (document.getElementById('del-state')?.value || '').trim();
+  const pin = (document.getElementById('del-pincode')?.value || '').trim();
   const mapLink = (document.getElementById('del-maplink')?.value || '').trim();
 
-  if (!name)    { showToast('Please enter your full name'); return; }
+  if (!name) { showToast('Please enter your full name'); return; }
   if (!phone || phone.length < 10) { showToast('Please enter a valid phone number'); return; }
   if (!bldg || !street || !city || !state || !pin) { showToast('Please fill all address fields'); return; }
 
@@ -744,7 +744,7 @@ window.submitDeliveryAndPay = function() {
   setTimeout(() => openRazorpayWithDetails(name, phone, bldg + ', ' + street, city, state, pin, mapLink), 450);
 };
 
-window.autoDetectLocation = async function() {
+window.autoDetectLocation = async function () {
   const mapInput = document.getElementById('del-maplink');
   const pastedLink = (mapInput?.value || '').trim();
 
@@ -803,12 +803,12 @@ window.autoDetectLocation = async function() {
   }
 };
 
-window.parseMapLink = function(url) {
+window.parseMapLink = function (url) {
   try {
     // Standard link: ?q=lat,lon or @lat,lon
     let match = url.match(/q=([\d.-]+),([\d.-]+)/) || url.match(/@([\d.-]+),([\d.-]+)/);
     if (match) return { lat: match[1], lon: match[2] };
-    
+
     // Some shortened links might need to be resolved, but we can't easily do that client-side
     // without a proxy. However, we can try to find anything that looks like lat,lon
     match = url.match(/ll=([\d.-]+),([\d.-]+)/);
@@ -835,12 +835,12 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
           try {
             const { data: addrData } = await supabaseClient
               .from('addresses')
-              .insert([{ 
-                full_name: customerName, 
-                phone: phone, 
-                address_line: address, 
-                city: cityVal, 
-                state: stateVal, 
+              .insert([{
+                full_name: customerName,
+                phone: phone,
+                address_line: address,
+                city: cityVal,
+                state: stateVal,
                 pincode: pinVal,
                 map_link: mapLink
               }])
@@ -851,16 +851,16 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
           // 1. Create main order (order_number is generated by DB default)
           const { data: orderData, error: orderErr } = await supabaseClient
             .from('orders')
-            .insert([{ 
-              subtotal: tot - (tot > 1000 ? 0 : 49), 
-              delivery_charge: (tot > 1000 ? 0 : 49), 
-              total: tot, 
-              payment_status: 'paid', 
-              status: 'confirmed', 
-              customer_name: customerName, 
-              phone: phone, 
-              address: `${address}, ${cityVal}, ${stateVal} - ${pinVal}${mapLink ? ' (Map: ' + mapLink + ')' : ''}`, 
-              address_id: addressId 
+            .insert([{
+              subtotal: tot - (tot > 1000 ? 0 : 49),
+              delivery_charge: (tot > 1000 ? 0 : 49),
+              total: tot,
+              payment_status: 'paid',
+              status: 'confirmed',
+              customer_name: customerName,
+              phone: phone,
+              address: `${address}, ${cityVal}, ${stateVal} - ${pinVal}${mapLink ? ' (Map: ' + mapLink + ')' : ''}`,
+              address_id: addressId
             }])
             .select()
             .single();
@@ -873,7 +873,7 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
               const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
               return {
                 order_id: orderData.id,
-                product_id: (p && p.id > 999000) ? null : (p ? p.id : null), 
+                product_id: (p && p.id > 999000) ? null : (p ? p.id : null),
                 product_name: p ? p.name : 'Unknown Product',
                 product_image: p ? p.img : null,
                 quantity: ci.qty,
@@ -903,9 +903,9 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
                 const { data: pData } = await supabaseClient.from('products').select('stock_count').eq('id', item.product_id).single();
                 if (pData) {
                   const newStock = Math.max(0, pData.stock_count - item.quantity);
-                  await supabaseClient.from('products').update({ 
+                  await supabaseClient.from('products').update({
                     stock_count: newStock,
-                    in_stock: newStock > 0 
+                    in_stock: newStock > 0
                   }).eq('id', item.product_id);
                 }
               }
@@ -1016,7 +1016,7 @@ window.closeDeskCat = closeDeskCat;
 function filterBycat(c, push = true) {
   activeFilter = c;
   showPage('shop', false);
-  
+
   if (push) {
     const path = '/' + c.toLowerCase().replace(/\s+/g, '-');
     syncUrl(path);
@@ -1034,13 +1034,13 @@ window.filterBycat = filterBycat;
 function handleRoute() {
   const path = window.location.pathname.toLowerCase();
   const params = new URLSearchParams(window.location.search);
-  
+
   // Basic Pages
   if (path === '/' || path === '/home' || path === '/index.html') {
     showPage('home', false);
     return;
   }
-  
+
   if (path === '/shop') {
     activeFilter = 'All';
     showPage('shop', false);
@@ -1073,13 +1073,13 @@ function handleRoute() {
     const pIndex = segments.indexOf('product');
     const id = segments[pIndex + 1];
     if (id) {
-       const checkLoaded = setInterval(() => {
-         if (window.products && window.products.length) {
-            clearInterval(checkLoaded);
-            showProduct(id, false);
-         }
-       }, 100);
-       setTimeout(() => clearInterval(checkLoaded), 5000);
+      const checkLoaded = setInterval(() => {
+        if (window.products && window.products.length) {
+          clearInterval(checkLoaded);
+          showProduct(id, false);
+        }
+      }, 100);
+      setTimeout(() => clearInterval(checkLoaded), 5000);
     }
     return;
   }
@@ -1109,14 +1109,14 @@ window.addEventListener('popstate', (event) => {
 
 async function loadProducts() {
   if (!supabaseClient) { handleRawProducts([]); return; }
-  
+
   // Fetch active products with positive stock
   const { data: prods } = await supabaseClient
     .from('products')
     .select('*')
     .eq('is_active', true)
     .gt('stock_count', 0);
-  
+
   handleRawProducts(prods || []);
 }
 
@@ -1131,7 +1131,7 @@ function handleRawProducts(data) {
     const category = cats.find(c => c.id === p.category_id)?.name || 'Products';
 
     return {
-      id: p.id, name: cap(p.name), price: Number(p.price), 
+      id: p.id, name: cap(p.name), price: Number(p.price),
       originalPrice: p.original_price ? Number(p.original_price) : null,
       wt: p.weight,
       img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
@@ -1156,7 +1156,7 @@ function handleRawProducts(data) {
       .replace(/ oil$/i, '')
       .replace(/ ghee$/i, '')
       .trim();
-      
+
     if (!grouped[baseName]) {
       grouped[baseName] = { ...p, name: baseName, variants: [] };
     }
@@ -1258,7 +1258,7 @@ async function handleTrack(manualId = null) {
 
   res.style.display = 'block';
   res.innerHTML = '<div style="text-align:center;padding:40px;color:#888;"><div class="spinner" style="margin:0 auto 15px;"></div>Locating your harvest...</div>';
-  
+
   if (btn) {
     btn.disabled = true;
     btn.classList.add('loading');
@@ -1348,15 +1348,15 @@ function renderTrackResult(data, type, container) {
   const steps = ['confirmed', 'packed', 'shipped', 'delivered'];
   let currentStepIndex = steps.indexOf(status);
   if (currentStepIndex === -1 && status === 'cancelled') {
-     // Special handle for cancelled
-     container.innerHTML = `<div style="padding:40px; text-align:center; background:#fff5f5; border-radius:32px; border:1px solid #fed7d7;">
+    // Special handle for cancelled
+    container.innerHTML = `<div style="padding:40px; text-align:center; background:#fff5f5; border-radius:32px; border:1px solid #fed7d7;">
        <div style="font-size:32px; margin-bottom:12px;">🚫</div>
        <h3 style="color:#c53030; margin-bottom:8px;">Order Cancelled</h3>
        <p style="color:#718096; font-size:14px;">This reference <b>${id}</b> has been cancelled. Please contact support if this is an error.</p>
      </div>`;
-     return;
+    return;
   }
-  
+
   if (currentStepIndex === -1) currentStepIndex = 0; // Default to confirmed
 
   // --- ITEM SUMMARY LOGIC ---
@@ -1462,7 +1462,7 @@ function renderMultiOrderResults(orders, container) {
     const id = o.order_number || o.enquiry_ref;
     const date = new Date(o.created_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
     const status = (o.status || 'confirmed').toLowerCase();
-    
+
     return `
       <div onclick="window.renderOneOrder('${id}')" style="background:white; padding:20px; border-radius:20px; margin-bottom:12px; border:1px solid #eee; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
         <div style="display:flex; align-items:center; gap:16px;">
@@ -1489,7 +1489,7 @@ function renderMultiOrderResults(orders, container) {
 }
 window.renderMultiOrderResults = renderMultiOrderResults;
 
-window.renderOneOrder = function(id) {
+window.renderOneOrder = function (id) {
   handleTrack(id);
 };
 
@@ -1588,7 +1588,7 @@ let crateLimit = 3;
 let crateMix = {}; // { id: qty }
 let mangoVarieties = [];
 
-window.openCrateBuilder = function() {
+window.openCrateBuilder = function () {
   const overlay = document.getElementById('crate-overlay');
   const modal = document.getElementById('crate-builder');
   if (!overlay || !modal) return;
@@ -1596,18 +1596,18 @@ window.openCrateBuilder = function() {
   // Initialize mangoes - exclude the Custom Crate itself!
   mangoVarieties = (window.displayProducts || []).filter(p => {
     const isMangoCrate = p.name.toLowerCase().includes('custom') || p.name.toLowerCase().includes('crate');
-    const isMango = (p.cat && p.cat.toLowerCase().includes('mango')) || 
-                    p.name.toLowerCase().includes('mango');
+    const isMango = (p.cat && p.cat.toLowerCase().includes('mango')) ||
+      p.name.toLowerCase().includes('mango');
     return isMango && !isMangoCrate;
   });
-  
+
   crateMix = {};
   mangoVarieties.forEach(v => crateMix[v.id] = 0);
   crateLimit = 3;
-  
+
   window.renderCrateVarieties();
   window.updateCrateUI();
-  
+
   overlay.style.display = 'block';
   modal.style.display = 'block';
   setTimeout(() => {
@@ -1617,10 +1617,10 @@ window.openCrateBuilder = function() {
   document.body.style.overflow = 'hidden';
 };
 
-window.closeCrateBuilder = function() {
+window.closeCrateBuilder = function () {
   const c = document.getElementById('crate-builder');
   const o = document.getElementById('crate-overlay');
-  if (c) { 
+  if (c) {
     c.style.transform = 'translateY(100%)';
     c.classList.remove('active');
   }
@@ -1635,17 +1635,17 @@ window.closeCrateBuilder = function() {
   document.body.style.overflow = '';
 };
 
-window.setCrateLimit = function(lim) {
+window.setCrateLimit = function (lim) {
   crateLimit = lim;
   console.log("Crate limit changed to:", lim);
-  
+
   // Reset previous mixes to avoid weight overflow
   if (mangoVarieties && mangoVarieties.length) {
     mangoVarieties.forEach(v => crateMix[String(v.id)] = 0);
   } else {
     crateMix = {};
   }
-  
+
   // Update Tab UI
   document.querySelectorAll('.crate-size-tab').forEach(t => {
     t.style.background = '#f8fafc';
@@ -1653,7 +1653,7 @@ window.setCrateLimit = function(lim) {
     t.style.color = '#64748b';
     t.classList.remove('active');
   });
-  
+
   const activeTab = document.getElementById(`tab-${lim}kg`);
   if (activeTab) {
     activeTab.style.background = '#f0fdf4';
@@ -1666,34 +1666,34 @@ window.setCrateLimit = function(lim) {
   window.updateCrateUI();
 };
 
-window.updateCrateVariety = function(id, delta) {
+window.updateCrateVariety = function (id, delta) {
   const cid = String(id);
   const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
-  
+
   if (delta > 0 && currentTotal + delta > crateLimit) {
     showToast(`Crate limit reached (${crateLimit} KG)`);
     return;
   }
-  
+
   const currentQty = crateMix[cid] || 0;
   if (currentQty + delta < 0) return;
-  
+
   crateMix[cid] = currentQty + delta;
   console.log(`Updated ${cid} to ${crateMix[cid]}`);
-  
+
   window.renderCrateVarieties();
   window.updateCrateUI();
 };
 
-window.renderCrateVarieties = function() {
+window.renderCrateVarieties = function () {
   const container = document.getElementById('crate-varieties');
   if (!container) return;
-  
+
   container.innerHTML = mangoVarieties.map(v => {
     const qty = crateMix[String(v.id)] || 0;
     // Get the accurate 1KG rate
     const unitPrice = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
-    
+
     return `
     <div style="display:flex; align-items:center; gap:15px; padding:15px; border-bottom:1px solid #f1f5f9;">
         <img src="${v.img}" style="width:60px; height:60px; border-radius:12px; object-fit:contain; background:#f8fafc; border:1px solid #f1f5f9; padding:4px;">
@@ -1710,24 +1710,24 @@ window.renderCrateVarieties = function() {
   `}).join('');
 };
 
-window.updateCrateUI = function() {
+window.updateCrateUI = function () {
   const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
   let totalPrice = 0;
-  
+
   mangoVarieties.forEach(v => {
     const qty = crateMix[String(v.id)] || 0;
     const unitPrice = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
     totalPrice += qty * unitPrice;
   });
-  
+
   const curWtEl = document.getElementById('crate-current-wt');
   const maxLimEl = document.getElementById('crate-max-limit');
   const totPrEl = document.getElementById('crate-total-price');
-  
+
   if (curWtEl) curWtEl.textContent = currentTotal;
   if (maxLimEl) maxLimEl.textContent = crateLimit;
   if (totPrEl) totPrEl.textContent = totalPrice.toLocaleString('en-IN');
-  
+
   const btn = document.getElementById('add-crate-btn');
   if (btn) {
     if (currentTotal === crateLimit) {
@@ -1749,10 +1749,10 @@ window.updateCrateUI = function() {
 window.crateLimit = crateLimit;
 window.crateMix = crateMix;
 
-window.addCustomCrateToCart = function() {
+window.addCustomCrateToCart = function () {
   const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
   if (currentTotal !== crateLimit) return;
-  
+
   let totalPrice = 0;
   let summary = [];
   mangoVarieties.forEach(v => {
@@ -1776,7 +1776,7 @@ window.addCustomCrateToCart = function() {
     inStock: true,
     isCustom: true
   };
-  
+
   addToCart(customId, customProduct);
   showToast('Custom Crate added to harvest bag!');
   window.closeCrateBuilder();
@@ -1790,10 +1790,10 @@ async function initApp() {
   await loadCategories();
   await loadProducts();
   loadCart();
-  
+
   // router handles initial page selection
   handleRoute();
-  
+
   updateCartCount();
 
   // Realtime Subscriptions
@@ -1801,13 +1801,13 @@ async function initApp() {
     supabaseClient.channel('public:products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts).subscribe();
     supabaseClient.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories).subscribe();
     supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, fetchDeliveryConfig).subscribe();
-    
+
     // Track Order Updates live
     supabaseClient.channel('public:orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-       if (curPage === 'track' && window.lastTrackQuery) handleTrack(window.lastTrackQuery);
+      if (curPage === 'track' && window.lastTrackQuery) handleTrack(window.lastTrackQuery);
     }).subscribe();
     supabaseClient.channel('public:corporate_orders').on('postgres_changes', { event: '*', schema: 'public', table: 'corporate_orders' }, () => {
-       if (curPage === 'track' && window.lastTrackQuery) handleTrack(window.lastTrackQuery);
+      if (curPage === 'track' && window.lastTrackQuery) handleTrack(window.lastTrackQuery);
     }).subscribe();
   }
 }
