@@ -177,7 +177,7 @@ function showPage(page, push = true) {
       syncUrl(path);
     }
 
-    document.querySelectorAll('#mob-nav .mob-nav-item, #desktop-nav a').forEach(a => {
+    document.querySelectorAll('#mob-nav .mob-nav-item, #desktop-nav a, .mob-menu-item').forEach(a => {
       const oc = a.getAttribute('onclick') || '';
       if (oc.includes(`'${page}'`)) a.classList.add('active');
       else a.classList.remove('active');
@@ -226,17 +226,19 @@ function toggleMob() {
   }
 }
 window.toggleMob = toggleMob;
+window.openMobileSidebar = toggleMob;
 
 function closeMob() {
   const m = document.getElementById('mob-menu');
   const o = document.getElementById('mob-menu-overlay');
   if (m && o) {
     m.classList.remove('active');
-    setTimeout(() => o.style.display = 'none', 300);
+    setTimeout(() => { if(!m.classList.contains('active')) o.style.display = 'none'; }, 300);
     document.body.style.overflow = 'auto';
   }
 }
 window.closeMob = closeMob;
+window.closeMobileSidebar = closeMob;
 
 function toggleMobCat(el) {
   const d = document.getElementById('mob-drawer-cats');
