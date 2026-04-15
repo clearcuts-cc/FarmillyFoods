@@ -24,6 +24,165 @@ window.deliveryConfig = { charge: 49, free_above: 999 };
 
 var curPage = 'home';
 var prevPage = 'home', curProd = null, detQty = 1, activeFilter = 'All';
+var isCartDrawerOpen = false;
+
+function formatWeightLabel(weightKg) {
+  const weight = Number(weightKg || 0);
+  if (!Number.isFinite(weight) || weight <= 0) return '';
+  return Number.isInteger(weight) ? `${weight} kg` : `${weight.toFixed(2).replace(/\.?0+$/, '')} kg`;
+}
+
+function calculateVariantPrice(basePricePerKg, weightKg) {
+  const base = Number(basePricePerKg || 0);
+  const weight = Number(weightKg || 0);
+  return Math.round(base * weight);
+}
+
+function getPerKgRate(product = {}) {
+  const directBase = Number(product.basePricePerKg ?? product.base_price_per_kg ?? 0);
+  if (Number.isFinite(directBase) && directBase > 0) return directBase;
+
+  const price = Number(product.price || 0);
+  const weight = Number(product.weightKg || 0);
+  if (price > 0 && weight > 0) return Math.round(price / weight);
+
+  if (window.getUnitPrice && product.price && product.wt) {
+    const unitInfo = window.getUnitPrice(product.price, product.wt);
+    return Number(unitInfo?.rate || 0);
+  }
+
+  return 0;
+}
+
+function findProductByKeyword(keyword) {
+  const needle = String(keyword || '').toLowerCase();
+  const source = [...(window.displayProducts || []), ...(window.products || [])];
+  return source.find(product => {
+    const haystack = `${product.name || ''} ${product.rawName || ''}`.toLowerCase();
+    return haystack.includes(needle);
+  }) || null;
+}
+
+function getPerKgRateByKeyword(keyword) {
+  const product = findProductByKeyword(keyword);
+  return product ? getPerKgRate(product) : 0;
+}
+
+function calculateSelectionTotalPrice(items, selections) {
+  return (items || []).reduce((total, item) => {
+    const qty = Number(selections[String(item.id)] || 0);
+    return total + (qty * getPerKgRate(item));
+  }, 0);
+}
+
+function syncStaticMangoPricing() {
+  const cards = document.querySelectorAll('.premium-mango-card');
+  if (!cards.length) return;
+
+  cards.forEach(card => {
+    const title = (card.querySelector('.m-title')?.textContent || '').toLowerCase();
+    const amountEl = card.querySelector('.m-amt');
+    const metaEls = card.querySelectorAll('.m-price-row > div');
+    const metaEl = metaEls.length > 1 ? metaEls[1] : null;
+    if (!amountEl) return;
+
+    if (title.includes('custom heritage')) {
+      const keys = ['imam', 'alph', 'bang', 'sent'];
+      const rates = keys.map(getPerKgRateByKeyword).filter(rate => rate > 0);
+      if (!rates.length) return;
+      amountEl.textContent = String(Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length));
+      return;
+    }
+
+    const mappings = [
+      { match: 'imam', label: 'imam' },
+      { match: 'alphonso', label: 'alph' },
+      { match: 'banganapalli', label: 'bang' },
+      { match: 'senthura', label: 'sent' }
+    ];
+    const mapping = mappings.find(item => title.includes(item.match));
+    if (!mapping) return;
+
+    const rate = getPerKgRateByKeyword(mapping.label);
+    if (rate <= 0) return;
+
+    amountEl.textContent = String(rate);
+    if (metaEl) metaEl.textContent = `Total: Rs${calculateVariantPrice(rate, 3)} for 3 kg`;
+  });
+}
+
+window.calculateVariantPrice = calculateVariantPrice;
+window.getPerKgRate = getPerKgRate;
+window.getPerKgRateByKeyword = getPerKgRateByKeyword;
+
+const productDescriptionMap = {
+  imam: 'Imam Pasand mangoes with a pale golden skin, floral aroma, and rich fibre-light flesh. Best for gifting, slicing, and slow ripening at home.',
+  alph: 'Alphonso mangoes with deep sweetness, bright saffron flesh, and a smooth finish. A classic dessert mango for premium seasonal boxes.',
+  bang: 'Banganapalli mangoes known for generous size, clean sweetness, and firm fibre-light bite. Ideal for family sharing and table fruit.',
+  sent: 'Senthura mangoes with a fragrant profile, soft juicy flesh, and a balanced sweet-tangy finish. A vibrant South Indian seasonal favourite.',
+  ghee: 'Traditional cultured A2 ghee prepared in small batches for a rich aroma, grainy texture, and everyday cooking depth.',
+  honey: 'Raw, minimally processed honey collected for natural sweetness, floral notes, and clean pantry use straight from the spoon or jar.',
+  coffee: 'Estate-grown coffee crafted for a rounded cup, warm aroma, and an easy everyday brew with balanced body.',
+  spice: 'Farm-led spice selection handled for freshness, aroma retention, and honest kitchen flavor without unnecessary processing.',
+  oil: 'Slow-made traditional oil with clean aroma and practical daily use for cooking, finishing, and home pantry staples.'
+};
+
+function getProductDescription(product = {}) {
+  const haystack = `${product.name || ''} ${product.rawName || ''}`.toLowerCase();
+  if (haystack.includes('imam')) return productDescriptionMap.imam;
+  if (haystack.includes('alph')) return productDescriptionMap.alph;
+  if (haystack.includes('bang')) return productDescriptionMap.bang;
+  if (haystack.includes('sent')) return productDescriptionMap.sent;
+  if (haystack.includes('ghee')) return productDescriptionMap.ghee;
+  if (haystack.includes('honey')) return productDescriptionMap.honey;
+  if (haystack.includes('coffee')) return productDescriptionMap.coffee;
+  if (haystack.includes('spice')) return productDescriptionMap.spice;
+  if (haystack.includes('oil')) return productDescriptionMap.oil;
+  const raw = (product.description || '').trim();
+  if (raw) return raw;
+  return 'Clean, farm-led food made with seasonal care, transparent sourcing, and a focus on honest everyday taste.';
+}
+
+function getCurrentInternalPath() {
+  const rawPath = window.location.pathname || '/';
+  if (rawPath.endsWith('/index.html')) return '/';
+  return rawPath || '/';
+}
+
+function buildInternalUrl(targetPath) {
+  const currentPath = window.location.pathname;
+  const cleanTargetPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
+  if (currentPath.includes('index.html')) {
+    const base = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+    return base + cleanTargetPath.substring(1);
+  }
+  return cleanTargetPath;
+}
+
+function ensureInternalHistoryState(mode = 'push', path = getCurrentInternalPath(), extraState = {}) {
+  const nextPath = path || '/';
+  const url = buildInternalUrl(nextPath);
+  const nextState = { __ff: true, path: nextPath, ...extraState };
+  try {
+    if (mode === 'replace') window.history.replaceState(nextState, '', url);
+    else window.history.pushState(nextState, '', url);
+  } catch (e) {
+    console.error('History state update failed:', e);
+  }
+}
+
+function bootstrapInternalHistory() {
+  const path = getCurrentInternalPath();
+  const state = window.history.state || {};
+  if (!state.__ff) {
+    ensureInternalHistoryState('replace', path, { __ffBase: true });
+  } else if (!state.path) {
+    ensureInternalHistoryState('replace', path, state);
+  }
+  if (!(window.history.state || {}).__ffGuard) {
+    ensureInternalHistoryState('push', path, { __ffGuard: true });
+  }
+}
 
 // ===== CART HELPERS =====
 function saveCart() {
@@ -64,6 +223,7 @@ function updateCartCount() {
     n > 0 ? mb.classList.add('show') : mb.classList.remove('show');
   }
 
+  if (typeof window.renderCartDrawer === 'function') window.renderCartDrawer();
   refreshCurrentView();
 }
 window.updateCartCount = updateCartCount;
@@ -132,6 +292,412 @@ function showToast(msg) {
 }
 window.showToast = showToast;
 
+function ensureCartDrawerUI() {
+  if (document.getElementById('cart-drawer-overlay')) return;
+
+  const style = document.createElement('style');
+  style.id = 'cart-drawer-styles';
+  style.textContent = `
+    #cart-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+      z-index: 9500;
+    }
+    #cart-drawer-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    #cart-drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: min(420px, 100vw);
+      background: linear-gradient(180deg, #fffdf7 0%, #ffffff 100%);
+      box-shadow: -20px 0 60px rgba(15, 23, 42, 0.16);
+      transform: translateX(104%);
+      transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 9501;
+      display: flex;
+      flex-direction: column;
+    }
+    #cart-drawer.active {
+      transform: translateX(0);
+    }
+    .cart-drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid #eef2e8;
+    }
+    .cart-drawer-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: #183218;
+      letter-spacing: -0.02em;
+    }
+    .cart-drawer-close {
+      border: none;
+      background: #f1f5f2;
+      color: #4b5563;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .cart-drawer-body {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 18px 130px;
+    }
+    .cart-drawer-empty {
+      margin-top: 48px;
+      text-align: center;
+      color: #6b7280;
+      background: #f8faf8;
+      border: 1px solid #edf2ed;
+      border-radius: 24px;
+      padding: 28px 20px;
+    }
+    .cart-drawer-item {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid #edf2ed;
+      border-radius: 18px;
+      background: #fff;
+      margin-bottom: 12px;
+    }
+    .cart-drawer-item img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 6px;
+    }
+    .cart-drawer-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: #183218;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .cart-drawer-meta {
+      font-size: 11px;
+      color: #6b7280;
+    }
+    .cart-drawer-price {
+      font-size: 13px;
+      font-weight: 900;
+      color: #166534;
+      margin-top: 6px;
+    }
+    .cart-drawer-qty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .cart-drawer-qty button {
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 900;
+      background: #f0fdf4;
+      color: #15803d;
+    }
+    .cart-drawer-qty span {
+      min-width: 18px;
+      text-align: center;
+      font-weight: 800;
+      color: #183218;
+    }
+    .cart-drawer-remove {
+      border: none;
+      background: transparent;
+      color: #ef4444;
+      font-size: 22px;
+      cursor: pointer;
+      align-self: start;
+      padding-top: 6px;
+    }
+    .cart-drawer-foot {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid #edf2ed;
+      padding: 16px 18px calc(18px + env(safe-area-inset-bottom));
+    }
+    .cart-drawer-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: #183218;
+    }
+    .cart-drawer-summary strong {
+      font-size: 20px;
+      font-weight: 900;
+    }
+    .cart-drawer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 10px;
+    }
+    .cart-drawer-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-weight: 900;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .cart-drawer-btn.secondary {
+      background: #f1f5f2;
+      color: #183218;
+    }
+    .cart-drawer-btn.primary {
+      background: linear-gradient(135deg, #22c55e, #1b391b);
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.24);
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="cart-drawer-overlay"></div>
+    <aside id="cart-drawer" aria-label="Quick cart">
+      <div class="cart-drawer-head">
+        <div>
+          <div class="cart-drawer-title">Your Cart</div>
+          <div id="cart-drawer-subtitle" class="cart-drawer-meta">Fresh picks, ready to checkout</div>
+        </div>
+        <button id="cart-drawer-close" class="cart-drawer-close" type="button" aria-label="Close cart">×</button>
+      </div>
+      <div id="cart-drawer-body" class="cart-drawer-body"></div>
+      <div class="cart-drawer-foot">
+        <div class="cart-drawer-summary">
+          <span>Total</span>
+          <strong id="cart-drawer-total">₹0</strong>
+        </div>
+        <div class="cart-drawer-actions">
+          <button id="cart-drawer-view" class="cart-drawer-btn secondary" type="button">Full Cart</button>
+          <button id="cart-drawer-checkout" class="cart-drawer-btn primary" type="button">Checkout</button>
+        </div>
+      </div>
+    </aside>
+  `);
+
+  document.getElementById('cart-drawer-overlay').addEventListener('click', () => window.closeCartDrawer());
+  document.getElementById('cart-drawer-close').addEventListener('click', () => window.closeCartDrawer());
+  document.getElementById('cart-drawer-view').addEventListener('click', () => {
+    window.closeCartDrawer(false);
+    showPage('cart');
+  });
+  document.getElementById('cart-drawer-checkout').addEventListener('click', () => {
+    window.closeCartDrawer(false);
+    showPage('cart');
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && isCartDrawerOpen) window.closeCartDrawer();
+  });
+}
+
+function renderCartDrawer() {
+  const body = document.getElementById('cart-drawer-body');
+  const subtitle = document.getElementById('cart-drawer-subtitle');
+  const totalEl = document.getElementById('cart-drawer-total');
+  if (!body || !subtitle || !totalEl) return;
+
+  const items = window.cart.map(ci => {
+    const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
+    if (!p) return null;
+    const itemTotal = (Number(p.price || 0) * Number(ci.qty || 0));
+    return { ci, p, itemTotal };
+  }).filter(Boolean);
+
+  const total = items.reduce((sum, item) => sum + item.itemTotal, 0);
+  const itemCount = window.cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+
+  subtitle.textContent = itemCount ? `${itemCount} item${itemCount > 1 ? 's' : ''} in your basket` : 'Fresh picks, ready to checkout';
+  totalEl.textContent = `₹${Math.round(total)}`;
+
+  if (!items.length) {
+    body.innerHTML = `
+      <div class="cart-drawer-empty">
+        <h3 style="margin:0 0 8px; color:#183218;">Your cart is empty</h3>
+        <p style="margin:0 0 16px;">Add a few farm-fresh products and they’ll appear here instantly.</p>
+        <button class="cart-drawer-btn primary" type="button" onclick="window.closeCartDrawer(false); showPage('shop')">Start Shopping</button>
+      </div>
+    `;
+    return;
+  }
+
+  body.innerHTML = items.map(({ ci, p, itemTotal }) => `
+    <div class="cart-drawer-item">
+      <img src="${p.img}" alt="${p.name}">
+      <div>
+        <div class="cart-drawer-name">${p.name}</div>
+        <div class="cart-drawer-meta">${p.wt || ''}${p.wt && !p.isCustom ? ' · ' : ''}${!p.isCustom && window.getUnitPrice ? `₹${window.getUnitPrice(p.price, p.wt).rate}/${window.getUnitPrice(p.price, p.wt).unit}` : ''}</div>
+        <div class="cart-drawer-price">₹${Math.round(itemTotal)}</div>
+        <div class="cart-drawer-qty">
+          <button type="button" onclick="window.updCart('${p.id}', -1)">-</button>
+          <span>${ci.qty}</span>
+          <button type="button" onclick="window.updCart('${p.id}', 1)">+</button>
+        </div>
+      </div>
+      <button class="cart-drawer-remove" type="button" onclick="window.deleteFromCart('${p.id}')">×</button>
+    </div>
+  `).join('');
+}
+window.renderCartDrawer = renderCartDrawer;
+
+function openCartDrawer(push = true) {
+  ensureCartDrawerUI();
+  renderCartDrawer();
+  const overlay = document.getElementById('cart-drawer-overlay');
+  const drawer = document.getElementById('cart-drawer');
+  if (!overlay || !drawer) return;
+  isCartDrawerOpen = true;
+  overlay.classList.add('active');
+  drawer.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  if (push) ensureInternalHistoryState('push', getCurrentInternalPath(), { __ffOverlay: 'cart' });
+}
+window.openCartDrawer = openCartDrawer;
+
+function closeCartDrawer(popHistory = true) {
+  const overlay = document.getElementById('cart-drawer-overlay');
+  const drawer = document.getElementById('cart-drawer');
+  if (!overlay || !drawer) return;
+  isCartDrawerOpen = false;
+  overlay.classList.remove('active');
+  drawer.classList.remove('active');
+  document.body.style.overflow = '';
+  if (popHistory && (window.history.state || {}).__ffOverlay === 'cart') {
+    window.history.back();
+  }
+}
+window.closeCartDrawer = closeCartDrawer;
+
+function validateContactForm(payload) {
+  const errors = {};
+  const name = (payload.name || '').trim();
+  const email = (payload.email || '').trim();
+  const phone = (payload.phone || '').trim();
+  const message = (payload.message || '').trim();
+
+  if (name.length < 2) errors.name = 'Please enter your full name.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Please enter a valid email address.';
+  if (!/^\+?\d[\d\s-]{8,14}$/.test(phone)) errors.phone = 'Please enter a valid phone number.';
+  if (message.length < 10) errors.message = 'Please enter a short message with a little more detail.';
+
+  return { isValid: Object.keys(errors).length === 0, errors, cleaned: { name, email, phone, message } };
+}
+
+function setContactFieldError(field, message) {
+  const input = document.getElementById(`contact-${field}`);
+  const error = document.getElementById(`contact-${field}-error`);
+  if (input) input.style.borderColor = message ? '#ef4444' : '#dbe7db';
+  if (error) error.textContent = message || '';
+}
+
+function openSupportEmail(subjectText = 'Farmmily support enquiry', bodyText = '') {
+  const gmailUrl = new URL('https://mail.google.com/mail/u/0/');
+  gmailUrl.searchParams.set('view', 'cm');
+  gmailUrl.searchParams.set('fs', '1');
+  gmailUrl.searchParams.set('to', 'support@farmmilyfoods.com');
+  gmailUrl.searchParams.set('su', subjectText);
+  gmailUrl.searchParams.set('body', bodyText);
+
+  const fallbackMailto = `mailto:support@farmmilyfoods.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+
+  try {
+    const popup = window.open(gmailUrl.toString(), '_blank', 'noopener,noreferrer');
+    if (!popup) {
+      window.location.href = gmailUrl.toString();
+      setTimeout(() => {
+        if (!document.hidden) window.location.href = fallbackMailto;
+      }, 1200);
+    }
+  } catch (e) {
+    window.location.href = fallbackMailto;
+  }
+}
+
+function openSupportWhatsApp(messageText = 'Hello Farmmily Foods') {
+  const waText = encodeURIComponent(messageText);
+  window.location.href = `https://wa.me/917358952051?text=${waText}`;
+}
+
+window.openSupportEmail = openSupportEmail;
+window.openSupportWhatsApp = openSupportWhatsApp;
+
+window.submitContactForm = function () {
+  const payload = {
+    name: document.getElementById('contact-name')?.value || '',
+    email: document.getElementById('contact-email')?.value || '',
+    phone: document.getElementById('contact-phone')?.value || '',
+    message: document.getElementById('contact-message')?.value || ''
+  };
+
+  const result = validateContactForm(payload);
+  ['name', 'email', 'phone', 'message'].forEach(field => setContactFieldError(field, result.errors[field] || ''));
+
+  if (!result.isValid) {
+    showToast('Please correct the highlighted fields.');
+    return;
+  }
+
+  const { name, email, phone, message } = result.cleaned;
+  const body =
+    `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`
+  ;
+
+  openSupportEmail(`Website enquiry from ${name}`, body);
+};
+
+window.contactViaWhatsApp = function () {
+  const payload = {
+    name: document.getElementById('contact-name')?.value || '',
+    email: document.getElementById('contact-email')?.value || '',
+    phone: document.getElementById('contact-phone')?.value || '',
+    message: document.getElementById('contact-message')?.value || ''
+  };
+  const result = validateContactForm(payload);
+  ['name', 'email', 'phone', 'message'].forEach(field => setContactFieldError(field, result.errors[field] || ''));
+
+  if (!result.isValid) {
+    showToast('Please complete the form before WhatsApp redirect.');
+    return;
+  }
+
+  const { name, email, phone, message } = result.cleaned;
+  const waMessage =
+    `Hello Farmmily Foods,\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`
+  ;
+  openSupportWhatsApp(waMessage);
+};
+
 // ===== ROUTING =====
 function showPage(page, push = true) {
   const pages = document.querySelectorAll('.page');
@@ -154,6 +720,9 @@ function showPage(page, push = true) {
       'shop': 'Shop Online — Organic Heritage Mangoes & Farm Fresh Goods',
       'corporate': 'Corporate Gifting — Bespoke Mango Crates & Luxury Hampers',
       'track': 'Track Your Order — Farmmily Delivery Status',
+      'contact': 'Contact Farmmily — Support & Enquiries',
+      'refund-policy': 'Refund Policy — Farmmily Farms and Foods',
+      'shipping-policy': 'Shipping Policy — Farmmily Farms and Foods',
       'cart': 'Your Shopping Cart — Farmmily Boutique',
       'success': 'Order Success — Farmmily Foods'
     };
@@ -162,6 +731,9 @@ function showPage(page, push = true) {
       'shop': 'Explore our collection of Imam Pasand, Alphonso, and Banganapalli mangoes along with artisan ghee.',
       'corporate': 'Premium B2B gifting solutions. Hand-curated mango boxes for your brand partners.',
       'track': 'Enter your order number or enquiry reference to track your farm-fresh delivery live.',
+      'contact': 'Contact Farmmily Foods for product questions, order help, gifting support, or wholesale enquiries.',
+      'refund-policy': 'Farmmily refund policy: no refunds, replacement only after support review for eligible issues.',
+      'shipping-policy': 'Farmmily shipping policy: orders are typically delivered within 3 to 10 days depending on destination and product readiness.',
       'cart': 'Complete your purchase of heritage products from Farmmily Farms.',
       'success': 'Thank you for your order! Your harvest is being prepared.'
     };
@@ -189,6 +761,9 @@ function showPage(page, push = true) {
   if (page === 'cart') renderCart();
 
   closeMob();
+  if (page !== 'cart' && typeof window.closeCartDrawer === 'function' && isCartDrawerOpen) {
+    window.closeCartDrawer(false);
+  }
 
   // Close detail view if open when switching pages (safety)
   if (page !== 'product' && typeof window.closePremiumDetail === 'function') {
@@ -198,20 +773,10 @@ function showPage(page, push = true) {
 window.showPage = showPage;
 
 function syncUrl(targetPath) {
-  const currentPath = window.location.pathname;
-  let cleanTargetPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
-  let newUrl = cleanTargetPath;
-
-  // Handling for /index.html environments
-  if (currentPath.includes('index.html')) {
-    const base = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-    newUrl = base + cleanTargetPath.substring(1);
-  }
-
+  const cleanTargetPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
+  const newUrl = buildInternalUrl(cleanTargetPath);
   if (window.location.pathname + window.location.search !== newUrl) {
-    try {
-      window.history.pushState({ path: targetPath }, '', newUrl);
-    } catch (e) { console.error('Router failed:', e); }
+    ensureInternalHistoryState('push', cleanTargetPath);
   }
 }
 window.syncUrl = syncUrl;
@@ -310,6 +875,11 @@ window.getItemPrice = function (price, qty) {
 // ===== PRODUCT CARD HTML ====
 function pcardHTML(p) {
   if ((p.name || '').toLowerCase().includes('custom heritage')) {
+    const mangoRateKeys = ['imam', 'alph', 'bang', 'sent'];
+    const perKgRates = mangoRateKeys.map(getPerKgRateByKeyword).filter(rate => rate > 0);
+    const avgPerKgRate = perKgRates.length
+      ? Math.round(perKgRates.reduce((sum, rate) => sum + rate, 0) / perKgRates.length)
+      : 0;
     return `<div class="premium-mango-card" onclick="window.openCrateBuilder()">
             <div class="m-img-wrap" style="background: #e0f2f1;">
               <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
@@ -331,7 +901,7 @@ function pcardHTML(p) {
               <div class="m-price-row">
                 <div class="m-price-box">
                   <span class="m-currency">₹</span>
-                  <span class="m-amt">299</span>
+                  <span class="m-amt">${avgPerKgRate}</span>
                   <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg avg</span>
                 </div>
                 <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Build your own mix!</div>
@@ -873,7 +1443,7 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
               const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
               return {
                 order_id: orderData.id,
-                product_id: (p && p.id > 999000) ? null : (p ? p.id : null),
+                product_id: (p && p.isCustom) ? null : (p ? (p.productId || p.id) : null),
                 product_name: p ? p.name : 'Unknown Product',
                 product_image: p ? p.img : null,
                 quantity: ci.qty,
@@ -897,16 +1467,44 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
             if (payErr) console.error("Payment record failed:", payErr);
 
             // 3.5 Update Stock (Admin Side Sync)
-            for (const item of itemInserts) {
-              if (item.product_id) {
-                // Fetch current stock
-                const { data: pData } = await supabaseClient.from('products').select('stock_count').eq('id', item.product_id).single();
+            for (const ci of window.cart) {
+              const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
+              if (!p || p.isCustom) continue;
+
+              if (p.variantId) {
+                const { data: variantData } = await supabaseClient
+                  .from('product_variants')
+                  .select('stock_count')
+                  .eq('id', p.variantId)
+                  .single();
+
+                if (variantData) {
+                  const newStock = Math.max(0, Number(variantData.stock_count || 0) - ci.qty);
+                  await supabaseClient
+                    .from('product_variants')
+                    .update({ stock_count: newStock })
+                    .eq('id', p.variantId);
+                }
+                continue;
+              }
+
+              if (p.productId || p.id) {
+                const legacyProductId = p.productId || p.id;
+                const { data: pData } = await supabaseClient
+                  .from('products')
+                  .select('stock_count')
+                  .eq('id', legacyProductId)
+                  .single();
+
                 if (pData) {
-                  const newStock = Math.max(0, pData.stock_count - item.quantity);
-                  await supabaseClient.from('products').update({
-                    stock_count: newStock,
-                    in_stock: newStock > 0
-                  }).eq('id', item.product_id);
+                  const newStock = Math.max(0, Number(pData.stock_count || 0) - ci.qty);
+                  await supabaseClient
+                    .from('products')
+                    .update({
+                      stock_count: newStock,
+                      in_stock: newStock > 0
+                    })
+                    .eq('id', legacyProductId);
                 }
               }
             }
@@ -1057,6 +1655,21 @@ function handleRoute() {
     return;
   }
 
+  if (path === '/contact') {
+    showPage('contact', false);
+    return;
+  }
+
+  if (path === '/refund-policy') {
+    showPage('refund-policy', false);
+    return;
+  }
+
+  if (path === '/shipping-policy') {
+    showPage('shipping-policy', false);
+    return;
+  }
+
   if (path === '/corporate') {
     showPage('corporate', false);
     return;
@@ -1102,7 +1715,27 @@ function handleRoute() {
 }
 
 window.addEventListener('popstate', (event) => {
+  const state = event.state || {};
+
+  if (state.__ffOverlay === 'cart') {
+    if (!isCartDrawerOpen) window.openCartDrawer(false);
+    return;
+  }
+
+  if (isCartDrawerOpen) {
+    window.closeCartDrawer(false);
+  }
+
   handleRoute();
+
+  if (state.__ffBase) {
+    const routedPath = state.path || getCurrentInternalPath();
+    if (routedPath !== '/') {
+      showPage('home');
+    } else {
+      setTimeout(() => ensureInternalHistoryState('push', '/'), 0);
+    }
+  }
 });
 
 // showProduct is defined above
@@ -1110,7 +1743,37 @@ window.addEventListener('popstate', (event) => {
 async function loadProducts() {
   if (!supabaseClient) { handleRawProducts([]); return; }
 
-  // Fetch active products with positive stock
+  const dynamicQuery = await supabaseClient
+    .from('products')
+    .select(`
+      id,
+      name,
+      description,
+      image_url,
+      category_id,
+      is_active,
+      is_featured,
+      rating,
+      review_count,
+      base_price_per_kg,
+      compare_at_price_per_kg,
+      product_variants (
+        id,
+        weight_kg,
+        stock_count,
+        is_active,
+        sort_order
+      )
+    `)
+    .eq('is_active', true)
+    .order('name', { ascending: true });
+
+  if (!dynamicQuery.error && Array.isArray(dynamicQuery.data) && dynamicQuery.data.length) {
+    handleDynamicProducts(dynamicQuery.data);
+    return;
+  }
+
+  // Legacy fallback: older schema with one row per variant and stored price.
   const { data: prods } = await supabaseClient
     .from('products')
     .select('*')
@@ -1135,7 +1798,7 @@ function handleRawProducts(data) {
       originalPrice: p.original_price ? Number(p.original_price) : null,
       wt: p.weight,
       img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
-      rating: p.rating || 5.0, revs: p.review_count || 10, desc: p.description,
+      rating: p.rating || 5.0, revs: p.review_count || 10, desc: getProductDescription(p),
       isFeatured: p.is_featured, rawName: p.name
     };
   });
@@ -1173,6 +1836,77 @@ function handleRawProducts(data) {
 
   window.displayProducts = Object.values(grouped);
   updateCartCount();
+  syncStaticMangoPricing();
+  refreshCurrentView();
+}
+
+function handleDynamicProducts(data) {
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+  const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
+  const flatVariants = [];
+  const groupedProducts = [];
+
+  (data || []).forEach(product => {
+    const basePricePerKg = Number(product.base_price_per_kg || 0);
+    const compareAtPerKg = Number(product.compare_at_price_per_kg || 0);
+    const low = (product.name || '').toLowerCase();
+    let img = product.image_url;
+    for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    const category = cats.find(c => c.id === product.category_id)?.name || 'Products';
+
+    const variants = (product.product_variants || [])
+      .filter(v => v && v.is_active !== false && Number(v.stock_count || 0) > 0)
+      .sort((a, b) => {
+        const sortDelta = Number(a.sort_order || 0) - Number(b.sort_order || 0);
+        return sortDelta !== 0 ? sortDelta : Number(a.weight_kg || 0) - Number(b.weight_kg || 0);
+      })
+      .map(v => {
+        const weightKg = Number(v.weight_kg || 0);
+        const variant = {
+          id: v.id,
+          variantId: v.id,
+          productId: product.id,
+          name: cap(product.name),
+          rawName: product.name,
+          price: calculateVariantPrice(basePricePerKg, weightKg),
+          originalPrice: compareAtPerKg > 0 ? calculateVariantPrice(compareAtPerKg, weightKg) : null,
+          basePricePerKg,
+          wt: formatWeightLabel(weightKg),
+          weightKg,
+          img: img || 'assets/placeholder.png',
+          inStock: Number(v.stock_count || 0) > 0,
+          stockCount: Number(v.stock_count || 0),
+          cat: category,
+          rating: product.rating || 5.0,
+          revs: product.review_count || 10,
+          desc: getProductDescription(product),
+          isFeatured: product.is_featured
+        };
+        flatVariants.push(variant);
+        return variant;
+      });
+
+    if (!variants.length) return;
+
+    groupedProducts.push({
+      ...variants[0],
+      id: product.id,
+      productId: product.id,
+      name: cap(product.name),
+      rawName: product.name,
+      price: variants[0].price,
+      originalPrice: variants[0].originalPrice,
+      wt: variants[0].wt,
+      img: variants[0].img,
+      inStock: variants.some(v => v.inStock),
+      variants
+    });
+  });
+
+  window.products = flatVariants;
+  window.displayProducts = groupedProducts;
+  updateCartCount();
+  syncStaticMangoPricing();
   refreshCurrentView();
 }
 
@@ -1189,12 +1923,12 @@ async function submitCorpOrder() {
 
   const cCounts = window.corpCounts || { imam: 0, alph: 0, bang: 0, sent: 0 };
   const cLimit = window.corpLimit || 3;
-
-  const getR = k => {
-    const p = (window.products || []).find(x => x.name.toLowerCase().includes(k));
-    return p ? window.getUnitPrice(p.price, p.wt).rate : ({ imam: 349, alph: 299, bang: 259, sent: 239 }[k] || 250);
+  const rates = {
+    imam: getPerKgRateByKeyword('imam'),
+    alph: getPerKgRateByKeyword('alph'),
+    bang: getPerKgRateByKeyword('bang'),
+    sent: getPerKgRateByKeyword('sent')
   };
-  const rates = { imam: getR('imam'), alph: getR('alph'), bang: getR('bang'), sent: getR('sent') };
   let pricePerCrate = 0, totalKg = 0;
   for (const v of ['imam', 'alph', 'bang', 'sent']) {
     const qty = cCounts[v] || 0;
@@ -1204,6 +1938,11 @@ async function submitCorpOrder() {
 
   if (totalKg !== cLimit) {
     showToast(`Your mix total (${totalKg}kg) must match the crate size (${cLimit}kg)!`);
+    return;
+  }
+
+  if (pricePerCrate <= 0) {
+    showToast('Live mango prices are not available yet. Please wait for products to finish loading.');
     return;
   }
 
@@ -1449,14 +2188,28 @@ function renderTrackResult(data, type, container) {
         <button onclick="window.print()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg> Save PDF / Print
         </button>
-        <a href="https://wa.me/917708847977" style="flex:1.5; background:#1b391b; color:white; text-decoration:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px;">
-           Estate Support Manager →
+        <a href="https://wa.me/917358952051" style="flex:1.5; background:#1b391b; color:white; text-decoration:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px;">
+           Farmmily Support → 
         </a>
       </div>
       <p style="text-align:center; font-size:11px; color:#94a3b8; margin-top:20px;">Thank you for supporting heritage harvests! 🍃</p>
     </div>
   `;
 }
+
+window.openLatestInvoice = function () {
+  const id = (document.getElementById('succ-oid')?.textContent || '').replace('#', '').trim();
+  if (!id) {
+    showToast('Invoice not ready yet.');
+    return;
+  }
+  showPage('track');
+  setTimeout(() => {
+    const input = document.getElementById('tr-oid');
+    if (input) input.value = id;
+    handleTrack(id);
+  }, 180);
+};
 function renderMultiOrderResults(orders, container) {
   const html = orders.map(o => {
     const id = o.order_number || o.enquiry_ref;
@@ -1511,9 +2264,27 @@ async function initApp() {
       .subscribe();
 
     supabaseClient
+      .channel('public:product_variants')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, payload => {
+        console.log('Product variant update detected, refreshing...', payload);
+        loadProducts();
+      })
+      .subscribe();
+
+    supabaseClient
       .channel('public:categories')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, payload => {
         loadCategories();
+      })
+      .subscribe();
+
+    supabaseClient
+      .channel('public:catalog_sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, payload => {
+        if (payload?.new?.key === 'product_catalog_sync' || payload?.old?.key === 'product_catalog_sync') {
+          console.log('Catalog sync signal detected, refreshing products...', payload);
+          loadProducts();
+        }
       })
       .subscribe();
   }
@@ -1691,8 +2462,7 @@ window.renderCrateVarieties = function () {
 
   container.innerHTML = mangoVarieties.map(v => {
     const qty = crateMix[String(v.id)] || 0;
-    // Get the accurate 1KG rate
-    const unitPrice = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
+    const unitPrice = getPerKgRate(v);
 
     return `
     <div style="display:flex; align-items:center; gap:15px; padding:15px; border-bottom:1px solid #f1f5f9;">
@@ -1712,13 +2482,7 @@ window.renderCrateVarieties = function () {
 
 window.updateCrateUI = function () {
   const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
-  let totalPrice = 0;
-
-  mangoVarieties.forEach(v => {
-    const qty = crateMix[String(v.id)] || 0;
-    const unitPrice = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
-    totalPrice += qty * unitPrice;
-  });
+  const totalPrice = calculateSelectionTotalPrice(mangoVarieties, crateMix);
 
   const curWtEl = document.getElementById('crate-current-wt');
   const maxLimEl = document.getElementById('crate-max-limit');
@@ -1758,7 +2522,7 @@ window.addCustomCrateToCart = function () {
   mangoVarieties.forEach(v => {
     const qty = crateMix[String(v.id)] || 0;
     if (qty > 0) {
-      const perKgRate = window.getUnitPrice ? window.getUnitPrice(v.price, v.wt).rate : v.price;
+      const perKgRate = getPerKgRate(v);
       totalPrice += qty * perKgRate;
       summary.push(`${qty}kg ${v.name}`);
     }
@@ -1790,6 +2554,14 @@ async function initApp() {
   await loadCategories();
   await loadProducts();
   loadCart();
+  ensureCartDrawerUI();
+
+  const floatingCartBar = document.getElementById('floating-cart-bar');
+  if (floatingCartBar) {
+    floatingCartBar.onclick = () => window.openCartDrawer();
+  }
+
+  bootstrapInternalHistory();
 
   // router handles initial page selection
   handleRoute();
@@ -1799,8 +2571,12 @@ async function initApp() {
   // Realtime Subscriptions
   if (supabaseClient) {
     supabaseClient.channel('public:products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts).subscribe();
+    supabaseClient.channel('public:product_variants').on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, loadProducts).subscribe();
     supabaseClient.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories).subscribe();
     supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, fetchDeliveryConfig).subscribe();
+    supabaseClient.channel('public:catalog_sync').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, (payload) => {
+      if (payload?.new?.key === 'product_catalog_sync' || payload?.old?.key === 'product_catalog_sync') loadProducts();
+    }).subscribe();
 
     // Track Order Updates live
     supabaseClient.channel('public:orders').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
