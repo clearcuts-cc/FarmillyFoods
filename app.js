@@ -116,15 +116,15 @@ window.getPerKgRate = getPerKgRate;
 window.getPerKgRateByKeyword = getPerKgRateByKeyword;
 
 const productDescriptionMap = {
-  imam: 'Imam Pasand mangoes with a pale golden skin, floral aroma, and rich fibre-light flesh. Best for gifting, slicing, and slow ripening at home.',
-  alph: 'Alphonso mangoes with deep sweetness, bright saffron flesh, and a smooth finish. A classic dessert mango for premium seasonal boxes.',
-  bang: 'Banganapalli mangoes known for generous size, clean sweetness, and firm fibre-light bite. Ideal for family sharing and table fruit.',
-  sent: 'Senthura mangoes with a fragrant profile, soft juicy flesh, and a balanced sweet-tangy finish. A vibrant South Indian seasonal favourite.',
-  ghee: 'Traditional cultured A2 ghee prepared in small batches for a rich aroma, grainy texture, and everyday cooking depth.',
-  honey: 'Raw, minimally processed honey collected for natural sweetness, floral notes, and clean pantry use straight from the spoon or jar.',
-  coffee: 'Estate-grown coffee crafted for a rounded cup, warm aroma, and an easy everyday brew with balanced body.',
-  spice: 'Farm-led spice selection handled for freshness, aroma retention, and honest kitchen flavor without unnecessary processing.',
-  oil: 'Slow-made traditional oil with clean aroma and practical daily use for cooking, finishing, and home pantry staples.'
+  imam: "Crown jewel of mangoes. Fibre-light, floral aroma, and a crystalline sweetness that melts instantly.",
+  alph: "World's most loved variety. Rich, buttery saffron texture with an intense honey-finish.",
+  bang: "Firm, king-sized heritage mangoes. Clean, sophisticated sweetness with zero fiber.",
+  sent: "Vibrant honey-like sweetness. Refreshing floral fragrance and a smooth, juicy bite.",
+  ghee: "Slow-cooked, hand-churned traditional cow ghee with a rich granular texture.",
+  honey: "Pure, unprocessed nectar harvested from wild forest flora - 100% raw and medicinal.",
+  coffee: "Rare, single-origin shade-grown beans harvested from our high-altitude heritage estates.",
+  spice: "Farm-led spice selection handled for freshness, aroma retention, and honest kitchen flavor.",
+  oil: "Slow-made traditional oil with clean aroma and practical daily use."
 };
 
 function getProductDescription(product = {}) {
@@ -179,6 +179,7 @@ function bootstrapInternalHistory() {
   } else if (!state.path) {
     ensureInternalHistoryState('replace', path, state);
   }
+  // Standardize the base state to prevent accidental exit on deep links
   if (!(window.history.state || {}).__ffGuard) {
     ensureInternalHistoryState('push', path, { __ffGuard: true });
   }
@@ -625,11 +626,11 @@ function openSupportEmail(subjectText = 'Farmmily support enquiry', bodyText = '
   const gmailUrl = new URL('https://mail.google.com/mail/u/0/');
   gmailUrl.searchParams.set('view', 'cm');
   gmailUrl.searchParams.set('fs', '1');
-  gmailUrl.searchParams.set('to', 'support@farmmilyfoods.com');
+  gmailUrl.searchParams.set('to', 'farmmilyfoods@gmail.com');
   gmailUrl.searchParams.set('su', subjectText);
   gmailUrl.searchParams.set('body', bodyText);
 
-  const fallbackMailto = `mailto:support@farmmilyfoods.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+  const fallbackMailto = `mailto:farmmilyfoods@gmail.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
 
   try {
     const popup = window.open(gmailUrl.toString(), '_blank', 'noopener,noreferrer');
@@ -669,11 +670,54 @@ window.submitContactForm = function () {
   }
 
   const { name, email, phone, message } = result.cleaned;
-  const body =
-    `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`
-  ;
 
+  // 1. Sync to Supabase
+  if (window.supabaseClient) {
+    window.supabaseClient.from('contact_messages')
+      .insert([{ name, email, phone, message }])
+      .then(({ error }) => {
+        if (error) console.error("DB Sync Error:", error);
+      });
+  }
+
+  // 2. Open Email
+  const body = `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`;
   openSupportEmail(`Website enquiry from ${name}`, body);
+
+  // 3. Clear form
+  document.getElementById('contact-name').value = '';
+  document.getElementById('contact-email').value = '';
+  document.getElementById('contact-phone').value = '';
+  document.getElementById('contact-message').value = '';
+  showToast('Message sent successfully!');
+};
+
+window.submitHomeEnquiry = function () {
+  const name = (document.getElementById('home-enq-name')?.value || '').trim();
+  const phone = (document.getElementById('home-enq-phone')?.value || '').trim();
+  const message = (document.getElementById('home-enq-msg')?.value || '').trim();
+
+  if (!name || name.length < 2) { showToast('Please enter your name'); return; }
+  if (!phone || phone.length < 10) { showToast('Please enter a valid phone number'); return; }
+  if (!message || message.length < 5) { showToast('Please tell us a bit more about your enquiry'); return; }
+
+  // Sync to Supabase
+  if (window.supabaseClient) {
+    window.supabaseClient.from('contact_messages')
+      .insert([{ name, phone, message, email: 'home-enquiry@farmmilyfoods.com' }])
+      .then(({ error }) => {
+        if (error) console.error("Home Enquiry DB Error:", error);
+      });
+  }
+
+  const body = `Name: ${name}\nPhone: ${phone}\n\nEnquiry from Homepage:\n${message}`;
+  openSupportEmail(`Homepage Enquiry from ${name}`, body);
+
+  // Clear
+  document.getElementById('home-enq-name').value = '';
+  document.getElementById('home-enq-phone').value = '';
+  document.getElementById('home-enq-msg').value = '';
+  showToast('Enquiry sent! We will contact you soon.');
 };
 
 window.contactViaWhatsApp = function () {
@@ -713,6 +757,10 @@ function showPage(page, push = true) {
     prevPage = curPage;
     curPage = page;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window.closePremiumDetail === 'function') window.closePremiumDetail(false);
+    if (typeof window.closeCartDrawer === 'function') window.closeCartDrawer(false);
+    if (typeof window.closeCrateSheet === 'function') window.closeCrateSheet(false);
+    if (typeof window.closeVariantSheet === 'function') window.closeVariantSheet();
 
     // --- Dynamic SEO Tracking ---
     const pageTitles = {
@@ -772,11 +820,11 @@ function showPage(page, push = true) {
 }
 window.showPage = showPage;
 
-function syncUrl(targetPath) {
+function syncUrl(targetPath, extraState = {}) {
   const cleanTargetPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
   const newUrl = buildInternalUrl(cleanTargetPath);
   if (window.location.pathname + window.location.search !== newUrl) {
-    ensureInternalHistoryState('push', cleanTargetPath);
+    ensureInternalHistoryState('push', cleanTargetPath, extraState);
   }
 }
 window.syncUrl = syncUrl;
@@ -1027,7 +1075,7 @@ function showProduct(id, push = true) {
   }
 
   if (typeof window.showPremiumDetail === 'function') {
-    window.showPremiumDetail(p.name, false);
+    window.showPremiumDetail(p.name, false, p.id);
   } else {
     openProduct(id);
   }
@@ -1717,8 +1765,28 @@ function handleRoute() {
 window.addEventListener('popstate', (event) => {
   const state = event.state || {};
 
-  if (state.__ffOverlay === 'cart') {
-    if (!isCartDrawerOpen) window.openCartDrawer(false);
+  // 0. Base Trap: If we hit a non-app state or the entry point, stay within app
+  if (!state.__ff) {
+    if (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '') {
+      showPage('home', false);
+      ensureInternalHistoryState('replace', '/', { __ffBase: true });
+      ensureInternalHistoryState('push', '/', { __ffGuard: true });
+      return;
+    }
+  }
+
+  // 1. Handle Overlay Closures
+  if (state.__ffOverlay === 'product') {
+    // If we're moving FORWARD to a product modal state, but it's not open, open it
+    if (state.productId && (!document.getElementById('premium-detail')?.classList.contains('active'))) {
+      window.showProduct(state.productId, false);
+    }
+    return;
+  }
+
+  // If we came from a product modal state back to a page state
+  if (document.getElementById('premium-detail')?.classList.contains('active')) {
+    window.closePremiumDetail(false);
     return;
   }
 
@@ -1726,16 +1794,23 @@ window.addEventListener('popstate', (event) => {
     window.closeCartDrawer(false);
   }
 
-  handleRoute();
+  if (window.isCrateBuilderOpen?.()) {
+    window.closeCrateBuilder(false);
+  }
 
+  // 2. Handle Home Guard (Prevent Exit)
   if (state.__ffBase) {
     const routedPath = state.path || getCurrentInternalPath();
     if (routedPath !== '/') {
       showPage('home');
     } else {
-      setTimeout(() => ensureInternalHistoryState('push', '/'), 0);
+      // Stay on home, but re-push guard
+      setTimeout(() => ensureInternalHistoryState('push', '/', { __ffGuard: true }), 0);
     }
+    return;
   }
+
+  handleRoute();
 });
 
 // showProduct is defined above
@@ -1785,7 +1860,7 @@ async function loadProducts() {
 
 function handleRawProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-  const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
+  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
 
   const allProds = (data || []).map(p => {
     let img = p.image_url;
@@ -1842,7 +1917,7 @@ function handleRawProducts(data) {
 
 function handleDynamicProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-  const assetMap = { 'imam': 'assets/imam.png', 'alph': 'assets/alphonso.png', 'bang': 'assets/banganapalli.png', 'sent': 'assets/senthura.png', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
+  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
   const flatVariants = [];
   const groupedProducts = [];
 
@@ -1851,7 +1926,9 @@ function handleDynamicProducts(data) {
     const compareAtPerKg = Number(product.compare_at_price_per_kg || 0);
     const low = (product.name || '').toLowerCase();
     let img = product.image_url;
-    for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    if (!img) {
+      for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    }
     const category = cats.find(c => c.id === product.category_id)?.name || 'Products';
 
     const variants = (product.product_variants || [])

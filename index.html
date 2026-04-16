@@ -147,13 +147,14 @@
     .premium-mango-card {
       background: white !important;
       border-radius: 32px !important;
-      padding: 12px !important;
+      padding: 0px !important;
       cursor: pointer !important;
       font-family: 'Poppins', sans-serif !important;
       position: relative !important;
       border: 1px solid var(--border) !important;
       box-shadow: var(--sh) !important;
       transition: var(--tr) !important;
+      overflow: hidden !important;
     }
 
     .m-img-wrap {
@@ -161,7 +162,7 @@
       width: 100% !important;
       aspect-ratio: 1/1 !important;
       background: #f7fee7 !important;
-      border-radius: 24px !important;
+      border-radius: 0px !important;
       overflow: hidden !important;
       display: flex !important;
       align-items: center !important;
@@ -173,8 +174,8 @@
     .m-img-wrap img {
       width: 100% !important;
       height: 100% !important;
-      object-fit: contain !important;
-      padding: 10px !important;
+      object-fit: cover !important;
+      padding: 0px !important;
     }
 
     .m-add-btn-image {
@@ -283,7 +284,7 @@
     }
 
     .m-info {
-      padding: 0 8px 12px !important;
+      padding: 16px 16px 20px !important;
     }
 
     .m-top-row {
@@ -5435,7 +5436,7 @@
 
   <!-- ========== HOME ========== -->
   <div id="page-home" class="page active">
-    <section class="hero"><img src="/assets/DSC00269.JPG" alt="Premium Harvest Mangoes">
+    <section class="hero"><img src="assets/DSC00269.JPG" alt="Premium Harvest Mangoes">
       <div class="hero-ov"></div>
       <div class="hero-c">
         <div class="hero-eye" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border-color: #d4af37;">
@@ -5528,7 +5529,7 @@
           <!-- IMAM PASAND -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Imam Pasand')">
             <div class="m-img-wrap" style="background: #FFF9C4;">
-              <img src="assets/imam.png" alt="Imam Pasand">
+              <img src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000" alt="Imam Pasand">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Imam Pasand')">
                 ADD
               </div>
@@ -5592,7 +5593,7 @@
           <!-- BANGANAPALLI -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Banganapalli')">
             <div class="m-img-wrap" style="background: #FFF17644;">
-              <img src="assets/banganapalli.png" alt="Banganapalli">
+              <img src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000" alt="Banganapalli">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Banganapalli')">
                 ADD
               </div>
@@ -5624,7 +5625,7 @@
           <!-- SENTHURA -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Senthura')">
             <div class="m-img-wrap" style="background: #FFEBEE;">
-              <img src="assets/senthura.png" alt="Senthura">
+              <img src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000" alt="Senthura">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Senthura')">
                 ADD
               </div>
@@ -5655,6 +5656,9 @@
         </div>
       </div>
     </section>
+
+
+
 
     <!-- EXPLORE CATALOG -->
     <section class="sec" id="explore-catalog" style="padding-top: 40px; background: #fffcf7;">
@@ -5809,19 +5813,13 @@
           <p>From our estates to your table</p>
           <div class="title-bar"></div>
         </div>
-        <div class="farm-grid"><img
-            src="assets/farm_1.jpg" alt="Farm landscape"
-            loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;"><img
-            src="assets/farm_2.jpg" alt="Farm cultivation row"
-            loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;"><img
-            src="assets/farm_3.jpg" alt="Farm work in progress"
-            loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;"><img
-            src="assets/farm_4.jpg" alt="Farm produce area"
-            loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;"><img
-            src="assets/farm_5.jpg" alt="Farm orchard view"
-            loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;"><img
-            src="assets/farm_6.jpg" alt="Farm harvest moment"
-            loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
+        <div class="farm-grid">
+          <img src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000" alt="Farm landscape" loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
+          <img src="https://drive.google.com/thumbnail?id=1eKPe111RBdVG8hBDqKdi7tq3oLlqIB3T&sz=w1000" alt="Farm cultivation row" loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
+          <img src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000" alt="Farm work in progress" loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
+          <img src="https://drive.google.com/thumbnail?id=1PhPv6kIFIw7TGN_4Erb8MRxyxADlaO3p&sz=w1000" alt="Farm produce area" loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
+          <img src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000" alt="Farm orchard view" loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
+          <img src="https://drive.google.com/thumbnail?id=1QMOJPuelPW4-ObmKD993WZXxfyV64G2i&sz=w1000" alt="Farm harvest moment" loading="lazy" style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
         </div>
         <p style="text-align:center;color:#888;font-size:.85rem;margin-top:15px">Photos from our farms, solar dryers,
           and value-added production units</p>
@@ -5867,7 +5865,7 @@
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <div><strong>Corporate Office:</strong> 57, CK Colony, Coimbatore - 641044</div>
+              <div><strong>Corporate Office:</strong> Balakrishna complex, NO.133A, 1st Floor, Mettupalayam Road, Coimbatore - 641030</div>
             </div>
             <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round">
@@ -6000,7 +5998,7 @@
               </div>
               <div style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:16px 18px;">
                 <div style="font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#d4af37; font-weight:900; margin-bottom:6px;">Office</div>
-                <div style="font-size:16px; line-height:1.7;">57, CK Colony, Coimbatore - 641044</div>
+                <div style="font-size:16px; line-height:1.7;">Balakrishna complex, NO.133A, 1st Floor, Mettupalayam Road, Coimbatore - 641030</div>
               </div>
             </div>
           </div>
@@ -6337,7 +6335,7 @@
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            <div><strong>Address:</strong> 57, CK Colony, Coimbatore - 641044</div>
+            <div><strong>Address:</strong> Balakrishna complex, NO.133A, 1st Floor, Mettupalayam Road, Coimbatore - 641030</div>
           </div>
           <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.81 12.81 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
@@ -6377,7 +6375,7 @@
         </ul>
       </div>
     </div>
-    <div class="fbot">© 2026 Farmmily Farms and Foods · Phone: +91 73589 52051 · Email: support@farmmilyfoods.com · Address: 57, CK Colony, Coimbatore - 641044</div>
+    <div class="fbot">© 2026 Farmmily Farms and Foods · Phone: +91 73589 52051 · Email: support@farmmilyfoods.com · Address: Balakrishna complex, NO.133A, 1st Floor, Mettupalayam Road, Coimbatore - 641030</div>
   </footer>
 
   <!-- FLOATING CART BAR (ZEPTO STYLE) -->
@@ -6645,7 +6643,7 @@
       <img src="" alt="Product Image" id="det-img-main"
         onload="this.style.opacity='1'; this.style.transform='scale(1)';"
         onerror="this.src='https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop'; this.style.opacity='0.8';"
-        style="max-width:92%; max-height:88%; object-fit:contain; transform:scale(1.1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.08));">
+        style="max-width:100%; max-height:100%; object-fit:cover; transform:scale(1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.08));">
     </div>
     <div class="pd-content" id="pd-content" style="padding:0 16px 220px; max-width:800px; margin:0 auto;">
       <div class="pd-stars"
@@ -6834,15 +6832,15 @@
     (function () {
       // PRE-DECLARE TO ENSURE ACCESSIBILITY
       const mangoDescriptions = {
-        'Senthura': 'Senthura mangoes are prized for their vivid skin, fragrant aroma, and juicy flesh with a lively sweet-tangy finish that feels bright and unmistakably seasonal.',
-        'Imam Pasand': 'Imam Pasand mangoes are known for floral perfume, pale golden flesh, and a rich fibre-light bite that makes them one of the most elegant table mangoes of the season.',
-        'Alphonso': 'Alphonso mangoes bring saffron-toned flesh, rounded sweetness, and a smooth dessert-like finish that makes them a premium favourite for seasonal gifting.',
-        'Banganapalli': 'Banganapalli mangoes are generous, clean-flavoured, and family-friendly, with firm fibre-light flesh and a gentle sweetness suited for everyday eating.'
+        'Senthura': 'Honey-sweet Senthura mangoes, known for their vibrant skin and unique floral aroma. A refreshing heritage choice.',
+        'Imam Pasand': 'The crown jewel of mangoes. Fibre-light, floral aroma, and a crystalline sweetness that melts instantly.',
+        'Alphonso': 'Premium Ratnagiri-origin Alphonso. Rich, buttery saffron texture with an intense, lingering honey-finish.',
+        'Banganapalli': 'Firm, king-sized heritage mangoes. Clean, sophisticated sweetness with zero fiber and satisfying bite.'
       };
 
       let selectedPdVariant = null;
 
-      function showPremiumDetail(variety, push = true) {
+      function showPremiumDetail(variety, push = true, productId = null, imageUrl = null) {
         const pd = document.getElementById('premium-detail');
         const title = document.getElementById('pd-title');
         const desc = document.getElementById('pd-desc');
@@ -6854,11 +6852,19 @@
         const cleanVariety = (variety || '').replace(/\(.*\)/, '').trim();
         const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-        let variants = (window.products || []).filter(p => {
-          const bP = (p.name || '').replace(/\(.*\)/, '').trim().toLowerCase();
-          const bV = cleanVariety.toLowerCase();
-          return bP.includes(bV) || bV.includes(bP);
-        });
+        let variants = [];
+        if (productId) {
+          const target = (window.displayProducts || []).find(x => Number(x.productId || x.id) === Number(productId));
+          if (target && target.variants) variants = target.variants;
+        }
+
+        if (!variants.length) {
+          variants = (window.products || []).filter(p => {
+            const bP = (p.name || '').replace(/\(.*\)/, '').trim().toLowerCase();
+            const bV = cleanVariety.toLowerCase();
+            return bP.includes(bV) || bV.includes(bP);
+          });
+        }
 
         if (!variants.length) {
           const item = (window.products || []).find(x => x.name === variety);
@@ -6871,8 +6877,9 @@
             : (cleanVariety.toLowerCase().includes('alph')
               ? (window.getPerKgRateByKeyword ? window.getPerKgRateByKeyword('alph') : 0)
               : (window.getPerKgRateByKeyword ? window.getPerKgRateByKeyword('bang') : 0));
-          const img = cleanVariety.toLowerCase().includes('imam') ? 'assets/imam.png' :
-            (cleanVariety.toLowerCase().includes('alph') ? 'assets/alphonso.png' : 'assets/banganapalli.png');
+          const img = imageUrl || (cleanVariety.toLowerCase().includes('imam') ? 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000' :
+            (cleanVariety.toLowerCase().includes('alph') ? 'assets/alphonso.png' : 
+            (cleanVariety.toLowerCase().includes('sent') ? 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000' : 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000')));
           variants = [
             { id: 101, wt: '3 kg', price: (window.calculateVariantPrice ? window.calculateVariantPrice(perKgRate, 3) : perKgRate * 3), img: img },
             { id: 102, wt: '5 kg', price: (window.calculateVariantPrice ? window.calculateVariantPrice(perKgRate, 5) : perKgRate * 5), img: img }
@@ -6882,8 +6889,13 @@
         title.innerText = cap(cleanVariety).replace(/ mangoes/i, '') + (cleanVariety.toLowerCase().includes('mango') ? ' Mangoes' : '');
         desc.innerText = mangoDescriptions[cleanVariety] || variants[0].desc || 'Premium quality selection harvested fresh from our heritage farms.';
 
-        hero.src = variants[0].img;
         selectedPdVariant = variants[0];
+        hero.src = imageUrl || variants[0].img;
+        hero.onerror = function() {
+          this.src = cleanVariety.toLowerCase().includes('imam') ? 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000' :
+            (cleanVariety.toLowerCase().includes('alph') ? 'assets/alphonso.png' : 
+            (cleanVariety.toLowerCase().includes('sent') ? 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000' : 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000'));
+        };
 
         // Calculate unit rate from total price:
         const unitInfo = window.getUnitPrice(selectedPdVariant.price, selectedPdVariant.wt);
@@ -6919,6 +6931,13 @@
           pd.style.visibility = 'visible';
         }, 10);
         document.body.style.overflow = 'hidden';
+
+        if (push && window.syncUrl) {
+          const pId = productId || (variants[0] ? variants[0].id : null);
+          const slug = cleanVariety.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+          const path = pId ? `/product/${pId}/${slug}` : `/product/search/${slug}`;
+          window.syncUrl(path, { __ffOverlay: 'product', productId: pId, variety: variety });
+        }
       }
       window.showPremiumDetail = showPremiumDetail;
 
