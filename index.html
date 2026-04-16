@@ -2602,10 +2602,20 @@
     }
 
     .wicon {
-      font-size: 2.8rem;
+      width: 64px;
+      height: 64px;
+      background: #f0fdf4;
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
       transition: var(--tr);
-      display: block;
-      margin-bottom: 18px
+    }
+    .wicon svg {
+      width: 32px;
+      height: 32px;
     }
 
     .why-card:hover .wicon {
@@ -2968,8 +2978,13 @@
     }
 
     .wicon {
-      font-size: 2.4rem;
-      margin-bottom: 14px
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+    }
+    .wicon svg {
+      width: 24px;
+      height: 24px;
     }
 
     .why-card h3 {
@@ -5707,7 +5722,7 @@
             <div class="wicon">
               <!-- Farmer/Seed Icon -->
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
               </svg>
             </div>
             <h3>New Farmer Community</h3>
@@ -5717,8 +5732,7 @@
             <div class="wicon">
               <!-- Land/Leaf Icon -->
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 11c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6 6 2.69 6 6z" />
-                <path d="M11 11c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z" />
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
             </div>
             <h3>Barren to Bountiful</h3>
@@ -5728,8 +5742,8 @@
             <div class="wicon">
               <!-- Direct/Shield Icon -->
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8l4 4-4 4M8 12h7" />
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
             <h3>Direct & Transparent</h3>
@@ -5859,15 +5873,15 @@
               style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:.65rem;text-transform:uppercase;letter-spacing:.25em;padding:6px 20px;border-radius:4px;font-weight:800;z-index:5;box-shadow:0 3px 10px rgba(58,107,53,.2);">
               Our Vision</div>
             <div
-              style="font-size:3.5rem;color:rgba(139₹91₹10,.1);position:absolute;top:15px;left:25px;font-family:serif;font-weight:900;">
-              ₹</div>
+              style="font-size:3.5rem;color:rgba(139,91,10,0.1);position:absolute;top:15px;left:25px;font-family:serif;font-weight:900;">
+              &ldquo;</div>
             <p
               style="font-size:1.08rem;color:#444;font-style:italic;margin:0;line-height:1.85;position:relative;z-index:2;">
-              We don't just sell food; we develop the very ecosystems that produce it₹transforming barren landscapes
+              We don't just sell food; we develop the very ecosystems that produce it &mdash; transforming barren landscapes
               into thriving estates managed by our community of new farmers.</p>
             <div
-              style="font-size:3.5rem;color:rgba(139₹91₹10,.1);position:absolute;bottom:0px;right:25px;font-family:serif;font-weight:900;">
-              ₹</div>
+              style="font-size:3.5rem;color:rgba(139,91,10,0.1);position:absolute;bottom:0px;right:25px;font-family:serif;font-weight:900;">
+              &rdquo;</div>
           </div>
         </div>
       </div>
@@ -5876,7 +5890,7 @@
       <div class="ftop">
         <div class="finfo">
           <div class="flogo"><img src="assets/farmmily logo.png" alt="Farmmily"></div>
-          <div class="ftag">Farm to Family ₹ Pure Organic</div>
+          <div class="ftag">Farm to Family &bull; Pure Organic</div>
           <div class="f-contacts">
             <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round">
@@ -5890,7 +5904,7 @@
                 <path
                   d="M3 21h18M3 7v1a3 3 0 006 0V7m0 1a3 3 0 006 0V7m0 1a3 3 0 006 0V7M4 21V4a2 2 0 012-2h12a2 2 0 012 2v17" />
               </svg>
-              <div><strong>Production Unit:</strong> 1401, Kamatchipuram, Sendamangalam West, Karur ₹ 639205</div>
+              <div><strong>Production Unit:</strong> 1401, Kamatchipuram, Sendamangalam West, Karur &ndash; 639205</div>
             </div>
             <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round">
