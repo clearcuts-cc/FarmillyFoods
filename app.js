@@ -1,4 +1,4 @@
-﻿// ===== SUPABASE =====
+// ===== SUPABASE =====
 const supabaseUrl = 'https://jztreusepxilnfqffwka.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dHJldXNlcHhpbG5mcWZmd2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NzA5OTUsImV4cCI6MjA5MDQ0Njk5NX0.AXaOi_ax6esifM7DzwVjNXQrm3XLNPnzT_0yQWm6ahY';
 const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
@@ -1670,20 +1670,14 @@ function filterBycat(c, push = true) {
 window.filterBycat = filterBycat;
 // ===== CLIENT-SIDE ROUTER =====
 function handleRoute() {
-  let path = window.location.pathname.toLowerCase();
   const params = new URLSearchParams(window.location.search);
+  let path = (params.get('redirect') || window.location.pathname).toLowerCase().replace(/\/$/, '').trim();
+  if (path === '') path = '/';
 
-  // Handle redirects from 404.html if applicable
-  const redirectedPath = params.get('redirect');
-  if (redirectedPath) {
-    path = redirectedPath.toLowerCase();
-    // Clean up the URL to remove the redirect param without reloading
-    const newUrl = window.location.origin + redirectedPath;
-    window.history.replaceState({ path: redirectedPath }, '', newUrl);
-  }
+  console.log('Router: Handling path', path);
 
-  // Basic Pages
-  if (path === '/' || path === '/home' || path === '/index.html' || path === '') {
+  // 1. Basic Pages
+  if (path === '/' || path === '/home' || path === '/index.html') {
     showPage('home', false);
     return;
   }
@@ -1746,27 +1740,29 @@ function handleRoute() {
     return;
   }
 
-  // Category Route: /mango, /honey, /mangos, etc.
-  // We handle fuzzy matching for singular/plural
-  const catSlug = path.startsWith('/') ? path.substring(1).replace(/-/g, ' ') : path.replace(/-/g, ' ');
+  // 3. Category Matcher
+  const catSlug = path.substring(1).replace(/-/g, ' ');
 
   const checkCats = setInterval(() => {
     if (cats && cats.length) {
       clearInterval(checkCats);
       const found = cats.find(c => {
-        const lowName = c.name.toLowerCase().trim();
+        const lowName = (c.name || '').toLowerCase().trim();
         const cleanSlug = catSlug.toLowerCase().trim();
         return lowName === cleanSlug || 
                lowName + 's' === cleanSlug || 
                lowName === cleanSlug + 's' ||
-               (cleanSlug.includes('mango') && lowName.includes('mango'));
+               lowName + 'es' === cleanSlug || 
+               lowName === cleanSlug + 'es' ||
+               (cleanSlug.includes('mango') && lowName.includes('mango')) ||
+               (cleanSlug.includes('honey') && lowName.includes('honey')) ||
+               (cleanSlug.includes('ghee') && lowName.includes('ghee'));
       });
 
       if (found) {
         filterBycat(found.name, false);
       } else {
-        // If not a category, maybe it's a page we don't know, default to home
-        // Delayed slightly to allow other init logic to settle
+        // Fallback for direct variety links if not a category
         setTimeout(() => {
            if (curPage === 'home') showPage('home', false);
         }, 500);
