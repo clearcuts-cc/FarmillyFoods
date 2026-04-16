@@ -5139,9 +5139,10 @@
 
       #pd-hero img {
         width: 100% !important;
-        max-width: 450px !important;
-        max-height: 500px !important;
-        object-fit: contain !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        object-fit: cover !important;
         transition: transform 0.4s ease !important;
       }
 
@@ -6629,7 +6630,7 @@
 
   <!-- PREMIUM PRODUCT DETAIL VIEW (IMAGE 3) -->
   <div id="premium-detail"
-    style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:4000; opacity:0; visibility:hidden; transition:opacity 0.4s ease; overflow-y:auto; font-family:'Poppins', sans-serif;">
+    style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:4000; opacity:0; visibility:hidden; transition:opacity 0.4s ease; overflow-y:auto; font-family:'Poppins', sans-serif; overscroll-behavior-y: contain;">
     <div class="pd-close" onclick="window.closePremiumDetail()"
       style="position:fixed; top:20px; right:20px; width:36px; height:36px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:4005; cursor:pointer; shadow:0 5px 15px rgba(0,0,0,0.1); border:1px solid #eee;">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1b391b" stroke-width="2.5"
@@ -6643,7 +6644,7 @@
       <img src="" alt="Product Image" id="det-img-main"
         onload="this.style.opacity='1'; this.style.transform='scale(1)';"
         onerror="this.src='https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop'; this.style.opacity='0.8';"
-        style="max-width:100%; max-height:100%; object-fit:cover; transform:scale(1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.08));">
+        style="width:100%; height:100%; object-fit:cover; transform:scale(1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.08));">
     </div>
     <div class="pd-content" id="pd-content" style="padding:0 16px 220px; max-width:800px; margin:0 auto;">
       <div class="pd-stars"
