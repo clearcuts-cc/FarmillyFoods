@@ -209,7 +209,7 @@ function updateCartCount() {
     if (n > 0) {
       fBar.classList.add('show');
       if (fCount) fCount.textContent = `${n} item${n > 1 ? 's' : ''}`;
-      if (fPrice) fPrice.textContent = `â‚¹${totalPrice}`;
+      if (fPrice) fPrice.textContent = `₹${totalPrice}`;
     } else {
       fBar.classList.remove('show');
     }
@@ -491,13 +491,13 @@ function ensureCartDrawerUI() {
           <div class="cart-drawer-title">Your Cart</div>
           <div id="cart-drawer-subtitle" class="cart-drawer-meta">Fresh picks, ready to checkout</div>
         </div>
-        <button id="cart-drawer-close" class="cart-drawer-close" type="button" aria-label="Close cart">Ã—</button>
+        <button id="cart-drawer-close" class="cart-drawer-close" type="button" aria-label="Close cart">₹</button>
       </div>
       <div id="cart-drawer-body" class="cart-drawer-body"></div>
       <div class="cart-drawer-foot">
         <div class="cart-drawer-summary">
           <span>Total</span>
-          <strong id="cart-drawer-total">â‚¹0</strong>
+          <strong id="cart-drawer-total">₹0</strong>
         </div>
         <div class="cart-drawer-actions">
           <button id="cart-drawer-view" class="cart-drawer-btn secondary" type="button">Full Cart</button>
@@ -540,13 +540,13 @@ function renderCartDrawer() {
   const itemCount = window.cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
 
   subtitle.textContent = itemCount ? `${itemCount} item${itemCount > 1 ? 's' : ''} in your basket` : 'Fresh picks, ready to checkout';
-  totalEl.textContent = `â‚¹${Math.round(total)}`;
+  totalEl.textContent = `₹${Math.round(total)}`;
 
   if (!items.length) {
     body.innerHTML = `
       <div class="cart-drawer-empty">
         <h3 style="margin:0 0 8px; color:#183218;">Your cart is empty</h3>
-        <p style="margin:0 0 16px;">Add a few farm-fresh products and theyâ€™ll appear here instantly.</p>
+        <p style="margin:0 0 16px;">Add a few farm-fresh products and they₹ll appear here instantly.</p>
         <button class="cart-drawer-btn primary" type="button" onclick="window.closeCartDrawer(false); showPage('shop')">Start Shopping</button>
       </div>
     `;
@@ -558,15 +558,15 @@ function renderCartDrawer() {
       <img src="${p.img}" alt="${p.name}">
       <div>
         <div class="cart-drawer-name">${p.name}</div>
-        <div class="cart-drawer-meta">${p.wt || ''}${p.wt && !p.isCustom ? ' Â· ' : ''}${!p.isCustom && window.getUnitPrice ? `â‚¹${window.getUnitPrice(p.price, p.wt).rate}/${window.getUnitPrice(p.price, p.wt).unit}` : ''}</div>
-        <div class="cart-drawer-price">â‚¹${Math.round(itemTotal)}</div>
+        <div class="cart-drawer-meta">${p.wt || ''}${p.wt && !p.isCustom ? ' ₹ ' : ''}${!p.isCustom && window.getUnitPrice ? `₹${window.getUnitPrice(p.price, p.wt).rate}/${window.getUnitPrice(p.price, p.wt).unit}` : ''}</div>
+        <div class="cart-drawer-price">₹${Math.round(itemTotal)}</div>
         <div class="cart-drawer-qty">
           <button type="button" onclick="window.updCart('${p.id}', -1)">-</button>
           <span>${ci.qty}</span>
           <button type="button" onclick="window.updCart('${p.id}', 1)">+</button>
         </div>
       </div>
-      <button class="cart-drawer-remove" type="button" onclick="window.deleteFromCart('${p.id}')">Ã—</button>
+      <button class="cart-drawer-remove" type="button" onclick="window.deleteFromCart('${p.id}')">₹</button>
     </div>
   `).join('');
 }
@@ -609,7 +609,7 @@ function validateContactForm(payload) {
 
   if (name.length < 2) errors.name = 'Please enter your full name.';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Please enter a valid email address.';
-  if (!/^\+?\d[\d\s-]{8,14}$/.test(phone)) errors.phone = 'Please enter a valid phone number.';
+  if (!/^\+?\d[\d\s-]{8₹4}$/.test(phone)) errors.phone = 'Please enter a valid phone number.';
   if (message.length < 10) errors.message = 'Please enter a short message with a little more detail.';
 
   return { isValid: Object.keys(errors).length === 0, errors, cleaned: { name, email, phone, message } };
@@ -764,7 +764,7 @@ function showPage(page, push = true) {
       'refund-policy': 'Refund Policy - Farmmily Farms and Foods',
       'shipping-policy': 'Shipping Policy - Farmmily Farms and Foods',
       'cart': 'Your Shopping Cart - Farmmily Boutique',
-      'success': 'Order Success â€” Farmmily Foods'
+      'success': 'Order Success ₹ Farmmily Foods'
     };
     const pageDescs = {
       'home': 'Direct from our estates to your family. Experience the legendary purity of our seasonal harvest.',
@@ -931,7 +931,7 @@ function pcardHTML(p) {
               <div class="m-top-row">
                 <div class="m-wt-tag">3-5 KG</div>
                 <div class="m-stats">
-                  <div class="m-stars">â˜…â˜…â˜…â˜…â˜…</div>
+                  <div class="m-stars">₹</div>
                   <span class="m-rating-val">5.0</span>
                 </div>
               </div>
@@ -940,7 +940,7 @@ function pcardHTML(p) {
               <span class="m-subtitle">Create Your Signature Blend</span>
               <div class="m-price-row">
                 <div class="m-price-box">
-                  <span class="m-currency">â‚¹</span>
+                  <span class="m-currency">₹</span>
                   <span class="m-amt">${avgPerKgRate}</span>
                   <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg avg</span>
                 </div>
@@ -984,7 +984,7 @@ function pcardHTML(p) {
         ADD
     </div>` : (qty > 0 ? `
     <div class="m-add-btn-image" style="background:#f0fdf4 !important; color:#1b391b !important; border:1px solid #22c55e !important;" onclick="event.stopPropagation()">
-        <span onclick="window.updCart(${p.id}, -1)">â€“</span>
+        <span onclick="window.updCart(${p.id}, -1)">₹</span>
         <span style="font-size:14px; font-weight:900; min-width:24px; text-align:center;">${qty}</span>
         <span onclick="window.updCart(${p.id}, 1)">+</span>
     </div>` : `
@@ -1005,7 +1005,7 @@ function pcardHTML(p) {
         <div class="m-info">
             <div class="m-top-row">
                 <div class="m-stats">
-                    <div class="m-stars">â˜…â˜…â˜…â˜…â˜…</div>
+                    <div class="m-stars">★★★★★</div>
                     <span class="m-rating-val">${p.rating || '5.0'}</span>
                 </div>
                 <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v => v.id).join(',') : p.id}])">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
@@ -1015,14 +1015,14 @@ function pcardHTML(p) {
             <span class="m-subtitle" style="margin-bottom:8px;">${p.cat || 'Premium Selection'}</span>
             <div class="m-price-row">
                 <div class="m-price-box">
-                    <span class="m-currency">â‚¹</span>
+                    <span class="m-currency">₹</span>
                     <span class="m-amt">${rate}</span>
                     <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/${unitLabel}</span>
                 </div>
                 <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px; display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
-                    ${v0.originalPrice && v0.originalPrice > v0.price ? `<span style="text-decoration:line-through; opacity:0.5; font-weight:500;">â‚¹${v0.originalPrice}</span>` : ''}
+                    ${v0.originalPrice && v0.originalPrice > v0.price ? `<span style="text-decoration:line-through; opacity:0.5; font-weight:500;">₹${v0.originalPrice}</span>` : ''}
                     ${v0.originalPrice && v0.originalPrice > v0.price ? `<span style="background:#fefce8; color:#a16207; font-size:9px; padding:1px 5px; border-radius:4px; font-weight:800; border:1px solid #fef08a;">${Math.round(((v0.originalPrice - v0.price) / v0.originalPrice) * 100)}% OFF</span>` : ''}
-                    <span>${hasOptions ? 'from â‚¹' + v0.price : 'â‚¹' + v0.price + ' (' + v0.wt + ')'}</span>
+                    <span>${hasOptions ? 'from ₹' + v0.price : '₹' + v0.price + ' (' + v0.wt + ')'}</span>
                 </div>
             </div>
         </div>
@@ -1151,7 +1151,7 @@ function openProduct(id) {
   curProd = p; detQty = 1; prevPage = curPage;
   const imgEL = document.getElementById('det-img'); if (imgEL) imgEL.src = p.img;
   const nameEL = document.getElementById('det-name'); if (nameEL) nameEL.textContent = p.name;
-  const priceEL = document.getElementById('det-price'); if (priceEL) priceEL.textContent = 'â‚¹' + p.price;
+  const priceEL = document.getElementById('det-price'); if (priceEL) priceEL.textContent = '₹' + p.price;
   const qtyEL = document.getElementById('det-qty'); if (qtyEL) qtyEL.textContent = 1;
   showPage('product', false);
 }
@@ -1185,7 +1185,7 @@ function renderCart() {
     // For custom products, we use the stored description
     const weightLabel = p.wt || '';
     const unitInfo = (window.getUnitPrice && !p.isCustom) ? window.getUnitPrice(p.price, p.wt) : null;
-    const rateText = unitInfo ? ` (â‚¹${unitInfo.rate}/${unitInfo.unit} rate)` : (p.desc ? ` <span style="font-size:10px; color:#666; display:block; margin-top:4px;">${p.desc}</span>` : '');
+    const rateText = unitInfo ? ` (₹${unitInfo.rate}/${unitInfo.unit} rate)` : (p.desc ? ` <span style="font-size:10px; color:#666; display:block; margin-top:4px;">${p.desc}</span>` : '');
 
     return `
       <div class="citem">
@@ -1194,13 +1194,13 @@ function renderCart() {
           <div class="ci-name">${p.name}</div>
           <div class="ci-wt" style="font-size:11px; color:#888;">${weightLabel}${rateText}</div>
           <div class="ci-bot">
-            <span class="ci-price">â‚¹${Math.round(itemTotal)}</span>
+            <span class="ci-price">₹${Math.round(itemTotal)}</span>
             <div class="ci-qty">
               <button class="ci-qbtn" onclick="updCart(${p.id},-1)">-</button>
               <span class="ci-qval">${ci.qty}</span>
-              <button class="ci-qbtn" onclick="updCart(${p.id},1)">+</button>
+              <button class="ci-qbtn" onclick="updCart(${p.id}₹)">+</button>
             </div>
-            <button class="ci-rm" onclick="deleteFromCart(${p.id})">Ã—</button>
+            <button class="ci-rm" onclick="deleteFromCart(${p.id})">₹</button>
           </div>
         </div>
       </div>`;
@@ -1213,9 +1213,9 @@ function renderCart() {
   el.innerHTML = `
     <div class="clist">${items}</div>
     <div class="csummary">
-      <div class="srow"><span>Subtotal</span><span>â‚¹${sub}</span></div>
-      <div class="srow"><span style="color:#666;">Delivery</span><span style="color:${deliveryFee === 0 ? '#22c55e' : '#666'};">${deliveryFee === 0 ? 'Free' : 'â‚¹' + deliveryFee}</span></div>
-      <div class="srow total" style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;"><span>Total</span><span style="font-size:24px; font-weight:900;">â‚¹${total}</span></div>
+      <div class="srow"><span>Subtotal</span><span>₹${sub}</span></div>
+      <div class="srow"><span style="color:#666;">Delivery</span><span style="color:${deliveryFee === 0 ? '#22c55e' : '#666'};">${deliveryFee === 0 ? 'Free' : '₹' + deliveryFee}</span></div>
+      <div class="srow total" style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;"><span>Total</span><span style="font-size:24px; font-weight:900;">₹${total}</span></div>
       <div id="co-tot" style="display:none">${total}</div>
       <div class="slide-wrap" id="cart-slider" style="margin-top:24px;">
         <div class="slide-bg"></div>
@@ -1269,7 +1269,7 @@ function initSlider() {
       text.innerText = 'PROCESSING...';
       placeOrder();
     } else {
-      handle.style.transition = 'all 0.3s cubic-bezier(.2,.8,.2,1)';
+      handle.style.transition = 'all 0.3s cubic-bezier(.2,.8,.2₹)';
       handle.style.transform = 'translateX(0)';
       if (bg) { bg.style.transition = 'all 0.3s'; bg.style.width = '0'; }
       text.style.transition = 'all 0.3s';
@@ -2146,7 +2146,7 @@ async function handleTrack(manualId = null) {
     } else {
       res.innerHTML = `
         <div style="padding:40px; text-align:center; background:#fff5f5; border-radius:24px; border:1px solid #fed7d7;">
-          <div style="font-size:32px; margin-bottom:12px;">ðŸ”</div>
+          <div style="font-size:32px; margin-bottom:12px;">₹</div>
           <h3 style="color:#c53030; margin-bottom:8px;">Not Found</h3>
           <p style="color:#718096; font-size:14px;">We couldn't find any order with ${isPhone ? 'Phone' : 'ID'}: <b>${query}</b>.</p>
         </div>`;
@@ -2180,7 +2180,7 @@ function renderTrackResult(data, type, container) {
   if (currentStepIndex === -1 && status === 'cancelled') {
     // Special handle for cancelled
     container.innerHTML = `<div style="padding:40px; text-align:center; background:#fff5f5; border-radius:32px; border:1px solid #fed7d7;">
-       <div style="font-size:32px; margin-bottom:12px;">ðŸš«</div>
+       <div style="font-size:32px; margin-bottom:12px;">₹</div>
        <h3 style="color:#c53030; margin-bottom:8px;">Order Cancelled</h3>
        <p style="color:#718096; font-size:14px;">This reference <b>${id}</b> has been cancelled. Please contact support if this is an error.</p>
      </div>`;
@@ -2199,7 +2199,7 @@ function renderTrackResult(data, type, container) {
           ${data.order_items.map(item => `
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="font-size:13px; font-weight:600; color:#333;">${item.product_name} <span style="font-size:11px; color:#999;">x${item.quantity}</span></div>
-              <div style="font-size:12px; color:#666; font-weight:700;">â‚¹${Math.round(item.total_price)}</div>
+              <div style="font-size:12px; color:#666; font-weight:700;">₹${Math.round(item.total_price)}</div>
             </div>
           `).join('')}
         </div>
@@ -2228,7 +2228,7 @@ function renderTrackResult(data, type, container) {
     const isActive = i === currentStepIndex;
     return `
       <div class="track-step ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}">
-        <div class="ts-icon">${isDone ? 'âœ“' : ''}</div>
+        <div class="ts-icon">${isDone ? '₹' : ''}</div>
         <div class="ts-info">
           <h4 style="text-transform:capitalize;">${s}</h4>
           <p>${isActive ? 'Your order is currently here' : (isDone ? 'Completed' : 'Pending')}</p>
@@ -2263,15 +2263,15 @@ function renderTrackResult(data, type, container) {
       <div style="margin-top:20px; padding:16px; border-radius:16px; background:#fff; border:1px dashed #e2e8f0;">
         <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:6px;">
           <span>Subtotal</span>
-          <span>â‚¹${data.subtotal || data.total - (data.delivery_charge || 0)}</span>
+          <span>₹${data.subtotal || data.total - (data.delivery_charge || 0)}</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #f1f5f9;">
           <span>Delivery Charge</span>
-          <span>${data.delivery_charge > 0 ? 'â‚¹' + data.delivery_charge : 'FREE'}</span>
+          <span>${data.delivery_charge > 0 ? '₹' + data.delivery_charge : 'FREE'}</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:900; color:#1b391b;">
           <span>Total Paid</span>
-          <span>â‚¹${data.total}</span>
+          <span>₹${data.total}</span>
         </div>
       </div>
 
@@ -2280,10 +2280,10 @@ function renderTrackResult(data, type, container) {
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg> Save PDF / Print
         </button>
         <a href="https://wa.me/917358952051" style="flex:1.5; background:#1b391b; color:white; text-decoration:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px;">
-           Farmmily Support â†’ 
+           Farmmily Support ₹ 
         </a>
       </div>
-      <p style="text-align:center; font-size:11px; color:#94a3b8; margin-top:20px;">Thank you for supporting heritage harvests! ðŸƒ</p>
+      <p style="text-align:center; font-size:11px; color:#94a3b8; margin-top:20px;">Thank you for supporting heritage harvests! ₹</p>
     </div>
   `;
 }
@@ -2310,7 +2310,7 @@ function renderMultiOrderResults(orders, container) {
     return `
       <div onclick="window.renderOneOrder('${id}')" style="background:white; padding:20px; border-radius:20px; margin-bottom:12px; border:1px solid #eee; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
         <div style="display:flex; align-items:center; gap:16px;">
-          <div style="width:40px; height:40px; background:#f0fdf4; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px;">ðŸ“¦</div>
+          <div style="width:40px; height:40px; background:#f0fdf4; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px;">₹</div>
           <div>
             <div style="font-size:14px; font-weight:900; color:#1b391b;">#${id}</div>
             <div style="font-size:11px; color:#888;">Order placed ${date}</div>
@@ -2318,7 +2318,7 @@ function renderMultiOrderResults(orders, container) {
         </div>
         <div style="text-align:right;">
           <div style="font-size:10px; font-weight:900; background:#f0fdf4; color:#22c55e; padding:4px 8px; border-radius:6px; text-transform:uppercase;">${status}</div>
-          <div style="font-size:11px; color:#22c55e; margin-top:4px; font-weight:700;">Track â†’</div>
+          <div style="font-size:11px; color:#22c55e; margin-top:4px; font-weight:700;">Track ₹</div>
         </div>
       </div>
     `;
@@ -2437,7 +2437,7 @@ function liveSearch(q) {
       <img src="${p.img}" style="width:40px; height:40px; border-radius:8px; object-fit:cover;">
       <div style="flex:1">
         <div style="font-size:14px; font-weight:600; color:#333;">${p.name}</div>
-        <div style="font-size:11px; color:#22c55e; font-weight:700;">â‚¹${p.price}</div>
+        <div style="font-size:11px; color:#22c55e; font-weight:700;">₹${p.price}</div>
       </div>
     </div>
   `).join('');
@@ -2560,10 +2560,10 @@ window.renderCrateVarieties = function () {
         <img src="${v.img}" style="width:60px; height:60px; border-radius:12px; object-fit:contain; background:#f8fafc; border:1px solid #f1f5f9; padding:4px;">
         <div style="flex:1">
             <div style="font-weight:700; color:#1b391b;">${v.name}</div>
-            <div style="font-size:12px; color:#22c55e; font-weight:700;">â‚¹${unitPrice} / KG</div>
+            <div style="font-size:12px; color:#22c55e; font-weight:700;">₹${unitPrice} / KG</div>
         </div>
         <div style="display:flex; align-items:center; gap:12px; background:#f8fafc; border-radius:50px; padding:6px 14px; border:1px solid #e2e8f0;">
-            <button onclick="window.updateCrateVariety('${v.id}', -1)" style="background:none; border:none; font-weight:900; color:#ef4444; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">â€“</button>
+            <button onclick="window.updateCrateVariety('${v.id}', -1)" style="background:none; border:none; font-weight:900; color:#ef4444; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">₹</button>
             <span style="font-weight:900; min-width:20px; text-align:center; font-size:16px; color:#1b391b;">${qty}</span>
             <button onclick="window.updateCrateVariety('${v.id}', 1)" style="background:none; border:none; font-weight:900; color:#22c55e; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">+</button>
         </div>
@@ -2590,7 +2590,7 @@ window.updateCrateUI = function () {
       btn.style.cursor = 'pointer';
       btn.style.background = '#1b391b';
       btn.disabled = false;
-      btn.textContent = `ADD ${crateLimit}KG MIX TO CART - â‚¹${totalPrice.toLocaleString('en-IN')}`;
+      btn.textContent = `ADD ${crateLimit}KG MIX TO CART - ₹${totalPrice.toLocaleString('en-IN')}`;
     } else {
       btn.style.opacity = '0.5';
       btn.style.cursor = 'not-allowed';
