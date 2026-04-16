@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -6641,7 +6641,7 @@
       const units = Math.max(15, parseInt(document.getElementById('corp-total-units')?.value || 15));
       const total = pricePerCrate * units;
       const el = document.getElementById('corp-est-price');
-      if (el) el.innerText = '\u20b9' + total.toLocaleString('en-IN');
+      if (el) el.innerText = '₹' + total.toLocaleString('en-IN');
     }
   </script>
 
