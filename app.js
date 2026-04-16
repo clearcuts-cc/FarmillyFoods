@@ -762,16 +762,27 @@ function showPage(page, push = true) {
     if (typeof window.closeCrateSheet === 'function') window.closeCrateSheet(false);
     if (typeof window.closeVariantSheet === 'function') window.closeVariantSheet();
 
+    // --- Update Nav Bar Active State ---
+    const navItems = document.querySelectorAll('.mob-nav-item');
+    navItems.forEach(item => {
+      const onclick = item.getAttribute('onclick') || '';
+      if (onclick.includes(`'${page}'`)) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+
     // --- Dynamic SEO Tracking ---
     const pageTitles = {
-      'home': 'Farmmily Farms — Premium Organic Mangoes & A2 Ghee',
-      'shop': 'Shop Online — Organic Heritage Mangoes & Farm Fresh Goods',
-      'corporate': 'Corporate Gifting — Bespoke Mango Crates & Luxury Hampers',
-      'track': 'Track Your Order — Farmmily Delivery Status',
-      'contact': 'Contact Farmmily — Support & Enquiries',
-      'refund-policy': 'Refund Policy — Farmmily Farms and Foods',
-      'shipping-policy': 'Shipping Policy — Farmmily Farms and Foods',
-      'cart': 'Your Shopping Cart — Farmmily Boutique',
+      'home': 'Farmmily Farms - Premium Organic Mangoes & A2 Ghee',
+      'shop': 'Shop Online - Organic Heritage Mangoes & Farm Fresh Goods',
+      'corporate': 'Corporate Gifting - Bespoke Mango Crates & Luxury Hampers',
+      'track': 'Track Your Order - Farmmily Delivery Status',
+      'contact': 'Contact Farmmily - Support & Enquiries',
+      'refund-policy': 'Refund Policy - Farmmily Farms and Foods',
+      'shipping-policy': 'Shipping Policy - Farmmily Farms and Foods',
+      'cart': 'Your Shopping Cart - Farmmily Boutique',
       'success': 'Order Success — Farmmily Foods'
     };
     const pageDescs = {
@@ -1829,10 +1840,12 @@ function handleRoute() {
     if (window.cats && window.cats.length) {
       clearInterval(checkCats);
       const found = window.cats.find(c => {
-        const lowName = c.name.toLowerCase();
-        return lowName === catSlug || 
-               lowName + 's' === catSlug || 
-               lowName === catSlug + 's';
+        const lowName = c.name.toLowerCase().trim();
+        const cleanSlug = catSlug.toLowerCase().trim();
+        return lowName === cleanSlug || 
+               lowName + 's' === cleanSlug || 
+               lowName === cleanSlug + 's' ||
+               (cleanSlug.includes('mango') && lowName.includes('mango'));
       });
 
       if (found) {
