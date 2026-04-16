@@ -6931,8 +6931,16 @@
 
         // Calculate unit rate from total price:
         const unitInfo = window.getUnitPrice(selectedPdVariant.price, selectedPdVariant.wt);
-        document.getElementById('v-foot-wt').innerText = '1 ' + unitInfo.unit.toUpperCase() + ' RATE';
-        document.getElementById('v-foot-pr').innerText = '₹' + unitInfo.rate;
+        const isMango = cleanVariety.toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => cleanVariety.toLowerCase().includes(k));
+        if (isMango) {
+          document.getElementById('v-foot-wt').innerText = '1 ' + unitInfo.unit.toUpperCase() + ' RATE';
+          document.getElementById('v-foot-pr').innerText = '₹' + unitInfo.rate;
+        } else {
+          document.getElementById('v-foot-wt').innerText = selectedPdVariant.wt + ' pack';
+          document.getElementById('v-foot-pr').innerText = '₹' + selectedPdVariant.price;
+        }
+        document.getElementById('v-foot-wt').style.display = 'block';
+        document.getElementById('v-foot-pr').style.display = 'block';
 
         refreshPdActionArea();
 
@@ -6951,7 +6959,7 @@
                         <span style="background:#fefce8; color:#a16207; font-size:8px; padding:1px 4px; border-radius:4px; font-weight:900; border:1px solid #fef08a; text-transform:uppercase;">Save ${Math.round(((v.originalPrice - v.price) / v.originalPrice) * 100)}%</span>
                       </div>
                     ` : ''}
-                    <div style="font-size:9px; color:#22c55e; font-weight:700; margin-top:4px;">₹${uInfo.rate}/${uInfo.unit} rate</div>
+                    ${(cleanVariety.toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => cleanVariety.toLowerCase().includes(k))) ? `<div style="font-size:9px; color:#22c55e; font-weight:700; margin-top:4px;">₹${uInfo.rate}/${uInfo.unit} rate</div>` : ''}
                 </div>
             `;
         }).join('');
@@ -7039,8 +7047,14 @@
         el.querySelector('div').style.color = '#1b391b';
         selectedPdVariant = v;
         const uI = window.getUnitPrice(v.price, v.wt);
-        document.getElementById('v-foot-wt').innerText = '1 ' + uI.unit.toUpperCase() + ' RATE';
-        document.getElementById('v-foot-pr').innerText = '₹' + uI.rate;
+        const isMango = (cleanVariety || '').toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => (cleanVariety || '').toLowerCase().includes(k));
+        if (isMango) {
+          document.getElementById('v-foot-wt').innerText = '1 ' + uI.unit.toUpperCase() + ' RATE';
+          document.getElementById('v-foot-pr').innerText = '₹' + uI.rate;
+        } else {
+          document.getElementById('v-foot-wt').innerText = v.wt + ' pack';
+          document.getElementById('v-foot-pr').innerText = '₹' + v.price;
+        }
         document.getElementById('pd-hero').querySelector('img').src = v.img;
 
         refreshPdActionArea();
@@ -7141,7 +7155,7 @@
                         </div>
                         <div style="flex:1">
                             <div class="vi-wt" style="font-size:16px; font-weight:800; color:#111;">${v.wt}</div>
-                            <div style="font-size:11px; color:#22c55e; font-weight:700;">₹${uV.rate}/${uV.unit} rate</div>
+                            ${(cleanVariety.toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => cleanVariety.toLowerCase().includes(k))) ? `<div style="font-size:11px; color:#22c55e; font-weight:700;">₹${uV.rate}/${uV.unit} rate</div>` : ''}
                         </div>
                         <div class="vi-pr" style="font-size:22px; font-weight:900; color:#111; margin-right:15px; display:flex; flex-direction:column; align-items:flex-end;">
                             ${v.originalPrice && v.originalPrice > v.price ? `

@@ -558,7 +558,11 @@ function renderCartDrawer() {
       <img src="${p.img}" alt="${p.name}">
       <div>
         <div class="cart-drawer-name">${p.name}</div>
-        <div class="cart-drawer-meta">${p.wt || ''}${p.wt && !p.isCustom ? ' ₹ ' : ''}${!p.isCustom && window.getUnitPrice ? `₹${window.getUnitPrice(p.price, p.wt).rate}/${window.getUnitPrice(p.price, p.wt).unit}` : ''}</div>
+        <div class="cart-drawer-meta">
+          ${p.wt || ''}
+          ${p.wt && !p.isCustom && ((p.cat && p.cat.toLowerCase().includes('mango')) || (p.name && p.name.toLowerCase().includes('mango'))) ? ' ₹ ' : ''}
+          ${!p.isCustom && window.getUnitPrice && ((p.cat && p.cat.toLowerCase().includes('mango')) || (p.name && p.name.toLowerCase().includes('mango'))) ? `₹${window.getUnitPrice(p.price, p.wt).rate}/${window.getUnitPrice(p.price, p.wt).unit}` : ''}
+        </div>
         <div class="cart-drawer-price">₹${Math.round(itemTotal)}</div>
         <div class="cart-drawer-qty">
           <button type="button" onclick="window.updCart('${p.id}', -1)">-</button>
@@ -1011,6 +1015,7 @@ function pcardHTML(p) {
                 <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v => v.id).join(',') : p.id}])">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
             </div>
             <h3 class="m-title" style="margin-bottom:0px;">${p.name}</h3>
+            ${((p.cat && p.cat.toLowerCase().includes('mango')) || (p.name && p.name.toLowerCase().includes('mango'))) ? `
             <div style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">1 ${unitLabel.toUpperCase()} PRICE RATE</div>
             <span class="m-subtitle" style="margin-bottom:8px;">${p.cat || 'Premium Selection'}</span>
             <div class="m-price-row">
@@ -1019,10 +1024,19 @@ function pcardHTML(p) {
                     <span class="m-amt">${rate}</span>
                     <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/${unitLabel}</span>
                 </div>
+            ` : `
+            <span class="m-subtitle" style="margin-bottom:8px; display:block; margin-top:8px;">${p.cat || 'Premium Selection'}</span>
+            <div class="m-price-row">
+                <div class="m-price-box">
+                    <span class="m-currency">₹</span>
+                    <span class="m-amt">${v0.price}</span>
+                    <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">${hasOptions ? 'Starting' : '(' + v0.wt + ')'}</span>
+                </div>
+            `}
                 <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px; display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
                     ${v0.originalPrice && v0.originalPrice > v0.price ? `<span style="text-decoration:line-through; opacity:0.5; font-weight:500;">₹${v0.originalPrice}</span>` : ''}
                     ${v0.originalPrice && v0.originalPrice > v0.price ? `<span style="background:#fefce8; color:#a16207; font-size:9px; padding:1px 5px; border-radius:4px; font-weight:800; border:1px solid #fef08a;">${Math.round(((v0.originalPrice - v0.price) / v0.originalPrice) * 100)}% OFF</span>` : ''}
-                    <span>${hasOptions ? 'from ₹' + v0.price : '₹' + v0.price + ' (' + v0.wt + ')'}</span>
+                    ${((p.cat && p.cat.toLowerCase().includes('mango')) || (p.name && p.name.toLowerCase().includes('mango'))) ? `<span>${hasOptions ? 'from ₹' + v0.price : '₹' + v0.price + ' (' + v0.wt + ')'}</span>` : ''}
                 </div>
             </div>
         </div>
@@ -1184,8 +1198,9 @@ function renderCart() {
 
     // For custom products, we use the stored description
     const weightLabel = p.wt || '';
-    const unitInfo = (window.getUnitPrice && !p.isCustom) ? window.getUnitPrice(p.price, p.wt) : null;
-    const rateText = unitInfo ? ` (₹${unitInfo.rate}/${unitInfo.unit} rate)` : (p.desc ? ` <span style="font-size:10px; color:#666; display:block; margin-top:4px;">${p.desc}</span>` : '');
+    const isMango = (p.cat && p.cat.toLowerCase().includes('mango')) || (p.name && p.name.toLowerCase().includes('mango'));
+    const unitInfo = (window.getUnitPrice && !p.isCustom && isMango) ? window.getUnitPrice(p.price, p.wt) : null;
+    const rateText = unitInfo ? ` (₹${unitInfo.rate}/${unitInfo.unit} rate)` : (p.desc && !isMango ? ` <span style="font-size:10px; color:#666; display:block; margin-top:4px;">${p.desc}</span>` : '');
 
     return `
       <div class="citem">
