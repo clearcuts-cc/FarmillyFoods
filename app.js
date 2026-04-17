@@ -103,11 +103,18 @@ function syncStaticMangoPricing() {
     const mapping = mappings.find(item => title.includes(item.match));
     if (!mapping) return;
 
-    const rate = getPerKgRateByKeyword(mapping.label);
+    const p = (window.displayProducts || window.products || []).find(x => x.name.toLowerCase().includes(mapping.match));
+    const rate = p ? getPerKgRate(p) : getPerKgRateByKeyword(mapping.label);
     if (rate <= 0) return;
 
     amountEl.textContent = String(rate);
     if (metaEl) metaEl.textContent = `Total: Rs${calculateVariantPrice(rate, 3)} for 3 kg`;
+
+    // SYNC IMAGE
+    if (p && p.img) {
+      const imgEl = card.querySelector('.m-img-wrap img');
+      if (imgEl) imgEl.src = p.img;
+    }
   });
 }
 
@@ -910,13 +917,28 @@ function refreshCurrentView() {
       if (res) res.innerHTML = '';
     }
   }
-  else if (curPage === 'corporate') { /* corporate rendering if needed */ }
+
+  // ALWAYS SYNC STATIC MANGO SECTIONS
+  syncStaticMangoPricing();
 
   // REFRESH VARIANT SHEET IF OPEN
   const vSheet = document.getElementById('variant-sheet');
   if (window.currentSheetVariety && vSheet && vSheet.classList.contains('active')) {
     if (typeof window.openVariantSheet === 'function') {
-      window.openVariantSheet(window.currentSheetVariety);
+      window.openVariantSheet(null, window.currentSheetVariety);
+    }
+  }
+
+  // REFRESH PREMIUM DETAIL MODAL IF OPEN
+  const pd = document.getElementById('premium-detail');
+  if (pd && pd.classList.contains('active')) {
+    const titleEl = document.getElementById('pd-title');
+    if (titleEl) {
+      const variety = titleEl.innerText.replace(/ Mangoes/i, '').trim();
+      const p = (window.products || []).find(x => x.name.toLowerCase().includes(variety.toLowerCase()));
+      if (p && typeof window.showPremiumDetail === 'function') {
+        window.showPremiumDetail(p.name, false, p.id, p.img);
+      }
     }
   }
 }
@@ -1923,8 +1945,13 @@ function handleRawProducts(data) {
 
   const allProds = (data || []).map(p => {
     let img = p.image_url;
+    // Treat Unsplash as placeholder to use assetMap fallbacks
+    if (img && img.includes('unsplash.com')) img = null;
+    
     const low = (p.name || '').toLowerCase();
-    for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    if (!img) {
+      for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    }
     const category = cats.find(c => c.id === p.category_id)?.name || 'Products';
 
     return {
@@ -1985,7 +2012,10 @@ function handleDynamicProducts(data) {
     const compareAtPerKg = Number(product.compare_at_price_per_kg || 0);
     const low = (product.name || '').toLowerCase();
     let img = product.image_url;
-    if (!img) {
+    // Treat Unsplash as placeholder
+    if (img && img.includes('unsplash.com')) img = null;
+
+    if (!img || img === 'undefined') {
       for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
     }
     const category = cats.find(c => c.id === product.category_id)?.name || 'Products';
@@ -2706,10 +2736,10 @@ async function initApp() {
 
   // Realtime Subscriptions
   if (supabaseClient) {
-    supabaseClient.channel('public:products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts).subscribe();
-    supabaseClient.channel('public:product_variants').on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, loadProducts).subscribe();
-    supabaseClient.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories).subscribe();
-    supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, fetchDeliveryConfig).subscribe();
+    supabaseClient.channel('public:products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => loadProducts()).subscribe();
+    supabaseClient.channel('public:product_variants').on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, () => loadProducts()).subscribe();
+    supabaseClient.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => loadCategories()).subscribe();
+    supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, () => fetchDeliveryConfig()).subscribe();
     supabaseClient.channel('public:catalog_sync').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, (payload) => {
       if (payload?.new?.key === 'product_catalog_sync' || payload?.old?.key === 'product_catalog_sync') loadProducts();
     }).subscribe();
