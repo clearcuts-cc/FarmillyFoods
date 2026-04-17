@@ -2477,8 +2477,8 @@ window.viewDetailedInvoice = async function(id) {
         <img src="assets/farmmily%20logo.png" style="height:65px; margin-bottom:12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" onerror="this.src='https://jztreusepxilnfqffwka.supabase.co/storage/v1/object/public/assets/farmmily%20logo.png'">
         <div style="font-size:11px; color:#1b391b; line-height:1.5;">
           <strong style="font-size:13px; display:block; margin-bottom:2px;">FARMMILY AGRO INFRA DEVELOPERS PVT LTD</strong>
-          #57 CK Colony, New Siddhapudur<br>
-          Coimbatore, Tamil Nadu - 641044<br>
+          NO.133A, Mettupalayam Road, Kavundampalayam<br>
+          Coimbatore - 641030 Tamil Nadu, India<br>
           <strong>GSTIN:</strong> 33AAGCF5728F1ZR | <strong>FSSAI:</strong> 12424003000676
         </div>
       </div>
