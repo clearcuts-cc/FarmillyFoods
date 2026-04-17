@@ -525,7 +525,7 @@ function renderCartDrawer() {
   const totalEl = document.getElementById('cart-drawer-total');
   const actions = document.querySelector('.cart-drawer-actions');
   const viewCartBtn = document.getElementById('cart-drawer-view');
-  
+
   if (!body || !subtitle || !totalEl) return;
 
   if (viewCartBtn && actions) {
@@ -649,8 +649,8 @@ window.openSupportWhatsApp = openSupportWhatsApp;
 
 async function syncToGoogleSheet(data) {
   // Replace this placeholder with your actual Google Apps Script Web App URL
-  const scriptUrl = 'https://script.google.com/macros/s/AKfycbyVJ5k2E_6IrHGgyopXBnt9emsZcbW4N6XmPu6ViyVGSWW1yniyFOuDo-tG3SulP9L-hQ/exec';
-  
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbxJt-Vb5JnXGKYCnZh1SG7sQTXZU2qFl6c97c21pTp6Ry_sbmVqVn-6uRYf1qbYud9JuA/exec';
+
   try {
     await fetch(scriptUrl, {
       method: 'POST',
@@ -756,7 +756,7 @@ window.contactViaWhatsApp = function () {
   const { name, email, phone, message } = result.cleaned;
   const waMessage =
     `Hello Farmmily Foods,\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`
-  ;
+    ;
   openSupportWhatsApp(waMessage);
 };
 
@@ -1779,11 +1779,11 @@ function handleRoute() {
     const id = segments[pIndex + 1];
     if (id) {
       const checkLoaded = setInterval(() => {
-      if (products && products.length) {
-        clearInterval(checkLoaded);
-        showProduct(id, false);
-      }
-    }, 100);
+        if (products && products.length) {
+          clearInterval(checkLoaded);
+          showProduct(id, false);
+        }
+      }, 100);
       setTimeout(() => clearInterval(checkLoaded), 5000);
     }
     return;
@@ -1798,14 +1798,14 @@ function handleRoute() {
       const found = cats.find(c => {
         const lowName = (c.name || '').toLowerCase().trim();
         const cleanSlug = catSlug.toLowerCase().trim();
-        return lowName === cleanSlug || 
-               lowName + 's' === cleanSlug || 
-               lowName === cleanSlug + 's' ||
-               lowName + 'es' === cleanSlug || 
-               lowName === cleanSlug + 'es' ||
-               (cleanSlug.includes('mango') && lowName.includes('mango')) ||
-               (cleanSlug.includes('honey') && lowName.includes('honey')) ||
-               (cleanSlug.includes('ghee') && lowName.includes('ghee'));
+        return lowName === cleanSlug ||
+          lowName + 's' === cleanSlug ||
+          lowName === cleanSlug + 's' ||
+          lowName + 'es' === cleanSlug ||
+          lowName === cleanSlug + 'es' ||
+          (cleanSlug.includes('mango') && lowName.includes('mango')) ||
+          (cleanSlug.includes('honey') && lowName.includes('honey')) ||
+          (cleanSlug.includes('ghee') && lowName.includes('ghee'));
       });
 
       if (found) {
@@ -1813,7 +1813,7 @@ function handleRoute() {
       } else {
         // Fallback for direct variety links if not a category
         setTimeout(() => {
-           if (curPage === 'home') showPage('home', false);
+          if (curPage === 'home') showPage('home', false);
         }, 500);
       }
     }
