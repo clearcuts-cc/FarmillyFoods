@@ -2461,58 +2461,84 @@ window.viewDetailedInvoice = async function(id) {
   if (order.type === 'ORDER' && order.order_items) {
     itemsHTML = order.order_items.map((item, i) => `
       <tr>
-        <td>${i+1}</td>
-        <td>${item.product_name}</td>
-        <td>040900</td>
-        <td>${item.quantity}.00</td>
-        <td>${(item.unit_price || item.total_price / item.quantity).toFixed(2)}</td>
-        <td>${(item.total_price * 0.05).toFixed(2)}<br><span style="font-size:10px;color:#888;">5%</span></td>
-        <td>${item.total_price.toFixed(2)}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:center;">${i+1}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0;">
+          <div style="font-weight:700; color:#1b391b;">${item.product_name}</div>
+        </td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:center;">040900</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:center;">${item.quantity}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:right;">${(item.unit_price || item.total_price / item.quantity).toFixed(2)}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:right;">${(item.total_price * 0.05).toFixed(2)}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:right; font-weight:700;">${item.total_price.toFixed(2)}</td>
       </tr>
     `).join('');
   } else {
     // Corporate fallback
-    itemsHTML = `<tr><td>1</td><td>${order.total_units} Crates Harvest Mix</td><td>040900</td><td>${order.total_units}.00</td><td>${(subtotal/order.total_units).toFixed(2)}</td><td>${(subtotal*0.05).toFixed(2)}<br><span style="font-size:10px;color:#888;">5%</span></td><td>${subtotal.toFixed(2)}</td></tr>`;
+    itemsHTML = `
+      <tr>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:center;">1</td>
+        <td style="padding:10px; border:1px solid #e2e8f0;">
+          <div style="font-weight:700; color:#1b391b;">${order.total_units} Crates Harvest Mix</div>
+          <div style="font-size:11px; color:#666;">Corporate Order Ref: ${order.enquiry_ref}</div>
+        </td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:center;">040900</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:center;">${order.total_units}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:right;">${(subtotal/order.total_units).toFixed(2)}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:right;">${(subtotal * 0.05).toFixed(2)}</td>
+        <td style="padding:10px; border:1px solid #e2e8f0; text-align:right; font-weight:700;">${subtotal.toFixed(2)}</td>
+      </tr>
+    `;
   }
 
   container.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:start; border-bottom:2px solid #1b391b; padding-bottom:15px; margin-bottom:20px;">
       <div>
-        <img src="assets/farmmily logo.png" style="height:45px; margin-bottom:10px;" onerror="this.src='https://jztreusepxilnfqffwka.supabase.co/storage/v1/object/public/assets/farmmily%20logo.png'">
-        <div style="font-size:11px; color:#444; line-height:1.4; font-weight:700;">
-          FARMMILY AGRO INFRA DEVELOPERS PRIVATE LIMITED<br>
-          <span style="font-weight:400;">#57 CK Colony, NEW SIDDHAPUDUR<br>
-          Coimbatore Tamil Nadu 641044, India<br>
-          GSTIN 33AAGCF5728F1ZR</span>
+        <img src="assets/farmmily%20logo.png" style="height:65px; margin-bottom:12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" onerror="this.src='https://jztreusepxilnfqffwka.supabase.co/storage/v1/object/public/assets/farmmily%20logo.png'">
+        <div style="font-size:11px; color:#1b391b; line-height:1.5;">
+          <strong style="font-size:13px; display:block; margin-bottom:2px;">FARMMILY AGRO INFRA DEVELOPERS PVT LTD</strong>
+          #57 CK Colony, New Siddhapudur<br>
+          Coimbatore, Tamil Nadu - 641044<br>
+          <strong>GSTIN:</strong> 33AAGCF5728F1ZR | <strong>FSSAI:</strong> 12424003000676
         </div>
       </div>
-      <div class="invoice-header-right">
-        <h1 style="font-size:24px;">INVOICE</h1>
-        <span style="font-size:12px;">Invoice# ${invoiceNum}</span>
+      <div style="text-align:right;">
+        <h1 style="font-size:32px; font-weight:900; color:#1b391b; margin:0; line-height:1;">INVOICE</h1>
+        <div style="margin-top:10px; font-size:12px; color:#666;">
+          <div style="display:flex; justify-content:end; gap:8px;"><strong>Invoice#:</strong> <span style="color:#111; font-weight:700;">${invoiceNum}</span></div>
+          <div style="display:flex; justify-content:end; gap:8px;"><strong>Date:</strong> <span style="color:#111; font-weight:700;">${date}</span></div>
+        </div>
       </div>
     </div>
 
-    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:12px;">
-      <div>
-        <div style="color:#888; margin-bottom:2px;">Bill To</div>
-        <div style="font-weight:900; color:#111; font-size:14px;">${order.name || order.company_name || 'Valued Customer'}</div>
-        <div style="margin-top:5px; color:#888;">Place Of Supply: ${order.state || 'Local'}</div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin-bottom:25px;">
+      <div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+        <div style="font-size:10px; text-transform:uppercase; color:#64748b; font-weight:900; letter-spacing:1px; margin-bottom:8px;">Bill To</div>
+        <div style="font-size:16px; font-weight:900; color:#1b391b; margin-bottom:4px;">${order.name || order.company_name || 'Valued Customer'}</div>
+        <div style="font-size:12px; color:#475569; line-height:1.4;">
+          ${order.address || ''}<br>
+          ${order.city || ''} ${order.pincode || ''}<br>
+          <strong>POS:</strong> ${order.state || 'Tamil Nadu'}
+        </div>
+      </div>
+      <div style="padding:15px;">
+        <div style="font-size:10px; text-transform:uppercase; color:#64748b; font-weight:900; letter-spacing:1px; margin-bottom:8px;">Ship To</div>
+        <div style="font-size:13px; color:#1b391b; font-weight:700;">${order.name || 'Same as Billing'}</div>
+        <div style="font-size:12px; color:#475569; line-height:1.4; margin-top:4px;">
+          ${order.address || 'Standard Delivery Address'}
+        </div>
       </div>
     </div>
 
-    <div style="background:#444; color:white; padding:6px 10px; font-size:11px; margin-bottom:5px;">Invoice Date</div>
-    <div style="margin-bottom:15px; font-size:12px;">${date}</div>
-
-    <table class="invoice-table" style="margin: 10px 0;">
+    <table style="width:100%; border-collapse:collapse; margin-bottom:30px; font-size:12px;">
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Item & Description</th>
-          <th>HSN/SAC</th>
-          <th>Qty</th>
-          <th>Rate</th>
-          <th>IGST</th>
-          <th>Amount</th>
+        <tr style="background:#1b391b; color:white;">
+          <th style="padding:12px; text-align:left; border:1px solid #1b391b;">#</th>
+          <th style="padding:12px; text-align:left; border:1px solid #1b391b;">Item Description</th>
+          <th style="padding:12px; text-align:center; border:1px solid #1b391b;">HSN</th>
+          <th style="padding:12px; text-align:center; border:1px solid #1b391b;">Qty</th>
+          <th style="padding:12px; text-align:right; border:1px solid #1b391b;">Rate</th>
+          <th style="padding:12px; text-align:right; border:1px solid #1b391b;">Tax (5%)</th>
+          <th style="padding:12px; text-align:right; border:1px solid #1b391b;">Amount</th>
         </tr>
       </thead>
       <tbody>
@@ -2520,37 +2546,43 @@ window.viewDetailedInvoice = async function(id) {
       </tbody>
     </table>
 
-    <div style="display:flex; flex-direction:column; align-items:flex-end; margin-top:10px; font-size:13px; gap:4px;">
-      <div style="display:flex; width:220px; justify-content:space-between;">
-        <span style="color:#888;">Sub Total</span>
-        <span>${subtotal.toFixed(2)}</span>
+    <div style="display:flex; justify-content:space-between; align-items:start;">
+      <div style="flex:1;">
+        <div style="font-size:11px; color:#64748b; margin-bottom:4px;">Total In Words:</div>
+        <div style="font-size:13px; font-weight:900; color:#1b391b;">${numberToWords(total)}</div>
+        
+        <div style="margin-top:25px; font-size:11px; color:#475569;">
+          <strong style="color:#1b391b; display:block; margin-bottom:4px;">Terms & Conditions:</strong>
+          1. Goods once sold will not be taken back.<br>
+          2. Interest @18% p.a will be charged if not paid within due date.
+        </div>
       </div>
-      <div style="display:flex; width:220px; justify-content:space-between;">
-        <span style="color:#888;">Total Taxable Amount</span>
-        <span>${subtotal.toFixed(2)}</span>
-      </div>
-      <div style="display:flex; width:220px; justify-content:space-between;">
-        <span style="color:#888;">IGST5 (5%)</span>
-        <span>${tax.toFixed(2)}</span>
-      </div>
-      <div style="display:flex; width:220px; justify-content:space-between; background:#f5f5f5; padding:8px 12px; font-weight:900; margin-top:2px; border-radius:4px;">
-        <span>Total</span>
-        <span>₹${total.toFixed(2)}</span>
+      
+      <div style="width:280px;">
+        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #e2e8f0;">
+          <span style="color:#64748b;">Sub Total</span>
+          <span style="font-weight:700;">₹${subtotal.toFixed(2)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #e2e8f0;">
+          <span style="color:#64748b;">IGST (5%)</span>
+          <span style="font-weight:700;">₹${tax.toFixed(2)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:12px; background:#1b391b; color:white; border-radius:6px; margin-top:10px;">
+          <span style="font-weight:700; font-size:16px;">Total</span>
+          <span style="font-weight:900; font-size:20px;">₹${total.toFixed(2)}</span>
+        </div>
       </div>
     </div>
 
-    <div style="margin-top:10px; text-align:right; font-size:11px; font-style:italic;">
-      <span style="color:#888;">Total In Words:</span> 
-      <div style="font-weight:700;">${numberToWords(total)}</div>
-    </div>
-
-    <div style="margin-top:25px; font-size:11px; color:#444; line-height:1.4;">
-      <strong>Bank Details:</strong> SBI, Ganapathy Branch | <strong>A/c:</strong> 44555793034 | <strong>IFSC:</strong> SBIN0003690
-    </div>
-
-    <div style="margin-top:20px; display:flex; flex-direction:column; align-items:flex-end;">
-      <div style="font-size:10px; margin-bottom:15px;">For, Farmmily Agro Infra Developers Pvt.Ltd.</div>
-      <div style="border-top:1px solid #111; width:160px; text-align:center; padding-top:4px; font-size:10px;">Authorized Signature</div>
+    <div style="margin-top:40px; border-top:1px solid #e2e8f0; padding-top:20px; display:flex; justify-content:space-between; align-items:end;">
+      <div style="font-size:11px; color:#475569;">
+        <strong style="color:#1b391b;">Bank Information:</strong><br>
+        SBI, Ganapathy Branch | A/c: 44555793034 | IFSC: SBIN0003690
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px; color:#64748b; margin-bottom:40px;">For Farmmily Agro Infra Developers Pvt Ltd</div>
+        <div style="font-weight:900; color:#111; font-size:12px; border-top:1px solid #111; display:inline-block; padding:8px 20px 0;">Authorized Signature</div>
+      </div>
     </div>
   `;
 
