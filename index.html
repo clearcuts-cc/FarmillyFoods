@@ -11,10 +11,12 @@
   <link rel="shortcut icon" type="image/svg+xml" href="assets/favicon.svg">
 
   <!-- Primary Meta Tags -->
-  <title>Farmmily Farms | Heritage Harvest Organic Mangoes, A2 Ghee & Raw Honey</title>
-  <meta name="title" content="Farmmily Farms | Heritage Harvest Organic Mangoes, A2 Ghee & Raw Honey">
-   <meta name="description"
-    content="Official Farmmily Foods Boutique. Shop legendary Imam Pasand & Alphonso mangoes, purity-verified A2 Ghee, Raw Honey, and Organic Spices. Heritage estate harvest delivered fresh in 2026.">
+  <title>Farmmily Farms | Buy Organic Mangoes, A2 Ghee & Raw Honey Online</title>
+  <meta name="title" content="Farmmily Farms | Buy Organic Mangoes, A2 Ghee & Raw Honey Online">
+  <meta name="description"
+    content="Experience the legendary purity of Farmmily Farms. Shop 100% organic Imam Pasand mangoes, Alphonso, purity-verified A2 Ghee, and Raw Honey. Farm-to-table delivery from our heritage estates.">
+  <meta name="robots" content="index, follow">
+  <meta name="revisit-after" content="2 days">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -59,9 +61,9 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://farmmilyfoods.com/">
-  <meta property="og:title" content="Farmmily Farms ₹ From Our Farm, To Your Family">
+  <meta property="og:title" content="Farmmily Farms ₹ Heritage Harvest Organic Mangoes & Ghee">
   <meta property="og:description"
-    content="Shop certified organic A2 ghee, raw honey, and heritage mangoes. Pure, sustainable, and delivered fresh.">
+    content="Shop the 2026 harvest! Pure organic Imam Pasand mangoes, A2 Ghee, and Raw Honey direct from our private estates. Sustainable harvest, legendary purity.">
   <meta property="og:image" content="https://farmmilyfoods.com/assets/og-preview.jpg">
 
   <!-- Twitter -->
@@ -73,6 +75,51 @@
   <meta property="twitter:image" content="https://farmmilyfoods.com/assets/og-preview.jpg">
 
   <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://farmmilyfoods.com/"
+    },{
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Shop",
+      "item": "https://farmmilyfoods.com/shop"
+    },{
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Mangoes",
+      "item": "https://farmmilyfoods.com/mangoes"
+    }]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "Are Farmmily mangoes organic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, all our mangoes are grown using 100% natural, sustainable farming practices on our own heritage estates. We do not use chemical fertilizers or artificial ripening agents."
+      }
+    }, {
+      "@type": "Question",
+      "name": "How long does shipping take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We typically dispatch orders within 24-48 hours of harvest. Domestic delivery usually takes 3 to 7 business days depending on your location."
+      }
+    }]
+  }
+  </script>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -193,6 +240,18 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
+    @media print {
+      @page { size: auto; margin: 0; }
+      body > *:not(#invoice-modal) { display: none !important; }
+      footer, header, nav, section, .page, #site-footer, #header, #mob-nav, #mob-menu, #offer-banner, #floating-cart-bar { display: none !important; }
+      #invoice-modal { 
+        position: static !important; display: block !important; width: 100% !important; 
+        margin: 0 !important; padding: 20mm !important; border: none !important; box-shadow: none !important;
+        overflow: visible !important;
+      }
+      #invoice-modal .no-print { display: none !important; }
+      #invoice-modal * { visibility: visible !important; }
+    }
     :root {
       --primary: #0a1a0a;
       --secondary: #D4AF37;
@@ -6553,7 +6612,7 @@
         <h4>Shop</h4>
         <ul>
           <li><a onclick="filterBycat('Mangoes')" style="cursor:pointer;">Mangoes</a></li>
-          <li><a onclick="filterBycat('Honey')">Honey</a></li>
+          <li><a onclick="filterBycat('Honey & Jaggery')" style="cursor:pointer;">Honey</a></li>
           <li><a onclick="showPage('track')">Track Order</a></li>
         </ul>
       </div>
@@ -7466,6 +7525,27 @@
       <!-- Dyn contents -->
     </div>
   </div>
+
+  <!-- PROFESSIONAL INVOICE MODAL -->
+  <div id="invoice-overlay" onclick="window.closeInvoice()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); z-index:9500;"></div>
+  <div id="invoice-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:95%; max-width:800px; max-height:90vh; background:white; border-radius:12px; z-index:9501; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif;">
+    <div style="padding:20px; position:relative;" id="invoice-printable-area">
+      <!-- Content populated by JS -->
+    </div>
+    <div style="padding:20px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:center; background:#f9fafb;" class="no-print">
+      <button onclick="window.printInvoice()" style="background:#1b391b; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Print Invoice</button>
+      <button onclick="window.closeInvoice()" style="background:#f1f5f9; color:#444; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Close</button>
+    </div>
+  </div>
+
+  <style>
+    .invoice-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
+    .invoice-table th { background: #444; color: white; padding: 6px; text-align: left; }
+    .invoice-table td { border-bottom: 1px solid #eee; padding: 8px 6px; color: #333; }
+    .invoice-header-right { text-align: right; }
+    .invoice-header-right h1 { font-size: 22px; font-weight: 400; color: #111; margin: 0; }
+    .invoice-header-right span { color: #888; font-size: 11px; }
+  </style>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

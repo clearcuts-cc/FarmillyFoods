@@ -757,99 +757,67 @@ window.contactViaWhatsApp = function () {
   }
 
   const { name, email, phone, message } = result.cleaned;
-  const waMessage =
-    `Hello Farmmily Foods,\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`
-    ;
+  const waMessage = `Hello Farmmily Foods,\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`;
   openSupportWhatsApp(waMessage);
 };
 
 // ===== ROUTING =====
 function showPage(page, push = true) {
-  const pages = document.querySelectorAll('.page');
-  pages.forEach(p => {
-    p.classList.remove('active');
-    p.style.display = 'none';
-  });
-
-  const el = document.getElementById('page-' + page);
-  if (el) {
-    el.style.display = 'block';
-    setTimeout(() => el.classList.add('active'), 10);
-    prevPage = curPage;
-    curPage = page;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (typeof window.closePremiumDetail === 'function') window.closePremiumDetail(false);
-    if (typeof window.closeCartDrawer === 'function') window.closeCartDrawer(false);
-    if (typeof window.closeCrateSheet === 'function') window.closeCrateSheet(false);
-    if (typeof window.closeVariantSheet === 'function') window.closeVariantSheet();
-
-    // --- Update Nav Bar Active State ---
-    const navItems = document.querySelectorAll('.mob-nav-item');
-    navItems.forEach(item => {
-      const onclick = item.getAttribute('onclick') || '';
-      if (onclick.includes(`'${page}'`)) {
-        item.classList.add('active');
-      } else {
-        item.classList.remove('active');
-      }
+  try {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(p => {
+      p.classList.remove('active');
+      p.style.display = 'none';
+      p.style.opacity = '0';
     });
 
-    // --- Dynamic SEO Tracking ---
-    const pageTitles = {
-      'home': 'Farmmily Farms - Premium Organic Mangoes & A2 Ghee',
-      'shop': 'Shop Online - Organic Heritage Mangoes & Farm Fresh Goods',
-      'corporate': 'Corporate Gifting - Bespoke Mango Crates & Luxury Hampers',
-      'track': 'Track Your Order - Farmmily Delivery Status',
-      'contact': 'Contact Farmmily - Support & Enquiries',
-      'refund-policy': 'Refund Policy - Farmmily Farms and Foods',
-      'shipping-policy': 'Shipping Policy - Farmmily Farms and Foods',
-      'cart': 'Your Shopping Cart - Farmmily Boutique',
-      'success': 'Order Success - Farmmily Foods'
-    };
-    const pageDescs = {
-      'home': 'Direct from our estates to your family. Experience the legendary purity of our seasonal harvest.',
-      'shop': 'Explore our collection of Imam Pasand, Alphonso, and Banganapalli mangoes along with artisan ghee.',
-      'corporate': 'Premium B2B gifting solutions. Hand-curated mango boxes for your brand partners.',
-      'track': 'Enter your order number or enquiry reference to track your farm-fresh delivery live.',
-      'contact': 'Contact Farmmily Foods for product questions, order help, gifting support, or wholesale enquiries.',
-      'refund-policy': 'Farmmily refund policy: no refunds, replacement only after support review for eligible issues.',
-      'shipping-policy': 'Farmmily shipping policy: orders are typically delivered within 3 to 10 days depending on destination and product readiness.',
-      'cart': 'Complete your purchase of heritage products from Farmmily Farms.',
-      'success': 'Thank you for your order! Your harvest is being prepared.'
-    };
+    const el = document.getElementById('page-' + page);
+    if (el) {
+      el.style.display = 'block';
+      setTimeout(() => {
+        el.classList.add('active');
+        el.style.opacity = '1';
+      }, 50);
+      prevPage = curPage || 'home';
+      curPage = page;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      if (typeof window.closePremiumDetail === 'function') window.closePremiumDetail(false);
+      if (typeof window.closeCartDrawer === 'function') window.closeCartDrawer(false);
+      if (typeof window.closeCrateSheet === 'function') window.closeCrateSheet(false);
+      if (typeof window.closeVariantSheet === 'function') window.closeVariantSheet();
 
-    if (pageTitles[page]) document.title = pageTitles[page];
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc && pageDescs[page]) metaDesc.setAttribute('content', pageDescs[page]);
-    // ----------------------------
+      // --- Update Nav Bar Active State ---
+      document.querySelectorAll('.mob-nav-item, #desktop-nav a, .mob-menu-item').forEach(item => {
+        const onclick = item.getAttribute('onclick') || '';
+        if (onclick.includes(`'${page}'`)) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
 
-    // Sync URL
-    if (push) {
-      const path = page === 'home' ? '/' : '/' + page;
-      syncUrl(path);
+      // Sync URL
+      if (push) {
+        const path = page === 'home' ? '/' : '/' + page;
+        syncUrl(path);
+      }
+    } else {
+      console.warn(`Page element 'page-${page}' not found.`);
     }
 
-    document.querySelectorAll('#mob-nav .mob-nav-item, #desktop-nav a, .mob-menu-item').forEach(a => {
-      const oc = a.getAttribute('onclick') || '';
-      if (oc.includes(`'${page}'`)) a.classList.add('active');
-      else a.classList.remove('active');
-    });
-  }
+    if (page === 'home') renderHome();
+    if (page === 'shop') renderShop();
+    if (page === 'cart') renderCart();
 
-  if (page === 'home') renderHome();
-  if (page === 'shop') renderShop();
-  if (page === 'cart') renderCart();
-
-  closeMob();
-  if (page !== 'cart' && typeof window.closeCartDrawer === 'function' && isCartDrawerOpen) {
-    window.closeCartDrawer(false);
+    closeMob();
+    if (page !== 'cart' && typeof window.closeCartDrawer === 'function' && isCartDrawerOpen) {
+      window.closeCartDrawer(false);
+    }
+  } catch (err) {
+    console.error("Navigation error:", err);
+    showToast('Something went wrong. Refreshing...');
   }
-
-  // Close detail view if open when switching pages (safety)
-  if (page !== 'product' && typeof window.closePremiumDetail === 'function') {
-    window.closePremiumDetail(false); // pass false to not update URL again
-  }
-  updateCartCount();
 }
 window.showPage = showPage;
 
@@ -1179,14 +1147,19 @@ function renderHome() {
 
 // ===== SHOP =====
 function renderShop() {
-  const chips = document.getElementById('shop-cats-row');
-  if (chips) {
-    const list = ['All', ...cats.map(c => c.name)];
-    chips.innerHTML = list.map(c =>
-      '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
-    ).join('');
+  try {
+    const chips = document.getElementById('shop-cats-row');
+    const safeCats = Array.isArray(cats) ? cats : [];
+    if (chips) {
+      const list = ['All', ...safeCats.map(c => c.name)];
+      chips.innerHTML = list.map(c =>
+        '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
+      ).join('');
+    }
+    filterProds();
+  } catch (err) {
+    console.error("renderShop error:", err);
   }
-  filterProds();
 }
 
 function setFilter(cat) {
@@ -1742,6 +1715,16 @@ function updateSEO(title, description) {
 }
 
 function filterBycat(c, push = true) {
+  // Gracefully resolve partial category names (e.g., 'Honey' -> 'Honey & Jaggery')
+  if (c !== 'All') {
+    const list = window.cats || (typeof cats !== 'undefined' ? cats : []);
+    const found = list.find(cat => 
+      cat.name.toLowerCase() === c.toLowerCase() || 
+      cat.name.toLowerCase().includes(c.toLowerCase())
+    );
+    if (found) c = found.name;
+  }
+
   activeFilter = c;
   showPage('shop', false);
 
@@ -2413,10 +2396,10 @@ function renderTrackResult(data, type, container) {
       </div>
 
       <div style="margin-top:32px; display:flex; gap:12px; align-items:center;">
-        <button onclick="window.print()" style="flex:1; background:#f1f5f9; color:#475569; border:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg> Save PDF / Print
+        <button onclick="window.viewDetailedInvoice('${data.id || data.order_number || data.enquiry_ref}')" style="flex:1; background:#1b391b; color:white; border:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg> Professional Invoice
         </button>
-        <a href="https://wa.me/917358952051" style="flex:1.5; background:#1b391b; color:white; text-decoration:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px;">
+        <a href="https://wa.me/917358952051" style="flex:1.5; background:#f1f5f9; color:#1b391b; text-decoration:none; padding:12px; border-radius:14px; font-size:12px; font-weight:700; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px;">
            Farmmily Support
         </a>
       </div>
@@ -2425,18 +2408,190 @@ function renderTrackResult(data, type, container) {
   `;
 }
 
+// ===== PROFESSIONAL INVOICE LOGIC =====
+window.viewDetailedInvoice = async function(id) {
+  let order;
+  if (!id) { showToast('Invalid Order ID'); return; }
+  
+  showToast('Generating professional invoice...');
+  const cleanId = String(id).replace('FM-', '').replace('CE-', '').replace('#', '').trim();
+  
+  try {
+    // 1. Try regular orders (by order_number or numeric id)
+    let { data: stdData } = await supabaseClient.from('orders').select('*, order_items(*)').eq('order_number', cleanId).maybeSingle();
+    if (!stdData && !isNaN(cleanId)) {
+      const { data: stdIdData } = await supabaseClient.from('orders').select('*, order_items(*)').eq('id', cleanId).maybeSingle();
+      stdData = stdIdData;
+    }
+    
+    if (stdData) {
+      order = { ...stdData, type: 'ORDER' };
+    } else {
+      // 2. Try corporate orders (by enquiry_ref or numeric id)
+      let { data: corpData } = await supabaseClient.from('corporate_orders').select('*').eq('enquiry_ref', cleanId).maybeSingle();
+      if (!corpData && !isNaN(cleanId)) {
+        const { data: corpIdData } = await supabaseClient.from('corporate_orders').select('*').eq('id', cleanId).maybeSingle();
+        corpData = corpIdData;
+      }
+      if (corpData) order = { ...corpData, type: 'CORPORATE' };
+    }
+  } catch (err) {
+    console.error("Invoice fetch error:", err);
+    showToast('Network error while generating invoice.');
+    return;
+  }
+
+  if (!order) { 
+    showToast(`Order ${id} not found in database.`); 
+    return; 
+  }
+
+  const container = document.getElementById('invoice-printable-area');
+  const overlay = document.getElementById('invoice-overlay');
+  const modal = document.getElementById('invoice-modal');
+
+  const date = new Date(order.created_at || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const invoiceNum = `2026-2027/${String(order.id).padStart(3, '0')}`;
+  
+  const subtotal = order.subtotal || (order.total - (order.delivery_charge || 0));
+  const tax = Math.round(subtotal * 0.05); // 5% IGST
+  const total = order.total;
+
+  let itemsHTML = '';
+  if (order.type === 'ORDER' && order.order_items) {
+    itemsHTML = order.order_items.map((item, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td>${item.product_name}</td>
+        <td>040900</td>
+        <td>${item.quantity}.00</td>
+        <td>${(item.unit_price || item.total_price / item.quantity).toFixed(2)}</td>
+        <td>${(item.total_price * 0.05).toFixed(2)}<br><span style="font-size:10px;color:#888;">5%</span></td>
+        <td>${item.total_price.toFixed(2)}</td>
+      </tr>
+    `).join('');
+  } else {
+    // Corporate fallback
+    itemsHTML = `<tr><td>1</td><td>${order.total_units} Crates Harvest Mix</td><td>040900</td><td>${order.total_units}.00</td><td>${(subtotal/order.total_units).toFixed(2)}</td><td>${(subtotal*0.05).toFixed(2)}<br><span style="font-size:10px;color:#888;">5%</span></td><td>${subtotal.toFixed(2)}</td></tr>`;
+  }
+
+  container.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+      <div>
+        <img src="assets/farmmily logo.png" style="height:45px; margin-bottom:10px;" onerror="this.src='https://jztreusepxilnfqffwka.supabase.co/storage/v1/object/public/assets/farmmily%20logo.png'">
+        <div style="font-size:11px; color:#444; line-height:1.4; font-weight:700;">
+          FARMMILY AGRO INFRA DEVELOPERS PRIVATE LIMITED<br>
+          <span style="font-weight:400;">#57 CK Colony, NEW SIDDHAPUDUR<br>
+          Coimbatore Tamil Nadu 641044, India<br>
+          GSTIN 33AAGCF5728F1ZR</span>
+        </div>
+      </div>
+      <div class="invoice-header-right">
+        <h1 style="font-size:24px;">INVOICE</h1>
+        <span style="font-size:12px;">Invoice# ${invoiceNum}</span>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:12px;">
+      <div>
+        <div style="color:#888; margin-bottom:2px;">Bill To</div>
+        <div style="font-weight:900; color:#111; font-size:14px;">${order.name || order.company_name || 'Valued Customer'}</div>
+        <div style="margin-top:5px; color:#888;">Place Of Supply: ${order.state || 'Local'}</div>
+      </div>
+    </div>
+
+    <div style="background:#444; color:white; padding:6px 10px; font-size:11px; margin-bottom:5px;">Invoice Date</div>
+    <div style="margin-bottom:15px; font-size:12px;">${date}</div>
+
+    <table class="invoice-table" style="margin: 10px 0;">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item & Description</th>
+          <th>HSN/SAC</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th>IGST</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHTML}
+      </tbody>
+    </table>
+
+    <div style="display:flex; flex-direction:column; align-items:flex-end; margin-top:10px; font-size:13px; gap:4px;">
+      <div style="display:flex; width:220px; justify-content:space-between;">
+        <span style="color:#888;">Sub Total</span>
+        <span>${subtotal.toFixed(2)}</span>
+      </div>
+      <div style="display:flex; width:220px; justify-content:space-between;">
+        <span style="color:#888;">Total Taxable Amount</span>
+        <span>${subtotal.toFixed(2)}</span>
+      </div>
+      <div style="display:flex; width:220px; justify-content:space-between;">
+        <span style="color:#888;">IGST5 (5%)</span>
+        <span>${tax.toFixed(2)}</span>
+      </div>
+      <div style="display:flex; width:220px; justify-content:space-between; background:#f5f5f5; padding:8px 12px; font-weight:900; margin-top:2px; border-radius:4px;">
+        <span>Total</span>
+        <span>₹${total.toFixed(2)}</span>
+      </div>
+    </div>
+
+    <div style="margin-top:10px; text-align:right; font-size:11px; font-style:italic;">
+      <span style="color:#888;">Total In Words:</span> 
+      <div style="font-weight:700;">${numberToWords(total)}</div>
+    </div>
+
+    <div style="margin-top:25px; font-size:11px; color:#444; line-height:1.4;">
+      <strong>Bank Details:</strong> SBI, Ganapathy Branch | <strong>A/c:</strong> 44555793034 | <strong>IFSC:</strong> SBIN0003690
+    </div>
+
+    <div style="margin-top:20px; display:flex; flex-direction:column; align-items:flex-end;">
+      <div style="font-size:10px; margin-bottom:15px;">For, Farmmily Agro Infra Developers Pvt.Ltd.</div>
+      <div style="border-top:1px solid #111; width:160px; text-align:center; padding-top:4px; font-size:10px;">Authorized Signature</div>
+    </div>
+  `;
+
+  overlay.style.display = 'block';
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeInvoice = function() {
+  document.getElementById('invoice-overlay').style.display = 'none';
+  document.getElementById('invoice-modal').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.printInvoice = function() {
+  window.print();
+};
+
+function numberToWords(num) {
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+  
+  function convert(n) {
+    if (n < 20) return ones[n];
+    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
+    if (n < 1000) return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convert(n % 100) : '');
+    return '';
+  }
+
+  if (num === 0) return 'Zero';
+  let words = 'Indian Rupee ' + convert(Math.floor(num)) + ' Only';
+  return words;
+}
+
 window.openLatestInvoice = function () {
   const id = (document.getElementById('succ-oid')?.textContent || '').replace('#', '').trim();
   if (!id) {
     showToast('Invoice not ready yet.');
     return;
   }
-  showPage('track');
-  setTimeout(() => {
-    const input = document.getElementById('tr-oid');
-    if (input) input.value = id;
-    handleTrack(id);
-  }, 180);
+  window.viewDetailedInvoice(id);
 };
 function renderMultiOrderResults(orders, container) {
   const html = orders.map(o => {
@@ -2474,49 +2629,7 @@ window.renderOneOrder = function (id) {
   handleTrack(id);
 };
 
-async function initApp() {
-  await fetchDeliveryConfig();
-  await loadCategories();
-  await loadProducts();
-  showPage('home');
-  updateCartCount();
 
-  // Realtime Subscriptions
-  if (supabaseClient) {
-    supabaseClient
-      .channel('public:products')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, payload => {
-        console.log('Product update detected, refreshing...', payload);
-        loadProducts(); // Re-fetch and re-render
-      })
-      .subscribe();
-
-    supabaseClient
-      .channel('public:product_variants')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, payload => {
-        console.log('Product variant update detected, refreshing...', payload);
-        loadProducts();
-      })
-      .subscribe();
-
-    supabaseClient
-      .channel('public:categories')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, payload => {
-        loadCategories();
-      })
-      .subscribe();
-
-    supabaseClient
-      .channel('public:catalog_sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, payload => {
-        if (payload?.new?.key === 'product_catalog_sync' || payload?.old?.key === 'product_catalog_sync') {
-          console.log('Catalog sync signal detected, refreshing products...', payload);
-          loadProducts();
-        }
-      })
-      .subscribe();
-  }
-}
 
 function openSearch() {
   const hdr = document.getElementById('header');
