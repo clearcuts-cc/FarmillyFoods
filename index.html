@@ -6462,7 +6462,7 @@
       <div class="fcol">
         <h4>Shop</h4>
         <ul>
-          <li><a onclick="showPage('shop')">Mangoes</a></li>
+          <li><a onclick="filterBycat('Mangoes')" style="cursor:pointer;">Mangoes</a></li>
           <li><a onclick="filterBycat('Honey')">Honey</a></li>
           <li><a onclick="showPage('track')">Track Order</a></li>
         </ul>
@@ -6769,13 +6769,13 @@
           style="background:#fdfcf8; padding:4px 10px; border-radius:8px; border:1px solid #f0e6c8; display:flex; align-items:center; gap:4px;">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-          </svg> 4.5
+          </svg> <span id="pd-rating">4.5</span>
         </span>
         <span
           style="background:#f0fdf4; color:#1b6b5b; padding:4px 10px; border-radius:8px; border:1px solid #dcfce7; display:flex; align-items:center; gap:4px; font-size:10px; text-transform:uppercase;">
           <span class="live-dot"></span> Freshly Harvested Today
         </span>
-        <span style="color:#aaa; font-weight:400; font-family:'Inter', sans-serif;">(128 Verified Reviews)</span>
+        <span id="pd-reviews" style="color:#aaa; font-weight:400; font-family:'Inter', sans-serif;">(128 Verified Reviews)</span>
       </div>
       <h1 class="pd-title" id="pd-title"
         style="font-family:'Playfair Display', serif; font-size:24px; font-weight:900; color:#1b391b; margin-bottom:24px; letter-spacing:-0.5px; line-height:1.2;">
@@ -6993,6 +6993,15 @@
 
         title.innerText = cap(cleanVariety).replace(/ mangoes/i, '') + (cleanVariety.toLowerCase().includes('mango') ? ' Mangoes' : '');
         desc.innerText = mangoDescriptions[cleanVariety] || variants[0].desc || 'Premium quality selection harvested fresh from our heritage farms.';
+
+        const ratingEl = document.getElementById('pd-rating');
+        if (ratingEl) ratingEl.innerText = variants[0].rating ? Number(variants[0].rating).toFixed(1) : '5.0';
+        
+        const reviewsEl = document.getElementById('pd-reviews');
+        if (reviewsEl) {
+            const revCount = variants[0].revs || 128;
+            reviewsEl.innerText = `(${revCount} Verified Reviews)`;
+        }
 
         selectedPdVariant = variants[0];
         hero.src = imageUrl || variants[0].img;

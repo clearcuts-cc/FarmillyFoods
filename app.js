@@ -39,17 +39,13 @@ function calculateVariantPrice(basePricePerKg, weightKg) {
 }
 
 function getPerKgRate(product = {}) {
-  const directBase = Number(product.basePricePerKg ?? product.base_price_per_kg ?? 0);
-  if (Number.isFinite(directBase) && directBase > 0) return directBase;
-
   const price = Number(product.price || 0);
-  const weight = Number(product.weightKg || 0);
+  const weight = Number(product.weightKg || (product.wt ? parseFloat(product.wt) : 0) || 0);
+  
   if (price > 0 && weight > 0) return Math.round(price / weight);
 
-  if (window.getUnitPrice && product.price && product.wt) {
-    const unitInfo = window.getUnitPrice(product.price, product.wt);
-    return Number(unitInfo?.rate || 0);
-  }
+  const directBase = Number(product.basePricePerKg ?? product.base_price_per_kg ?? 0);
+  if (Number.isFinite(directBase) && directBase > 0) return directBase;
 
   return 0;
 }
@@ -980,6 +976,10 @@ function pcardHTML(p) {
     const avgPerKgRate = perKgRates.length
       ? Math.round(perKgRates.reduce((sum, rate) => sum + rate, 0) / perKgRates.length)
       : 0;
+    const ratingVal = parseFloat(p.rating || 5.0);
+    const revsCount = parseInt(p.revs || 0);
+    const starsHtml = '★'.repeat(Math.round(ratingVal)) + '☆'.repeat(5 - Math.round(ratingVal));
+
     return `<div class="premium-mango-card" onclick="window.openCrateBuilder()">
             <div class="m-img-wrap" style="background: #e0f2f1;">
               <img src="assets/side-01.png" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
@@ -991,8 +991,8 @@ function pcardHTML(p) {
               <div class="m-top-row">
                 <div class="m-wt-tag">3-5 KG</div>
                 <div class="m-stats">
-                  <div class="m-stars">★★★★★</div>
-                  <span class="m-rating-val">5.0</span>
+                  <div class="m-stars">${starsHtml}</div>
+                  <span class="m-rating-val">${ratingVal.toFixed(1)} <span style="font-size:10px; color:#94a3b8; font-weight:500;">(${revsCount})</span></span>
                 </div>
               </div>
               <h3 class="m-title" style="margin-bottom:0px;">Custom Heritage Mango Crate</h3>
@@ -1053,7 +1053,11 @@ function pcardHTML(p) {
     </div>`));
 
   // Product card click now opening full beautiful details
+  // Product card click now opening full beautiful details
   const cardOnclick = `window.showProduct(${p.id})`;
+  const ratingVal = parseFloat(p.rating || 5.0);
+  const revsCount = parseInt(p.revs || 0);
+  const starsHtml = '★'.repeat(Math.round(ratingVal)) + '☆'.repeat(5 - Math.round(ratingVal));
 
   return `
     <div class="premium-mango-card" onclick="${cardOnclick}">
@@ -1065,8 +1069,8 @@ function pcardHTML(p) {
         <div class="m-info">
             <div class="m-top-row">
                 <div class="m-stats">
-                    <div class="m-stars">★★★★★</div>
-                    <span class="m-rating-val">${p.rating || '5.0'}</span>
+                    <div class="m-stars">${starsHtml}</div>
+                    <span class="m-rating-val">${ratingVal.toFixed(1)} <span style="font-size:10px; color:#94a3b8; font-weight:500;">(${revsCount})</span></span>
                 </div>
                 <div class="m-wt-tag" style="display:inline-block !important; cursor:pointer;" onclick="event.stopPropagation(); window.openVariantSheet(event, '${p.name.replace(/'/g, "\\'")}',[${hasOptions ? variants.map(v => v.id).join(',') : p.id}])">${hasOptions ? variants.length + ' OPTIONS' : v0.wt}</div>
             </div>
@@ -1913,12 +1917,16 @@ async function loadProducts() {
       review_count,
       base_price_per_kg,
       compare_at_price_per_kg,
+      price,
+      original_price,
+      weight,
+      in_stock,
+      stock_count,
       product_variants (
         id,
-        weight_kg,
-        stock_count,
-        is_active,
-        sort_order
+        label,
+        quantity_kg,
+        is_default
       )
     `)
     .eq('is_active', true)
@@ -2005,7 +2013,7 @@ function handleDynamicProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
   const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'assets/side-01.png' };
   const flatVariants = [];
-  const groupedProducts = [];
+  const groupedProducts = {};
 
   (data || []).forEach(product => {
     const basePricePerKg = Number(product.base_price_per_kg || 0);
@@ -2020,15 +2028,12 @@ function handleDynamicProducts(data) {
     }
     const category = cats.find(c => c.id === product.category_id)?.name || 'Products';
 
-    const variants = (product.product_variants || [])
-      .filter(v => v && v.is_active !== false && Number(v.stock_count || 0) > 0)
-      .sort((a, b) => {
-        const sortDelta = Number(a.sort_order || 0) - Number(b.sort_order || 0);
-        return sortDelta !== 0 ? sortDelta : Number(a.weight_kg || 0) - Number(b.weight_kg || 0);
-      })
+    let variants = (product.product_variants || [])
+      .filter(v => v)
+      .sort((a, b) => Number(a.quantity_kg || 0) - Number(b.quantity_kg || 0))
       .map(v => {
-        const weightKg = Number(v.weight_kg || 0);
-        const variant = {
+        const weightKg = Number(v.quantity_kg || 0);
+        return {
           id: v.id,
           variantId: v.id,
           productId: product.id,
@@ -2040,37 +2045,70 @@ function handleDynamicProducts(data) {
           wt: formatWeightLabel(weightKg),
           weightKg,
           img: img || 'assets/placeholder.png',
-          inStock: Number(v.stock_count || 0) > 0,
-          stockCount: Number(v.stock_count || 0),
+          inStock: product.in_stock !== false, // Fallback to product level in_stock
+          stockCount: Number(product.stock_count || 0),
           cat: category,
           rating: product.rating || 5.0,
           revs: product.review_count || 10,
           desc: getProductDescription(product),
           isFeatured: product.is_featured
         };
-        flatVariants.push(variant);
-        return variant;
       });
 
-    if (!variants.length) return;
+    if (!variants.length) {
+      const pPrice = Number(product.price || 0);
+      const pOrig = Number(product.original_price || 0);
+      variants = [{
+        id: product.id,
+        variantId: product.id,
+        productId: product.id,
+        name: cap(product.name),
+        rawName: product.name,
+        price: pPrice,
+        originalPrice: pOrig > pPrice ? pOrig : null,
+        basePricePerKg: basePricePerKg || pPrice,
+        wt: product.weight || '1kg',
+        weightKg: parseFloat(product.weight || '1') || 1,
+        img: img || 'assets/placeholder.png',
+        inStock: product.in_stock !== false,
+        stockCount: Number(product.stock_count || 0),
+        cat: category,
+        rating: product.rating || 5.0,
+        revs: product.review_count || 10,
+        desc: getProductDescription(product),
+        isFeatured: product.is_featured
+      }];
+    }
 
-    groupedProducts.push({
-      ...variants[0],
-      id: product.id,
-      productId: product.id,
-      name: cap(product.name),
-      rawName: product.name,
-      price: variants[0].price,
-      originalPrice: variants[0].originalPrice,
-      wt: variants[0].wt,
-      img: variants[0].img,
-      inStock: variants.some(v => v.inStock),
-      variants
-    });
+    variants.forEach(variant => flatVariants.push(variant));
+
+    // Grouping by Base Name, similar to handleRawProducts
+    let baseName = product.name
+      .replace(/\(.*\)/g, '')
+      .replace(/\s+\d+\s*(kg|g|l|ml|litres|litre|lit|kilo|gram|oz|lb)\s*$/i, '')
+      .replace(/ mangoes$/i, '')
+      .replace(/ mango$/i, '')
+      .replace(/ powder$/i, '')
+      .replace(/ oil$/i, '')
+      .replace(/ ghee$/i, '')
+      .trim();
+
+    if (!groupedProducts[baseName]) {
+      groupedProducts[baseName] = { ...variants[0], name: cap(baseName), variants: [] };
+    }
+    variants.forEach(v => groupedProducts[baseName].variants.push({ ...v, name: cap(baseName) }));
+  });
+
+  Object.values(groupedProducts).forEach(g => {
+    g.variants.sort((a, b) => a.price - b.price);
+    const v0 = g.variants[0];
+    g.id = v0.id; g.price = v0.price; g.wt = v0.wt; g.img = v0.img;
+    g.originalPrice = v0.originalPrice;
+    g.inStock = g.variants.some(v => v.inStock);
   });
 
   window.products = flatVariants;
-  window.displayProducts = groupedProducts;
+  window.displayProducts = Object.values(groupedProducts);
   updateCartCount();
   syncStaticMangoPricing();
   refreshCurrentView();
