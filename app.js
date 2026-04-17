@@ -1753,9 +1753,14 @@ window.updateSEO = updateSEO;
 // ===== CLIENT-SIDE ROUTER =====
 function handleRoute() {
   const params = new URLSearchParams(window.location.search);
-  let path = (params.get('redirect') || window.location.hash.replace('#', '/') || '/').toLowerCase().replace(/\/$/, '').trim();
-  if (path === '') path = '/';
-
+  const hash = window.location.hash || '';
+  
+  // Robust path detection from redirect param OR hash OR pathname
+  let path = (params.get('redirect') || hash.replace('#', '/') || window.location.pathname || '/').toLowerCase().trim();
+  
+  // Clean up leading/trailing slashes for easier matching
+  path = ('/' + path.replace(/^\/+|\/+$/g, '')).replace('//', '/');
+  
   console.log('Router: Handling path', path);
 
   // 1. Basic Pages
@@ -1857,53 +1862,29 @@ function handleRoute() {
 window.addEventListener('popstate', (event) => {
   const state = event.state || {};
 
-  // 0. Base Trap: If we hit a non-app state or the entry point, stay within app
-  if (!state.__ff) {
-    if (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '') {
-      showPage('home', false);
-      ensureInternalHistoryState('replace', '/', { __ffBase: true });
-      ensureInternalHistoryState('push', '/', { __ffGuard: true });
-      return;
-    }
-  }
-
   // 1. Handle Overlay Closures
   if (state.__ffOverlay === 'product') {
-    // If we're moving FORWARD to a product modal state, but it's not open, open it
     if (state.productId && (!document.getElementById('premium-detail')?.classList.contains('active'))) {
       window.showProduct(state.productId, false);
     }
     return;
   }
 
-  // If we came from a product modal state back to a page state
   if (document.getElementById('premium-detail')?.classList.contains('active')) {
     window.closePremiumDetail(false);
     return;
   }
 
-  if (isCartDrawerOpen) {
+  if (typeof isCartDrawerOpen !== 'undefined' && isCartDrawerOpen) {
     window.closeCartDrawer(false);
   }
 
-  if (window.isCrateBuilderOpen?.()) {
-    window.closeCrateBuilder(false);
-  }
-
-  // 2. Handle Home Guard (Prevent Exit)
-  if (state.__ffBase) {
-    const routedPath = state.path || getCurrentInternalPath();
-    if (routedPath !== '/') {
-      showPage('home');
-    } else {
-      // Stay on home, but re-push guard
-      setTimeout(() => ensureInternalHistoryState('push', '/', { __ffGuard: true }), 0);
-    }
-    return;
-  }
-
+  // 2. Main Routing
   handleRoute();
 });
+
+window.addEventListener('hashchange', () => handleRoute());
+
 
 // showProduct is defined above
 
