@@ -926,7 +926,7 @@ function pcardHTML(p) {
       : 0;
     return `<div class="premium-mango-card" onclick="window.openCrateBuilder()">
             <div class="m-img-wrap" style="background: #e0f2f1;">
-              <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
+              <img src="assets/side-01.png" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
               <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
                 CUSTOM
               </div>
@@ -1885,7 +1885,7 @@ async function loadProducts() {
 
 function handleRawProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
+  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'assets/side-01.png' };
 
   const allProds = (data || []).map(p => {
     let img = p.image_url;
@@ -1942,7 +1942,7 @@ function handleRawProducts(data) {
 
 function handleDynamicProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop' };
+  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'assets/side-01.png' };
   const flatVariants = [];
   const groupedProducts = [];
 
@@ -2635,7 +2635,7 @@ window.addCustomCrateToCart = function () {
     id: customId,
     name: `Custom Crate (${crateLimit}kg)`,
     price: totalPrice,
-    img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?q=60&w=400&fit=crop',
+    img: 'assets/side-01.png',
     desc: `Mixed Pack: ${summary.join(', ')}`,
     wt: `${crateLimit}kg`,
     is_active: true,
