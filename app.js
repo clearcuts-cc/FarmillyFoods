@@ -144,19 +144,15 @@ function getProductDescription(product = {}) {
 }
 
 function getCurrentInternalPath() {
-  const rawPath = window.location.pathname || '/';
-  if (rawPath.endsWith('/index.html')) return '/';
-  return rawPath || '/';
+  const hash = window.location.hash || '';
+  if (hash.startsWith('#')) return '/' + hash.substring(1);
+  return '/';
 }
 
 function buildInternalUrl(targetPath) {
-  const currentPath = window.location.pathname;
-  const cleanTargetPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
-  if (currentPath.includes('index.html')) {
-    const base = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-    return base + cleanTargetPath.substring(1);
-  }
-  return cleanTargetPath;
+  const currentFile = window.location.pathname.split('/').pop() || '';
+  const cleanPath = targetPath === '/' ? '' : (targetPath.startsWith('/') ? targetPath.substring(1) : targetPath);
+  return currentFile + (cleanPath ? '#' + cleanPath : '');
 }
 
 function ensureInternalHistoryState(mode = 'push', path = getCurrentInternalPath(), extraState = {}) {
@@ -626,7 +622,7 @@ function validateContactForm(payload) {
 
   if (name.length < 2) errors.name = 'Please enter your full name.';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Please enter a valid email address.';
-  if (!/^\+?\d[\d\s-]{8,14}$/.test(phone)) errors.phone = 'Please enter a valid phone number.';
+  if (!/^[+]?[\d\s\-()]{10,18}$/.test(phone)) errors.phone = 'Please enter a valid phone number.';
   if (message.length < 10) errors.message = 'Please enter a short message with a little more detail.';
 
   return { isValid: Object.keys(errors).length === 0, errors, cleaned: { name, email, phone, message } };
@@ -640,7 +636,7 @@ function setContactFieldError(field, message) {
 }
 
 function openSupportEmail(subjectText = 'Farmmily support enquiry', bodyText = '') {
-  const mailtoUrl = `mailto:farmmilyfoods@gmail.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+  const mailtoUrl = `mailto:support@farmmilyfoods.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
   window.location.href = mailtoUrl;
 }
 function openSupportWhatsApp(messageText = 'Hello Farmmily Foods') {
@@ -650,6 +646,23 @@ function openSupportWhatsApp(messageText = 'Hello Farmmily Foods') {
 
 window.openSupportEmail = openSupportEmail;
 window.openSupportWhatsApp = openSupportWhatsApp;
+
+async function syncToGoogleSheet(data) {
+  // Replace this placeholder with your actual Google Apps Script Web App URL
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbyVJ5k2E_6IrHGgyopXBnt9emsZcbW4N6XmPu6ViyVGSWW1yniyFOuDo-tG3SulP9L-hQ/exec';
+  
+  try {
+    await fetch(scriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      cache: 'no-cache',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch (e) {
+    console.error('Sheet Sync Error:', e);
+  }
+}
 
 window.submitContactForm = function () {
   const payload = {
@@ -678,15 +691,19 @@ window.submitContactForm = function () {
       });
   }
 
-  // 2. Open Email
-  const body = `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`;
-  openSupportEmail(`Website enquiry from ${name}`, body);
+  // 1b. Sync to Google Sheets
+  syncToGoogleSheet({ name, email, phone, message, source: 'Contact Page' });
 
-  // 3. Clear form
+  // 2. Trigger Email Client immediately (Crucial for browser trust)
+  const emailBody = `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`;
+  openSupportEmail(`Website enquiry from ${name}`, emailBody);
+
+  // 3. Clear form and feedback
   document.getElementById('contact-name').value = '';
   document.getElementById('contact-email').value = '';
   document.getElementById('contact-phone').value = '';
   document.getElementById('contact-message').value = '';
+
   showToast('Message sent successfully!');
 };
 
@@ -707,6 +724,9 @@ window.submitHomeEnquiry = function () {
         if (error) console.error("Home Enquiry DB Error:", error);
       });
   }
+
+  // Sync to Google Sheets
+  syncToGoogleSheet({ name, phone, message, email: 'home-enquiry@farmmilyfoods.com', source: 'Home Page' });
 
   const body = `Name: ${name}\nPhone: ${phone}\n\nEnquiry from Homepage:\n${message}`;
   openSupportEmail(`Homepage Enquiry from ${name}`, body);
@@ -1700,7 +1720,7 @@ window.filterBycat = filterBycat;
 // ===== CLIENT-SIDE ROUTER =====
 function handleRoute() {
   const params = new URLSearchParams(window.location.search);
-  let path = (params.get('redirect') || window.location.pathname).toLowerCase().replace(/\/$/, '').trim();
+  let path = (params.get('redirect') || window.location.hash.replace('#', '/') || '/').toLowerCase().replace(/\/$/, '').trim();
   if (path === '') path = '/';
 
   console.log('Router: Handling path', path);
