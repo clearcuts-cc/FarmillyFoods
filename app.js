@@ -1725,6 +1725,22 @@ function closeDeskCat() {
 }
 window.closeDeskCat = closeDeskCat;
 
+function updateSEO(title, description) {
+  if (title) {
+    document.title = title + " | Farmmily Farms";
+    const metaTitle = document.querySelector('meta[name="title"]');
+    if (metaTitle) metaTitle.setAttribute('content', title + " | Farmmily Farms");
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', title);
+  }
+  if (description) {
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', description);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', description);
+  }
+}
+
 function filterBycat(c, push = true) {
   activeFilter = c;
   showPage('shop', false);
@@ -1732,6 +1748,13 @@ function filterBycat(c, push = true) {
   if (push) {
     const path = '/' + c.toLowerCase().replace(/\s+/g, '-');
     syncUrl(path);
+  }
+
+  // Dynamic SEO Update
+  if (c !== 'All') {
+    updateSEO("Shop " + c, "Buy the freshest " + c + " from Farmmily Farms heritage estates. Organically grown, 100% pure, and delivered direct from our farm to your home.");
+  } else {
+    updateSEO("Premium Organic Shop", "Official Farmmily Foods Boutique. Shop legendary Imam Pasand mangoes, A2 Ghee, Raw Honey, and Organic Spices.");
   }
 
   if (typeof filterProds === 'function') filterProds();
@@ -1743,6 +1766,7 @@ function filterBycat(c, push = true) {
   });
 }
 window.filterBycat = filterBycat;
+window.updateSEO = updateSEO;
 // ===== CLIENT-SIDE ROUTER =====
 function handleRoute() {
   const params = new URLSearchParams(window.location.search);
