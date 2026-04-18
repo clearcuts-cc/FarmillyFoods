@@ -147,15 +147,35 @@ function getProductDescription(product = {}) {
 }
 
 function getCurrentInternalPath() {
+  const path = window.location.pathname;
+  if (path && path !== '/' && path !== '/index.html') return path;
   const hash = window.location.hash || '';
   if (hash.startsWith('#')) return '/' + hash.substring(1);
   return '/';
 }
 
 function buildInternalUrl(targetPath) {
-  const currentFile = window.location.pathname.split('/').pop() || '';
-  const cleanPath = targetPath === '/' ? '' : (targetPath.startsWith('/') ? targetPath.substring(1) : targetPath);
-  return currentFile + (cleanPath ? '#' + cleanPath : '');
+  // Enhanced detection: assume physical if any .html file is in the path or if we're on a local file
+  const isPhysical = window.location.pathname.includes('.html') || window.location.protocol === 'file:';
+  const path = targetPath.toLowerCase().replace(/^\/+|\/+$/g, '').replace(/\.html$/, '');
+  
+  if (isPhysical) {
+    if (path === 'home' || path === '' || path === 'index') return 'index.html';
+    
+    // Fuzzy matching for Flagship pages with dedicated files
+    if (path === 'mangoes') return 'mangoes.html';
+    if (path === 'honey' || path.includes('honey') || path.includes('jaggery') || path.includes('bee')) return 'honey.html';
+    if (path === 'ghee' || path.includes('ghee') || path.includes('oils')) return 'ghee.html';
+    if (path === 'spices') return 'spices.html';
+    if (path === 'beverages') return 'beverages.html';
+    if (path === 'bee-products') return 'bee-products.html';
+    if (['shop', 'track', 'corporate', 'contact', 'cart'].includes(path)) return path + '.html';
+    
+    // Fallback categories use shop.html with query param
+    return 'shop.html?cat=' + encodeURIComponent(path);
+  }
+  
+  return targetPath.startsWith('/') ? targetPath : '/' + targetPath;
 }
 
 function ensureInternalHistoryState(mode = 'push', path = getCurrentInternalPath(), extraState = {}) {
@@ -165,6 +185,12 @@ function ensureInternalHistoryState(mode = 'push', path = getCurrentInternalPath
   try {
     if (mode === 'replace') window.history.replaceState(nextState, '', url);
     else window.history.pushState(nextState, '', url);
+    
+    // Auto-update SEO based on path if not explicitly called
+    const p = nextPath.toLowerCase().replace(/^\/+|\/+$/g, '');
+    if (p === 'shop') updateSEO("Our Heritage Collection", "Hand-picked, sun-ripened heritage mangoes from our private estates.");
+    else if (p === 'mangoes' || p.includes('mango')) updateSEO("Premium Organic Mangoes", "Experience the pure honey-sweetness of our Imam Pasand, Alphonso, and Banganapalli mangoes.");
+    else if (p === 'home' || p === '') updateSEO();
   } catch (e) {
     console.error('History state update failed:', e);
   }
@@ -764,6 +790,16 @@ window.contactViaWhatsApp = function () {
 // ===== ROUTING =====
 function showPage(page, push = true) {
   try {
+    // If we are using physical .html files, check if we need to redirect
+    const isPhysical = window.location.pathname.endsWith('.html');
+    const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+    const targetFile = buildInternalUrl(page);
+
+    if (push && isPhysical && targetFile !== currentFile && !targetFile.includes('?cat=')) {
+      window.location.href = targetFile;
+      return;
+    }
+
     const pages = document.querySelectorAll('.page');
     pages.forEach(p => {
       p.classList.remove('active');
@@ -788,12 +824,23 @@ function showPage(page, push = true) {
       if (typeof window.closeVariantSheet === 'function') window.closeVariantSheet();
 
       // --- Update Nav Bar Active State ---
-      document.querySelectorAll('.mob-nav-item, #desktop-nav a, .mob-menu-item').forEach(item => {
-        const onclick = item.getAttribute('onclick') || '';
-        if (onclick.includes(`'${page}'`)) {
-          item.classList.add('active');
+      let highlightPage = page;
+      if (page === 'shop' && (typeof activeFilter !== 'undefined') && activeFilter === 'Mangoes') {
+        highlightPage = 'mangoes';
+      }
+
+      const navLinks = document.querySelectorAll('.desktop-nav a, .mob-menu-item');
+      navLinks.forEach(link => {
+        const dp = link.getAttribute('data-page');
+        if (dp === highlightPage) {
+          link.classList.add('active');
+        } else if (dp === 'shop' && highlightPage === 'mangoes') {
+          // Don't highlight shop if mangoes is active
+          link.classList.remove('active');
+        } else if (link.getAttribute('onclick')?.includes("'"+page+"'")) {
+          link.classList.add('active');
         } else {
-          item.classList.remove('active');
+          link.classList.remove('active');
         }
       });
 
@@ -1149,11 +1196,11 @@ function renderHome() {
 function renderShop() {
   try {
     const chips = document.getElementById('shop-cats-row');
-    const safeCats = Array.isArray(cats) ? cats : [];
+    const safeCats = Array.isArray(window.cats) ? window.cats : [];
     if (chips) {
       const list = ['All', ...safeCats.map(c => c.name)];
       chips.innerHTML = list.map(c =>
-        '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + c + '\')">' + c + '</div>'
+        '<div class="chip' + (c === activeFilter ? ' active' : '') + '" onclick="filterBycat(\'' + c + '\')">' + c + '</div>'
       ).join('');
     }
     filterProds();
@@ -1183,7 +1230,14 @@ function filterProds() {
   const displayList = window.displayProducts || window.products;
 
   let list = displayList.filter(p => {
-    const matchCat = activeFilter === 'All' || p.cat === activeFilter;
+    const pCat = (p.cat || '').toLowerCase();
+    const filterVal = (activeFilter || 'All').toLowerCase();
+    
+    const matchCat = filterVal === 'all' || 
+                     pCat === filterVal || 
+                     pCat.replace(/\s+/g, '-') === filterVal ||
+                     pCat.replace(/ & /g, '-&-').replace(/\s+/g, '-') === filterVal;
+                     
     const matchQ = !q || p.name.toLowerCase().includes(q);
     return matchCat && matchQ;
   });
@@ -1670,6 +1724,7 @@ async function loadCategories() {
         svg: iconHtml
       };
     });
+    window.cats = cats;
   }
   renderHome();
   renderCatLists();
@@ -1679,10 +1734,16 @@ function renderCatLists() {
   const d = document.getElementById('desk-cat-drop');
   const m = document.getElementById('mob-cat-list');
   if (d) {
-    d.innerHTML = cats.map(c => "<div style='padding:10px 20px; cursor:pointer; font-size:14px; color:#555;' onclick='filterBycat(\"" + c.name + "\");closeDeskCat()'>" + c.name + "</div>").join('');
+    d.innerHTML = cats.map(c => {
+      const url = '/' + c.name.toLowerCase().replace(/\s+/g, '-');
+      return `<a href="${url}" style="display:block; padding:10px 20px; font-size:14px; color:#555; text-decoration:none;" onclick="event.preventDefault(); filterBycat('${c.name}')">${c.name}</a>`;
+    }).join('');
   }
   if (m) {
-    m.innerHTML = cats.map(c => "<div style='padding:12px 0; cursor:pointer; font-size:15px; color:#666;' onclick='filterBycat(\"" + c.name + "\");closeMob()'>" + c.name + "</div>").join('');
+    m.innerHTML = cats.map(c => {
+      const url = '/' + c.name.toLowerCase().replace(/\s+/g, '-');
+      return `<a href="${url}" style="display:block; padding:12px 0; font-size:15px; color:#666; text-decoration:none;" onclick="event.preventDefault(); filterBycat('${c.name}'); closeMob()">${c.name}</a>`;
+    }).join('');
   }
 }
 
@@ -1699,23 +1760,32 @@ function closeDeskCat() {
 window.closeDeskCat = closeDeskCat;
 
 function updateSEO(title, description) {
+  const baseTitle = "Farmmily Farms | Buy Organic Mangoes, A2 Ghee & Raw Honey Online";
+  const baseDesc = "Experience the legendary purity of Farmmily Farms. Shop 100% organic Imam Pasand mangoes, Alphonso, purity-verified A2 Ghee, and Raw Honey.";
+
   if (title) {
     document.title = title + " | Farmmily Farms";
     const metaTitle = document.querySelector('meta[name="title"]');
     if (metaTitle) metaTitle.setAttribute('content', title + " | Farmmily Farms");
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', title);
+  } else {
+    document.title = baseTitle;
   }
+  
   if (description) {
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', description);
     const ogDesc = document.querySelector('meta[property="og:description"]');
     if (ogDesc) ogDesc.setAttribute('content', description);
+  } else if (!title) {
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', baseDesc);
   }
 }
 
 function filterBycat(c, push = true) {
-  // Gracefully resolve partial category names (e.g., 'Honey' -> 'Honey & Jaggery')
+  // Gracefully resolve partial category names
   if (c !== 'All') {
     const list = window.cats || (typeof cats !== 'undefined' ? cats : []);
     const found = list.find(cat => 
@@ -1723,6 +1793,24 @@ function filterBycat(c, push = true) {
       cat.name.toLowerCase().includes(c.toLowerCase())
     );
     if (found) c = found.name;
+  }
+
+  // If we are using physical .html files, check if we need to redirect to a flagship page
+  const isPhysical = window.location.pathname.includes('.html') || window.location.protocol === 'file:';
+  const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+  if (push && isPhysical) {
+    if (c === 'Mangoes' && currentFile !== 'mangoes.html') {
+      window.location.href = 'mangoes.html';
+      return;
+    }
+    if (c === 'Honey & Jaggery' && currentFile !== 'honey.html') {
+      window.location.href = 'honey.html';
+      return;
+    }
+    if (c === 'Pure Ghee' && currentFile !== 'ghee.html') {
+      window.location.href = 'ghee.html';
+      return;
+    }
   }
 
   activeFilter = c;
@@ -1740,8 +1828,8 @@ function filterBycat(c, push = true) {
     updateSEO("Premium Organic Shop", "Official Farmmily Foods Boutique. Shop legendary Imam Pasand mangoes, A2 Ghee, Raw Honey, and Organic Spices.");
   }
 
-  if (typeof filterProds === 'function') filterProds();
-
+  if (typeof renderShop === 'function') renderShop();
+  
   const chips = document.querySelectorAll('.chip');
   chips.forEach(ch => {
     if (ch.innerText === c) ch.classList.add('active');
@@ -1756,22 +1844,30 @@ function handleRoute() {
   const hash = window.location.hash || '';
   
   // Robust path detection from redirect param OR hash OR pathname
-  let path = (params.get('redirect') || hash.replace('#', '/') || window.location.pathname || '/').toLowerCase().trim();
+  let rawPath = (params.get('redirect') || hash.replace('#', '/') || window.location.pathname || '/').toLowerCase().trim();
   
-  // Clean up leading/trailing slashes for easier matching
-  path = ('/' + path.replace(/^\/+|\/+$/g, '')).replace('//', '/');
+  // Strip trailing slashes first
+  let cleanPath = rawPath.replace(/\/+$/, '');
   
-  console.log('Router: Handling path', path);
+  // Extract filename only for local file support and strip extension
+  let filename = cleanPath.split('/').pop() || 'index';
+  if (filename === '' || filename === '/') filename = 'index';
+  
+  let path = '/' + filename.replace(/\.html$/, '');
+  
+  // Special case: if rawPath was essentially empty or just a slash
+  if (cleanPath === '' || cleanPath === '/') path = '/index';
+
+  console.log('Router: Normalizing raw path', rawPath, 'to', path);
 
   // 1. Basic Pages
-  if (path === '/' || path === '/home' || path === '/index.html') {
+  if (path === '/' || path === '/home' || path === '/index') {
     showPage('home', false);
     return;
   }
 
   if (path === '/shop') {
-    activeFilter = 'All';
-    showPage('shop', false);
+    filterBycat('All', false);
     return;
   }
 
@@ -1827,13 +1923,13 @@ function handleRoute() {
     return;
   }
 
-  // 3. Category Matcher
-  const catSlug = path.substring(1).replace(/-/g, ' ');
-
+  // 3. Category matching (fuzzy fallback)
+  const catSlug = path.substring(1).toLowerCase().replace(/-/g, ' ');
   const checkCats = setInterval(() => {
-    if (cats && cats.length) {
+    const list = window.cats || (typeof cats !== 'undefined' ? cats : []);
+    if (list && list.length) {
       clearInterval(checkCats);
-      const found = cats.find(c => {
+      const found = list.find(c => {
         const lowName = (c.name || '').toLowerCase().trim();
         const cleanSlug = catSlug.toLowerCase().trim();
         return lowName === cleanSlug ||
@@ -1843,16 +1939,16 @@ function handleRoute() {
           lowName === cleanSlug + 'es' ||
           (cleanSlug.includes('mango') && lowName.includes('mango')) ||
           (cleanSlug.includes('honey') && lowName.includes('honey')) ||
+          (cleanSlug.includes('bee') && lowName.includes('honey')) ||
+          (cleanSlug.includes('beverage') && lowName.includes('beverage')) ||
           (cleanSlug.includes('ghee') && lowName.includes('ghee'));
       });
 
       if (found) {
         filterBycat(found.name, false);
-      } else {
-        // Fallback for direct variety links if not a category
-        setTimeout(() => {
-          if (curPage === 'home') showPage('home', false);
-        }, 500);
+      } else if (path !== '/' && path !== '/home') {
+        // Only fallback to All if we are on a path that is likely meant to be a category
+        filterBycat('All', false);
       }
     }
   }, 100);
@@ -1948,7 +2044,8 @@ function handleRawProducts(data) {
     if (!img) {
       for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
     }
-    const category = cats.find(c => c.id === p.category_id)?.name || 'Products';
+    const categoryList = window.cats || (typeof cats !== 'undefined' ? cats : []);
+    const category = categoryList.find(c => c.id === p.category_id)?.name || 'Products';
 
     return {
       id: p.id, name: cap(p.name), price: Number(p.price),
@@ -2014,7 +2111,8 @@ function handleDynamicProducts(data) {
     if (!img || img === 'undefined') {
       for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
     }
-    const category = cats.find(c => c.id === product.category_id)?.name || 'Products';
+    const categoryList = window.cats || (typeof cats !== 'undefined' ? cats : []);
+    const category = categoryList.find(c => c.id === product.category_id)?.name || 'Products';
 
     let variants = (product.product_variants || [])
       .filter(v => v)
@@ -2904,10 +3002,14 @@ window.addCustomCrateToCart = function () {
 // End of App logic
 
 async function initApp() {
-  await fetchDeliveryConfig();
-  await loadCategories();
-  await loadProducts();
-  loadCart();
+  try {
+    await fetchDeliveryConfig();
+    await loadCategories();
+    await loadProducts();
+    loadCart();
+  } catch (err) {
+    console.error("Initialization error:", err);
+  }
   ensureCartDrawerUI();
 
   const floatingCartBar = document.getElementById('floating-cart-bar');

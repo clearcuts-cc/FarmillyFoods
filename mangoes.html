@@ -5505,9 +5505,9 @@
   <!-- MOBILE MENU SIDE DRAWER -->
   <div id="mob-menu-overlay" onclick="closeMobileSidebar()"></div>
   <div id="mob-menu">
-    <a href="index.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('home');closeMobileSidebar()">Home</a>
-    <a href="shop.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('shop');closeMobileSidebar()">Shop</a>
-    <a href="mangoes.html" class="mob-menu-item" onclick="event.preventDefault(); filterBycat('Mangoes');closeMobileSidebar()">Mangoes</a>
+    <a href="/home" class="mob-menu-item" onclick="event.preventDefault(); showPage('home');closeMobileSidebar()">Home</a>
+    <a href="/shop" class="mob-menu-item" onclick="event.preventDefault(); showPage('shop');closeMobileSidebar()">Shop</a>
+    <a href="/mangoes" class="mob-menu-item" onclick="event.preventDefault(); filterBycat('Mangoes');closeMobileSidebar()">Mangoes</a>
     <div class="mob-menu-item" onclick="toggleMobCat(this)">
       Categories
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;">
@@ -5517,9 +5517,9 @@
     <div id="mob-drawer-cats" style="display:none; padding-left: 20px;">
       <div id="mob-cat-list"></div>
     </div>
-    <a href="track.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('track');closeMobileSidebar()">Track Order</a>
-    <a href="contact.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('contact');closeMobileSidebar()">Contact</a>
-    <a href="corporate.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('corporate');closeMobileSidebar()">Corporate</a>
+    <a href="/track" class="mob-menu-item" onclick="event.preventDefault(); showPage('track');closeMobileSidebar()">Track Order</a>
+    <a href="/contact" class="mob-menu-item" onclick="event.preventDefault(); showPage('contact');closeMobileSidebar()">Contact</a>
+    <a href="/corporate" class="mob-menu-item" onclick="event.preventDefault(); showPage('corporate');closeMobileSidebar()">Corporate</a>
   </div>
 
   <header id="header">
@@ -5537,9 +5537,9 @@
       </div>
 
       <nav class="desktop-nav" id="desktop-nav">
-        <a href="index.html" data-page="home" onclick="event.preventDefault(); showPage('home')" class="active">Home</a>
-        <a href="shop.html" data-page="shop" onclick="event.preventDefault(); showPage('shop')">Shop</a>
-        <a href="mangoes.html" data-page="mangoes" onclick="event.preventDefault(); filterBycat('Mangoes')">Mangoes</a>
+        <a href="/home" data-page="home" onclick="event.preventDefault(); showPage('home')" class="active">Home</a>
+        <a href="/shop" data-page="shop" onclick="event.preventDefault(); showPage('shop')">Shop</a>
+        <a href="/mangoes" data-page="mangoes" onclick="event.preventDefault(); filterBycat('Mangoes')">Mangoes</a>
         <div class="cat-drop-wrap" style="position:relative; display:flex; align-items:center; height:100%"
           onmouseleave="closeDeskCat()">
           <a data-page="categories" onclick="toggleDeskCat()" style="display:flex; align-items:center;">Categories</a>
@@ -5548,9 +5548,9 @@
             <!-- Categories rendered here -->
           </div>
         </div>
-        <a href="corporate.html" data-page="corporate" onclick="event.preventDefault(); showPage('corporate')">Corporate</a>
-        <a href="track.html" data-page="track" onclick="event.preventDefault(); showPage('track')">Tracking</a>
-        <a href="contact.html" data-page="contact" onclick="event.preventDefault(); showPage('contact')">Contact</a>
+        <a href="/corporate" data-page="corporate" onclick="event.preventDefault(); showPage('corporate')">Corporate</a>
+        <a href="/track" data-page="track" onclick="event.preventDefault(); showPage('track')">Tracking</a>
+        <a href="/contact" data-page="contact" onclick="event.preventDefault(); showPage('contact')">Contact</a>
       </nav>
 
       <div class="nav-search-wrap">
@@ -5605,7 +5605,7 @@
 
 
   <!-- ========== HOME ========== -->
-  <div id="page-home" class="page active">
+  <div id="page-home" class="page">
     <section class="hero"><img src="assets/DSC00269.JPG" alt="Premium Harvest Mangoes">
       <div class="hero-ov"></div>
       <div class="hero-c">
@@ -5846,7 +5846,7 @@
           <!-- Dynamic products loaded from app.js -->
         </div>
         <div class="text-center mt-20">
-          <a href="shop.html" onclick="event.preventDefault(); showPage('shop')"
+          <a href="/shop" onclick="event.preventDefault(); showPage('shop')"
             class="px-12 py-5 bg-emerald-950 text-white rounded-2xl font-bold text-xs uppercase tracking-[3px] shadow-xl shadow-emerald-900/10 hover:bg-emerald-900 transition-all">
             View Full Collection
           </a>
@@ -6146,7 +6146,7 @@
         </svg> from Coimbatore</div>
     </footer>
   </div> <!-- END OF HOME PAGE WRAPPER -->
-  <div id="page-shop" class="page">
+  <div id="page-shop" class="page active">
     <section class="sec">
       <div class="inner">
         <div class="sec-title">
@@ -7552,7 +7552,7 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/app.js?v=5.5"></script>
+  <script src=\"js/app.js?v=5.5"></script>
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
@@ -7751,6 +7751,11 @@
       </button>
     </div>
   </div>
+  <script>
+    window.addEventListener('load', () => {
+      if (typeof filterBycat === 'function') filterBycat('Mangoes', false);
+    });
+  </script>
 </body>
 
 </html>
