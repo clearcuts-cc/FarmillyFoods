@@ -231,7 +231,10 @@ function updateCartCount() {
   const fPrice = document.getElementById('f-cart-price');
 
   if (fBar) {
-    if (n > 0 && window.curPage !== 'cart') {
+    const deliveryModal = document.getElementById('delivery-modal');
+    const isModalOpen = deliveryModal && deliveryModal.style.display === 'block';
+    const isPayPage = (window.curPage === 'cart' || window.curPage === 'success' || isModalOpen);
+    if (n > 0 && !isPayPage) {
       fBar.classList.add('show');
       if (fCount) fCount.textContent = `${n} item${n > 1 ? 's' : ''}`;
       if (fPrice) fPrice.textContent = `₹${totalPrice}`;
@@ -484,8 +487,7 @@ function ensureCartDrawerUI() {
       font-weight: 900;
     }
     .cart-drawer-actions {
-      display: grid;
-      grid-template-columns: 1fr 1.3fr;
+      display: flex;
       gap: 10px;
     }
     .cart-drawer-btn {
@@ -525,8 +527,7 @@ function ensureCartDrawerUI() {
           <strong id="cart-drawer-total">₹0</strong>
         </div>
         <div class="cart-drawer-actions">
-          <button id="cart-drawer-view" class="cart-drawer-btn secondary" type="button">Full Cart</button>
-          <button id="cart-drawer-checkout" class="cart-drawer-btn primary" type="button">Checkout</button>
+          <button id="cart-drawer-checkout" class="cart-drawer-btn primary" style="flex:1" type="button">Checkout</button>
         </div>
       </div>
     </aside>
@@ -534,10 +535,6 @@ function ensureCartDrawerUI() {
 
   document.getElementById('cart-drawer-overlay').addEventListener('click', () => window.closeCartDrawer());
   document.getElementById('cart-drawer-close').addEventListener('click', () => window.closeCartDrawer());
-  document.getElementById('cart-drawer-view').addEventListener('click', () => {
-    window.closeCartDrawer(false);
-    showPage('cart');
-  });
   document.getElementById('cart-drawer-checkout').addEventListener('click', () => {
     window.closeCartDrawer(false);
     showPage('cart');
@@ -553,19 +550,10 @@ function renderCartDrawer() {
   const subtitle = document.getElementById('cart-drawer-subtitle');
   const totalEl = document.getElementById('cart-drawer-total');
   const actions = document.querySelector('.cart-drawer-actions');
-  const viewCartBtn = document.getElementById('cart-drawer-view');
 
   if (!body || !subtitle || !totalEl) return;
 
-  if (viewCartBtn && actions) {
-    if (window.curPage === 'cart') {
-      viewCartBtn.style.display = 'none';
-      actions.style.gridTemplateColumns = '1fr';
-    } else {
-      viewCartBtn.style.display = 'block';
-      actions.style.gridTemplateColumns = '1fr 1.3fr';
-    }
-  }
+
 
   const items = window.cart.map(ci => {
     const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
@@ -823,6 +811,9 @@ function showPage(page, push = true) {
       if (typeof window.closeCrateSheet === 'function') window.closeCrateSheet(false);
       if (typeof window.closeVariantSheet === 'function') window.closeVariantSheet();
 
+      // Ensure floating bar and badges are updated for the current page
+      updateCartCount();
+
       // --- Update Nav Bar Active State ---
       let highlightPage = page;
       if (page === 'shop' && (typeof activeFilter !== 'undefined') && activeFilter === 'Mangoes') {
@@ -1078,7 +1069,7 @@ function pcardHTML(p) {
     <div class="premium-mango-card" onclick="${cardOnclick}">
           <div class="m-img-wrap" style="background: ${bg}">
               ${badgeHTML}
-              <img src="${p.img}" alt="${p.name}" loading="lazy" style="${(p.name || '').toLowerCase().includes('custom') ? 'mix-blend-mode: multiply; opacity: 0.9;' : ''}" onerror="this.style.opacity='0'; this.parentElement.style.background='#f0f4f0'">
+              <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" style="${(p.name || '').toLowerCase().includes('custom') ? 'mix-blend-mode: multiply; opacity: 0.9;' : ''}" onerror="this.style.opacity='0'; this.parentElement.style.background='#f0f4f0'">
               ${action}
           </div>
         <div class="m-info">
@@ -1403,6 +1394,7 @@ window.openDeliveryModal = function () {
   if (modal) {
     modal.style.display = 'block';
     setTimeout(() => { modal.style.transform = 'translateY(0)'; }, 10);
+    updateCartCount();
   }
 };
 
@@ -1432,6 +1424,7 @@ window.closeDeliveryModal = function () {
       if (sh) sh.style.transform = 'translateX(0)';
       if (sb) sb.style.width = '0';
     }
+    updateCartCount();
   }, 400);
 };
 
@@ -2345,7 +2338,11 @@ async function handleTrack(manualId = null) {
     } else {
       res.innerHTML = `
         <div style="padding:40px; text-align:center; background:#fff5f5; border-radius:24px; border:1px solid #fed7d7;">
-          <div style="font-size:32px; margin-bottom:12px;">₹</div>
+          <div style="font-size:32px; margin-bottom:12px; color:#c53030;">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin:0 auto">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
           <h3 style="color:#c53030; margin-bottom:8px;">Not Found</h3>
           <p style="color:#718096; font-size:14px;">We couldn't find any order with ${isPhone ? 'Phone' : 'ID'}: <b>${query}</b>.</p>
         </div>`;
@@ -2379,7 +2376,11 @@ function renderTrackResult(data, type, container) {
   if (currentStepIndex === -1 && status === 'cancelled') {
     // Special handle for cancelled
     container.innerHTML = `<div style="padding:40px; text-align:center; background:#fff5f5; border-radius:32px; border:1px solid #fed7d7;">
-       <div style="font-size:32px; margin-bottom:12px;">₹</div>
+       <div style="font-size:32px; margin-bottom:12px; color:#c53030;">
+         <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin:0 auto">
+           <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+         </svg>
+       </div>
        <h3 style="color:#c53030; margin-bottom:8px;">Order Cancelled</h3>
        <p style="color:#718096; font-size:14px;">This reference <b>${id}</b> has been cancelled. Please contact support if this is an error.</p>
      </div>`;
@@ -2995,9 +2996,12 @@ window.addCustomCrateToCart = function () {
 
 async function initApp() {
   try {
-    await fetchDeliveryConfig();
-    await loadCategories();
-    await loadProducts();
+    // Parallelize initialization for maximum speed
+    await Promise.all([
+      fetchDeliveryConfig(),
+      loadCategories(),
+      loadProducts()
+    ]);
     loadCart();
   } catch (err) {
     console.error("Initialization error:", err);

@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
   <!-- Favicon / Brand Icons -->
-  <link rel="icon" type="image/png" href="assets/farmmily%20logo.png">
-  <link rel="apple-touch-icon" href="assets/farmmily%20logo.png">
-  <link rel="shortcut icon" type="image/png" href="assets/farmmily%20logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="icon" type="image/png" href="assets/farmmily%20logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="apple-touch-icon" href="assets/farmmily%20logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="shortcut icon" type="image/png" href="assets/farmmily%20logo.png">
 
   <!-- Primary Meta Tags -->
   <title>Farmmily Farms | Buy Organic Mangoes, A2 Ghee & Raw Honey Online</title>
@@ -56,7 +56,7 @@
   <meta name="keywords"
     content="organic mangoes, imam pasand, alphonso mangoes online, a2 ghee online, raw honey india, buy organic spices, farm fresh mangoes bangalore, farmmily farms">
   <meta name="author" content="Farmmily Agro Infra Developers">
-  <link rel="canonical" href="https://farmmilyfoods.com/">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="canonical" href="https://farmmilyfoods.com/">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
@@ -234,7 +234,7 @@
   }
   </script>
 
-  <link
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;600&display=swap"
     rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -3155,9 +3155,24 @@
     .trow {
       display: flex;
       gap: 24px;
-      overflow-x: auto;
-      padding: 20px 4px;
-      scrollbar-width: none
+      padding: 40px 0;
+      width: max-content;
+      animation: tCarousel 40s linear infinite;
+    }
+
+    .trow-wrap {
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+    }
+    
+    .trow:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes tCarousel {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(calc(-50% - 12px)); }
     }
 
     .trow::-webkit-scrollbar {
@@ -5533,7 +5548,7 @@
       </button>
 
       <div class="logo" onclick="showPage('home')">
-        <img src="assets/farmmily logo.png" alt="Farmmily" class="logo-img">
+        <img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily" class="logo-img">
       </div>
 
       <nav class="desktop-nav" id="desktop-nav">
@@ -5606,7 +5621,7 @@
 
   <!-- ========== HOME ========== -->
   <div id="page-home" class="page active">
-    <section class="hero"><img src="assets/DSC00269.JPG" alt="Premium Harvest Mangoes">
+    <section class="hero"><img loading="lazy" decoding="async" src="assets/DSC00269.JPG" alt="Premium Harvest Mangoes">
       <div class="hero-ov"></div>
       <div class="hero-c">
         <div class="hero-eye" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border-color: #d4af37;">
@@ -5667,7 +5682,7 @@
           <!-- CUSTOM CRATE -->
           <div class="premium-mango-card" onclick="window.openCrateBuilder()">
             <div class="m-img-wrap" style="background: #e0f2f1;">
-              <img src="assets/side-01.png" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
+              <img loading="lazy" decoding="async" src="assets/side-01.png" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
               <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
                 CUSTOM
               </div>
@@ -5698,7 +5713,7 @@
           <!-- IMAM PASAND -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Imam Pasand')">
             <div class="m-img-wrap" style="background: #FFF9C4;">
-              <img src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
+              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
                 alt="Imam Pasand">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Imam Pasand')">
                 ADD
@@ -5731,7 +5746,7 @@
           <!-- ALPHONSO -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Alphonso')">
             <div class="m-img-wrap" style="background: #FFE0B2;">
-              <img src="assets/alphonso.png" alt="Alphonso">
+              <img loading="lazy" decoding="async" src="assets/alphonso.png" alt="Alphonso">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Alphonso')">
                 ADD
               </div>
@@ -5763,7 +5778,7 @@
           <!-- BANGANAPALLI -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Banganapalli')">
             <div class="m-img-wrap" style="background: #FFF17644;">
-              <img src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
+              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
                 alt="Banganapalli">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Banganapalli')">
                 ADD
@@ -5796,7 +5811,7 @@
           <!-- SENTHURA -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Senthura')">
             <div class="m-img-wrap" style="background: #FFEBEE;">
-              <img src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
+              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
                 alt="Senthura">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Senthura')">
                 ADD
@@ -5915,81 +5930,83 @@
           <p>Real stories from our beloved community</p>
           <div class="title-bar"></div>
         </div>
-        <div class="trow">
-          <div class="tcard">
-            <div class="qm">&ldquo;</div>
-            <div class="ttop">
-              <div>
-                <div class="tname">Priya S. <span class="vbadge">Verified</span></div>
-                <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                  </svg> Bengaluru</div>
+        <div class="trow-wrap">
+          <div class="trow" id="t-loop">
+            <div class="tcard">
+              <div class="qm">&ldquo;</div>
+              <div class="ttop">
+                <div>
+                  <div class="tname">Priya S. <span class="vbadge">Verified</span></div>
+                  <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg> Bengaluru</div>
+                </div>
               </div>
+              <div class="tstars"><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg></div>
+              <div class="tquote">"The color is so deep and the taste is incredibly rich; it feels very medicinal and
+                pure. I wish you had a 100g trial pack for travel!"</div>
             </div>
-            <div class="tstars"><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg></div>
-            <div class="tquote">"The color is so deep and the taste is incredibly rich; it feels very medicinal and
-              pure. I wish you had a 100g trial pack for travel!"</div>
-          </div>
-          <div class="tcard">
-            <div class="qm">&ldquo;</div>
-            <div class="ttop">
-              <div>
-                <div class="tname">Janaki R. <span class="vbadge">Verified</span></div>
-                <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                  </svg> Kumbakonam</div>
+            <div class="tcard">
+              <div class="qm">&ldquo;</div>
+              <div class="ttop">
+                <div>
+                  <div class="tname">Janaki R. <span class="vbadge">Verified</span></div>
+                  <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg> Kumbakonam</div>
+                </div>
               </div>
+              <div class="tstars"><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg></div>
+              <div class="tquote">"The grainy texture and smell remind me of the ghee my grandmother made. I'd love to see
+                a 5-liter tin for our big family lunches!"</div>
             </div>
-            <div class="tstars"><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg></div>
-            <div class="tquote">"The grainy texture and smell remind me of the ghee my grandmother made. I'd love to see
-              a 5-liter tin for our big family lunches!"</div>
-          </div>
-          <div class="tcard">
-            <div class="qm">&ldquo;</div>
-            <div class="ttop">
-              <div>
-                <div class="tname">Raghav S. <span class="vbadge">Verified</span></div>
-                <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5-2.5z" />
-                  </svg> Chikmagalur</div>
+            <div class="tcard">
+              <div class="qm">&ldquo;</div>
+              <div class="ttop">
+                <div>
+                  <div class="tname">Raghav S. <span class="vbadge">Verified</span></div>
+                  <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5-2.5z" />
+                    </svg> Chikmagalur</div>
+                </div>
               </div>
+              <div class="tstars"><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg><svg viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg></div>
+              <div class="tquote">"Even being from a coffee-growing region, I found this estate coffee very smooth. I'd
+                love to see different grind sizes offered for French Press users."</div>
             </div>
-            <div class="tstars"><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg></div>
-            <div class="tquote">"Even being from a coffee-growing region, I found this estate coffee very smooth. I'd
-              love to see different grind sizes offered for French Press users."</div>
           </div>
         </div>
       </div>
@@ -6002,22 +6019,22 @@
           <div class="title-bar"></div>
         </div>
         <div class="farm-grid">
-          <img src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
+          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
             alt="Farmmily Farms mango orchard landscape showing organic cultivation" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img src="https://drive.google.com/thumbnail?id=1eKPe111RBdVG8hBDqKdi7tq3oLlqIB3T&sz=w1000"
+          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1eKPe111RBdVG8hBDqKdi7tq3oLlqIB3T&sz=w1000"
             alt="Traditional organic cultivation rows at Farmmily heritage estates" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
+          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
             alt="Hand-harvesting fresh organic mangoes at Farmmily Farms" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img src="https://drive.google.com/thumbnail?id=1PhPv6kIFIw7TGN_4Erb8MRxyxADlaO3p&sz=w1000"
+          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1PhPv6kIFIw7TGN_4Erb8MRxyxADlaO3p&sz=w1000"
             alt="Sorted high-quality farm produce ready for packing" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
+          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
             alt="Lush green mango orchard at Mambalam estates" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img src="https://drive.google.com/thumbnail?id=1QMOJPuelPW4-ObmKD993WZXxfyV64G2i&sz=w1000"
+          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1QMOJPuelPW4-ObmKD993WZXxfyV64G2i&sz=w1000"
             alt="Farm workers collecting seasonal heritage harvest" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
         </div>
@@ -6058,7 +6075,7 @@
     <footer id="contact-sec" style="display:none;">
       <div class="ftop">
         <div class="finfo">
-          <div class="flogo"><img src="assets/farmmily logo.png" alt="Farmmily"></div>
+          <div class="flogo"><img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily"></div>
           <div class="ftag">Farm to Family &bull; Pure Organic</div>
           <div class="f-contacts">
             <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -6578,7 +6595,7 @@
   <footer id="site-footer">
     <div class="ftop">
       <div class="finfo">
-        <div class="flogo"><img src="assets/farmmily logo.png" alt="Farmmily"></div>
+        <div class="flogo"><img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily"></div>
         <div class="ftag">Farm to Family ₹ Pure Organic</div>
         <div class="f-contacts">
           <div class="f-con">
@@ -6660,6 +6677,23 @@
       <polyline points="18 15 12 9 6 15" />
     </svg></button>
   <script>
+    function setupReviewLoop() {
+      const trow = document.getElementById('t-loop');
+      if (trow) {
+        const children = Array.from(trow.children);
+        children.forEach(c => {
+          const clone = c.cloneNode(true);
+          clone.setAttribute('aria-hidden', 'true');
+          trow.appendChild(clone);
+        });
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupReviewLoop);
+    } else {
+      setupReviewLoop();
+    }
+
     window.crateLimit = 3; window.crateWeight = 0; window.cratePrice = 0;
     function setSize(s) {
       window.crateLimit = s;
@@ -6909,7 +6943,7 @@
     </div>
     <div class="pd-hero" id="pd-hero"
       style="width:100%; height:auto; min-height:300px; max-height:400px; display:flex; align-items:center; justify-content:center; padding:40px 20px; background:#fff; overflow:hidden; position:relative;">
-      <img src="" alt="Product Image" id="det-img-main"
+      <img loading="lazy" decoding="async" src="" alt="Product Image" id="det-img-main"
         onload="this.style.opacity='1'; this.style.transform='scale(1)';"
         onerror="this.src='https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop'; this.style.opacity='0.8';"
         style="width:100%; height:100%; object-fit:cover; transform:scale(1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.08));">
@@ -7385,7 +7419,7 @@
             return `
                     <div class="variant-item">
                         <div class="vi-img" style="background:${window.getProductBG ? window.getProductBG(v) : '#f8fafc'};">
-                            <img src="${v.img}" style="width:100%; height:100%; object-fit:contain;">
+                            <img loading="lazy" decoding="async" src="${v.img}" style="width:100%; height:100%; object-fit:contain;">
                         </div>
                         <div style="flex:1">
                             <div class="vi-wt" style="font-size:16px; font-weight:800; color:#111;">${v.wt}</div>
