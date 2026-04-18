@@ -2530,7 +2530,9 @@ window.viewDetailedInvoice = async function(id) {
   const modal = document.getElementById('invoice-modal');
 
   const date = new Date(order.created_at || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  const invoiceNum = `INV-FF-2026/27-${String(order.id).padStart(4, '0')}`;
+  const displayVal = order.order_number || order.enquiry_ref || String(order.id);
+  const cleanNumber = displayVal.replace('FM-', '').replace('CE-', '');
+  const invoiceNum = `INV-FF-2026/27-${cleanNumber}`;
   
   const subtotal = order.subtotal || (order.total - (order.delivery_charge || 0));
   const tax = Math.round(subtotal * 0.05); // 5% IGST
