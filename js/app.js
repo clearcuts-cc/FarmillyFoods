@@ -2530,7 +2530,7 @@ window.viewDetailedInvoice = async function(id) {
   const modal = document.getElementById('invoice-modal');
 
   const date = new Date(order.created_at || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  const invoiceNum = `2026-2027/${String(order.id).padStart(3, '0')}`;
+  const invoiceNum = `INV-FF-2026/27-${String(order.id).padStart(4, '0')}`;
   
   const subtotal = order.subtotal || (order.total - (order.delivery_charge || 0));
   const tax = Math.round(subtotal * 0.05); // 5% IGST
@@ -2552,7 +2552,6 @@ window.viewDetailedInvoice = async function(id) {
       </tr>
     `).join('');
   } else {
-    // Corporate fallback
     itemsHTML = `
       <tr>
         <td style="padding:10px; border:1px solid #e2e8f0; text-align:center;">1</td>
@@ -2572,38 +2571,35 @@ window.viewDetailedInvoice = async function(id) {
   container.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:start; border-bottom:2px solid #1b391b; padding-bottom:15px; margin-bottom:20px;">
       <div>
-        <img src="assets/farmmily%20logo.png" style="height:65px; margin-bottom:12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" onerror="this.src='https://jztreusepxilnfqffwka.supabase.co/storage/v1/object/public/assets/farmmily%20logo.png'">
-        <div style="font-size:11px; color:#1b391b; line-height:1.5;">
-          <strong style="font-size:13px; display:block; margin-bottom:2px;">FARMMILY AGRO INFRA DEVELOPERS PVT LTD</strong>
-          NO.133A, Mettupalayam Road, Kavundampalayam<br>
-          Coimbatore - 641030 Tamil Nadu, India<br>
-          <strong>GSTIN:</strong> 33AAGCF5728F1ZR | <strong>FSSAI:</strong> 12424003000676
+        <img src="assets/farmmily%20logo.png" style="height:55px; margin-bottom:10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" onerror="this.src='https://jztreusepxilnfqffwka.supabase.co/storage/v1/object/public/assets/farmmily%20logo.png'">
+        <div style="font-size:10px; color:#444; line-height:1.4;">
+          <strong style="font-size:11px; color:#1b391b; display:block; margin-bottom:2px;">FARMMILY AGRO INFRA DEVELOPERS PVT LTD</strong>
+          NO.133A, Mettupalayam Road, Kavundampalayam, Coimbatore - 641030<br>
+          GSTIN: 33AAGCF5728F1ZR | FSSAI: 12424003000676<br>
+          <span style="color:#1b391b; font-weight:700;">Support@farmmilyfoods.com</span>
         </div>
       </div>
       <div style="text-align:right;">
-        <h1 style="font-size:32px; font-weight:900; color:#1b391b; margin:0; line-height:1;">INVOICE</h1>
-        <div style="margin-top:10px; font-size:12px; color:#666;">
-          <div style="display:flex; justify-content:end; gap:8px;"><strong>Invoice No:</strong> <span style="color:#111; font-weight:700;">${invoiceNum}</span></div>
-          <div style="display:flex; justify-content:end; gap:8px;"><strong>Date:</strong> <span style="color:#111; font-weight:700;">${date}</span></div>
+        <h1 style="font-size:28px; font-weight:900; color:#1b391b; margin:0; line-height:1;">INVOICE</h1>
+        <div style="margin-top:10px; font-size:11px; color:#666;">
+          <div>Invoice No: <span style="color:#111; font-weight:700;">${invoiceNum}</span></div>
+          <div>Date: <span style="color:#111; font-weight:700;">${date}</span></div>
         </div>
       </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin-bottom:25px;">
-      <div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
-        <div style="font-size:10px; text-transform:uppercase; color:#64748b; font-weight:900; letter-spacing:1px; margin-bottom:8px;">Bill To</div>
-        <div style="font-size:16px; font-weight:900; color:#1b391b; margin-bottom:4px;">${order.name || order.company_name || 'Valued Customer'}</div>
-        <div style="font-size:12px; color:#475569; line-height:1.4;">
-          ${order.address || ''}<br>
-          ${order.city || ''} ${order.pincode || ''}<br>
-          <strong>POS:</strong> ${order.state || 'Tamil Nadu'}
-        </div>
+    <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:30px; margin-bottom:30px;">
+      <div>
+        <!-- Left content empty or logo space -->
       </div>
-      <div style="padding:15px;">
-        <div style="font-size:10px; text-transform:uppercase; color:#64748b; font-weight:900; letter-spacing:1px; margin-bottom:8px;">Ship To</div>
-        <div style="font-size:13px; color:#1b391b; font-weight:700;">${order.name || 'Same as Billing'}</div>
-        <div style="font-size:12px; color:#475569; line-height:1.4; margin-top:4px;">
-          ${order.address || 'Standard Delivery Address'}
+      <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
+        <div style="font-size:10px; text-transform:uppercase; color:#64748b; font-weight:900; letter-spacing:1px; margin-bottom:10px;">Billing & Shipping Details</div>
+        <div style="font-size:18px; font-weight:900; color:#1b391b; margin-bottom:6px;">${order.name || order.company_name || 'Valued Customer'}</div>
+        <div style="font-size:13px; color:#475569; line-height:1.6;">
+          ${order.address || 'Address not provided'}<br>
+          ${order.city || ''} ${order.pincode || ''}<br>
+          <strong>State:</strong> ${order.state || 'Tamil Nadu'}<br>
+          <strong>Phone:</strong> ${order.phone || order.contact_phone || ''}
         </div>
       </div>
     </div>
@@ -2611,7 +2607,7 @@ window.viewDetailedInvoice = async function(id) {
     <table style="width:100%; border-collapse:collapse; margin-bottom:30px; font-size:12px;">
       <thead>
         <tr style="background:#1b391b; color:white;">
-          <th style="padding:12px; text-align:left; border:1px solid #1b391b;">S.No</th>
+          <th style="padding:12px; text-align:center; border:1px solid #1b391b;">S.No</th>
           <th style="padding:12px; text-align:left; border:1px solid #1b391b;">Item Description</th>
           <th style="padding:12px; text-align:center; border:1px solid #1b391b;">HSN</th>
           <th style="padding:12px; text-align:center; border:1px solid #1b391b;">Qty</th>
@@ -2625,43 +2621,37 @@ window.viewDetailedInvoice = async function(id) {
       </tbody>
     </table>
 
-    <div style="display:flex; justify-content:space-between; align-items:start;">
+    <div style="display:flex; justify-content:space-between; align-items:start; margin-top:20px;">
       <div style="flex:1;">
         <div style="font-size:11px; color:#64748b; margin-bottom:4px;">Total In Words:</div>
-        <div style="font-size:13px; font-weight:900; color:#1b391b;">${numberToWords(total)}</div>
+        <div style="font-size:13px; font-weight:900; color:#1b391b; margin-bottom:20px;">${numberToWords(total)}</div>
         
-        <div style="margin-top:25px; font-size:11px; color:#475569;">
+        <div style="font-size:11px; color:#475569; line-height:1.6;">
           <strong style="color:#1b391b; display:block; margin-bottom:4px;">Terms & Conditions:</strong>
           1. Goods once sold will not be taken back.<br>
-          2. Interest @18% p.a will be charged if not paid within due date.
+          2. Sustainability & Freshness guaranteed from heritage estates.
         </div>
       </div>
       
       <div style="width:280px;">
-        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #e2e8f0;">
+        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #e2e8f0; font-size:13px;">
           <span style="color:#64748b;">Sub Total</span>
           <span style="font-weight:700;">₹${subtotal.toFixed(2)}</span>
         </div>
-        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #e2e8f0;">
+        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #e2e8f0; font-size:13px;">
           <span style="color:#64748b;">IGST (5%)</span>
           <span style="font-weight:700;">₹${tax.toFixed(2)}</span>
         </div>
-        <div style="display:flex; justify-content:space-between; padding:12px; background:#1b391b; color:white; border-radius:6px; margin-top:10px;">
-          <span style="font-weight:700; font-size:16px;">Total</span>
-          <span style="font-weight:900; font-size:20px;">₹${total.toFixed(2)}</span>
+        <div style="display:flex; justify-content:space-between; padding:15px; background:#1b391b; color:white; border-radius:12px; margin-top:15px; box-shadow: 0 10px 20px rgba(27,57,27,0.1);">
+          <span style="font-weight:700; font-size:16px;">Total Amount</span>
+          <span style="font-weight:900; font-size:22px;">₹${total.toFixed(2)}</span>
         </div>
       </div>
     </div>
 
-    <div style="margin-top:40px; border-top:1px solid #e2e8f0; padding-top:20px; display:flex; justify-content:space-between; align-items:end;">
-      <div style="font-size:11px; color:#475569;">
-        <strong style="color:#1b391b;">Bank Information:</strong><br>
-        SBI, Ganapathy Branch | A/c: 44555793034 | IFSC: SBIN0003690
-      </div>
-      <div style="text-align:right;">
-        <div style="font-size:10px; color:#64748b; margin-bottom:40px;">For Farmmily Agro Infra Developers Pvt Ltd</div>
-        <div style="font-weight:900; color:#111; font-size:12px; border-top:1px solid #111; display:inline-block; padding:8px 20px 0;">Authorized Signature</div>
-      </div>
+    <div style="margin-top:60px; border-top:1px solid #eee; padding-top:20px; text-align:center;">
+       <p style="font-size:12px; color:#888; font-style:italic;">This is a computer-generated document. Signature not required.</p>
+       <p style="font-size:11px; color:#999; margin-top:5px;">Thank you for choosing Farmmily Farms - Heritage Harvests for your Family.</p>
     </div>
   `;
 
