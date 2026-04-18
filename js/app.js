@@ -2444,7 +2444,7 @@ function renderTrackResult(data, type, container) {
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:20px; border-bottom:1px solid #f5f5f5;">
         <div>
           <span style="font-size:10px; font-weight:900; color:#888; text-transform:uppercase; letter-spacing:3px;">${type} REFERENCE</span>
-          <div style="font-size:24px; font-weight:900; color:#1b391b;">#${id}</div>
+          <div style="font-size:24px; font-weight:900; color:#1b391b;">${id}</div>
         </div>
         <div style="text-align:right;">
           <span style="font-size:10px; font-weight:900; color:#888; text-transform:uppercase; letter-spacing:3px;">PLACED ON</span>
@@ -2583,7 +2583,7 @@ window.viewDetailedInvoice = async function(id) {
       <div style="text-align:right;">
         <h1 style="font-size:32px; font-weight:900; color:#1b391b; margin:0; line-height:1;">INVOICE</h1>
         <div style="margin-top:10px; font-size:12px; color:#666;">
-          <div style="display:flex; justify-content:end; gap:8px;"><strong>Invoice#:</strong> <span style="color:#111; font-weight:700;">${invoiceNum}</span></div>
+          <div style="display:flex; justify-content:end; gap:8px;"><strong>Invoice No:</strong> <span style="color:#111; font-weight:700;">${invoiceNum}</span></div>
           <div style="display:flex; justify-content:end; gap:8px;"><strong>Date:</strong> <span style="color:#111; font-weight:700;">${date}</span></div>
         </div>
       </div>
@@ -2611,7 +2611,7 @@ window.viewDetailedInvoice = async function(id) {
     <table style="width:100%; border-collapse:collapse; margin-bottom:30px; font-size:12px;">
       <thead>
         <tr style="background:#1b391b; color:white;">
-          <th style="padding:12px; text-align:left; border:1px solid #1b391b;">#</th>
+          <th style="padding:12px; text-align:left; border:1px solid #1b391b;">S.No</th>
           <th style="padding:12px; text-align:left; border:1px solid #1b391b;">Item Description</th>
           <th style="padding:12px; text-align:center; border:1px solid #1b391b;">HSN</th>
           <th style="padding:12px; text-align:center; border:1px solid #1b391b;">Qty</th>
