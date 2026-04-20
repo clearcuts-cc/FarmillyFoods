@@ -1790,21 +1790,21 @@ async function loadCategories() {
       const lowName = c.name.toLowerCase();
       let iconHtml = '';
 
-      // Premium Minimalist Icon Set (Gold & Green)
+      // Specific Heritage Collection Icons selected by User from Flaticon
       if (lowName.includes('ghee') || lowName.includes('oil')) {
-        iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2c-4 4-6 8-6 11a6 6 0 0 0 12 0c0-3-2-7-6-11z"/><path d="M12 18a3 3 0 0 1 0-6" stroke="#22c55e"/></svg>';
+        iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/4681/4681812.png" style="width: 28px; height: 28px; object-fit: contain;">';
       } else if (lowName.includes('honey') || lowName.includes('jaggery')) {
-        iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2l2 2m-4 0l2-2m6 10a8 8 0 1 1-16 0c0-4 3-7 8-7s8 3 8 7z"/><path d="M12 12v6" stroke="#22c55e"/></svg>';
+        iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/3413/3413307.png" style="width: 28px; height: 28px; object-fit: contain;">';
       } else if (lowName.includes('spice')) {
-        iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2c-1 3-5 3-5 8s2 8 5 8 5-3 5-8-4-5-5-8z"/><circle cx="12" cy="12" r="2" stroke="#22c55e"/></svg>';
+        iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/5305/5305242.png" style="width: 28px; height: 28px; object-fit: contain;">';
       } else if (lowName.includes('bee')) {
-        iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 8l4 2.25v4.5L12 17l-4-2.25v-4.5L12 8z" stroke="#22c55e"/></svg>';
+        iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/1686/1686566.png" style="width: 28px; height: 28px; object-fit: contain;">';
       } else if (lowName.includes('beverage')) {
-        iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M6 8h12l-1 11H7L6 8z"/><path d="M18 11a3 3 0 0 1 0 6M9 4l1 4m4-4l-1 4" stroke="#22c55e"/></svg>';
+        iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/3219/3219300.png" style="width: 28px; height: 28px; object-fit: contain;">';
       } else if (lowName.includes('mango')) {
-        iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M12 2C7 2 4 6 4 11s3 9 8 9 8-4 8-9-3-9-8-9z"/><path d="M12 2c1 2 2 4 1 6" stroke="#22c55e"/></svg>';
+        iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/13523/13523334.png" style="width: 28px; height: 28px; object-fit: contain;">';
       } else {
-        iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8" stroke="#22c55e"/></svg>';
+        iconHtml = '<img src="https://cdn-icons-png.flaticon.com/512/2912/2912761.png" style="width: 28px; height: 28px; object-fit: contain;">';
       }
 
       return {
