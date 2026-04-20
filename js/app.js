@@ -210,6 +210,80 @@ function bootstrapInternalHistory() {
   }
 }
 
+// ===== CALCULATIONS & DISCOUNTS =====
+function getCartTotals() {
+  let subtotal = 0;
+  let coupleDiscount = 0;
+
+  (window.cart || []).forEach(ci => {
+    const p = ci.p || (window.products || []).find(x => Number(x.id) === Number(ci.id));
+    if (!p) return;
+    
+    let itemTotal = (p.price || 0) * (ci.qty || 0);
+    subtotal += itemTotal;
+
+    // "Couple Entry" Logic: 10% Discount for buying exactly 2 of an item
+    if (ci.qty === 2) {
+      const d = Math.round(itemTotal * 0.10);
+      coupleDiscount += d;
+    }
+  });
+
+  const config = window.deliveryConfig || { charge: 49, free_above: 999 };
+  let couponDiscount = 0;
+  if (window.appliedCoupon) {
+    const cp = window.appliedCoupon;
+    const currentSub = subtotal - coupleDiscount;
+    if (currentSub >= (cp.min_order_value || 0)) {
+      if (cp.discount_type === 'percent') couponDiscount = Math.round(currentSub * (cp.discount_value / 100));
+      else couponDiscount = Number(cp.discount_value);
+    }
+  }
+
+  const deliveryFee = (subtotal - coupleDiscount - couponDiscount) >= config.free_above ? 0 : config.charge;
+  
+  return {
+    subtotal,
+    coupleDiscount,
+    couponDiscount,
+    deliveryFee,
+    total: (subtotal - coupleDiscount - couponDiscount) + deliveryFee
+  };
+}
+
+window.appliedCoupon = null;
+window.applyCoupon = async function() {
+  const code = (document.getElementById('coupon-input')?.value || '').trim().toUpperCase();
+  if(!code) return;
+  if(!supabaseClient) { showToast('Demo Mode: Try "SAVE10"'); return; }
+
+  showToast('Validating coupon...');
+  const { data, error } = await supabaseClient
+    .from('coupons')
+    .select('*')
+    .eq('code', code)
+    .eq('active', true)
+    .maybeSingle();
+
+  if(error || !data) { showToast('Invalid or expired coupon code', 'error'); return; }
+  
+  // Basic validation check (usage limit should be done server-side ideally, but here for UI)
+  if(data.max_uses && data.used_count >= data.max_uses) { showToast('Coupon limit reached', 'error'); return; }
+
+  window.appliedCoupon = data;
+  showToast('Coupon applied! 🥭', 'success');
+  renderCart();
+  updateCartCount();
+};
+
+window.removeCoupon = function() {
+  window.appliedCoupon = null;
+  renderCart();
+  updateCartCount();
+  showToast('Coupon removed');
+};
+window.getCartTotals = getCartTotals;
+
 // ===== CART HELPERS =====
 function saveCart() {
   localStorage.setItem('ff_cart', JSON.stringify(window.cart));
@@ -219,10 +293,9 @@ window.saveCart = saveCart;
 
 function updateCartCount() {
   const n = window.cart.reduce((s, i) => s + i.qty, 0);
-  const totalPrice = window.cart.reduce((s, i) => {
-    const p = i.p || window.products.find(x => Number(x.id) === Number(i.id));
-    return s + (p ? p.price * i.qty : 0);
-  }, 0);
+  
+  // Use the new central calculation
+  const totals = getCartTotals();
 
   const el = document.getElementById('cart-count');
   const m = document.getElementById('mob-cnt');
@@ -237,7 +310,7 @@ function updateCartCount() {
     if (n > 0 && !isPayPage) {
       fBar.classList.add('show');
       if (fCount) fCount.textContent = `${n} item${n > 1 ? 's' : ''}`;
-      if (fPrice) fPrice.textContent = `₹${totalPrice}`;
+      if (fPrice) fPrice.textContent = `₹${totals.total}`;
     } else {
       fBar.classList.remove('show');
     }
@@ -562,11 +635,11 @@ function renderCartDrawer() {
     return { ci, p, itemTotal };
   }).filter(Boolean);
 
-  const total = items.reduce((sum, item) => sum + item.itemTotal, 0);
+  const totals = getCartTotals();
   const itemCount = window.cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
 
   subtitle.textContent = itemCount ? `${itemCount} item${itemCount > 1 ? 's' : ''} in your basket` : 'Fresh picks, ready to checkout';
-  totalEl.textContent = `₹${Math.round(total)}`;
+  totalEl.textContent = `₹${Math.round(totals.total)}`;
 
   if (!items.length) {
     body.innerHTML = `
@@ -1267,18 +1340,22 @@ function renderCart() {
     el.innerHTML = '<div class="cart-empty"><h3>Your basket is empty</h3><button class="btn btn-green" onclick="showPage(\'shop\')">Start Shopping</button></div>';
     return;
   }
-  let sub = 0;
+  
+  const totals = getCartTotals();
+  const discData = window.appliedCoupon; // { code, type, value }
+
   const items = window.cart.map(ci => {
     const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
     if (!p) return '';
     const itemTotal = p.price * ci.qty;
-    sub += itemTotal;
 
-    // For custom products, we use the stored description
     const weightLabel = p.wt || '';
     const isMango = (p.cat && p.cat.toLowerCase().includes('mango')) || (p.name && p.name.toLowerCase().includes('mango'));
     const unitInfo = (window.getUnitPrice && !p.isCustom && isMango) ? window.getUnitPrice(p.price, p.wt) : null;
     const rateText = unitInfo ? ` (₹${unitInfo.rate}/${unitInfo.unit} rate)` : (p.desc && !isMango ? ` <span style="font-size:10px; color:#666; display:block; margin-top:4px;">${p.desc}</span>` : '');
+
+    // Show discount badge if it's a couple entry
+    const discountBadge = ci.qty === 2 ? `<div style="font-size:10px; color:#1b391b; background:#f0fdf4; padding:2px 6px; border-radius:4px; display:inline-block; font-weight:700; border:1px solid #22c55e; margin-top:4px;">COUPLE OFFER APPLIED ✨</div>` : '';
 
     return `
       <div class="citem">
@@ -1286,6 +1363,7 @@ function renderCart() {
         <div>
           <div class="ci-name">${p.name}</div>
           <div class="ci-wt" style="font-size:11px; color:#888;">${weightLabel}${rateText}</div>
+          ${discountBadge}
           <div class="ci-bot">
             <span class="ci-price">₹${Math.round(itemTotal)}</span>
             <div class="ci-qty">
@@ -1299,17 +1377,32 @@ function renderCart() {
       </div>`;
   }).join('');
 
-  const config = window.deliveryConfig || { charge: 49, free_above: 999 };
-  const deliveryFee = sub >= config.free_above ? 0 : config.charge;
-  const total = sub + deliveryFee;
-
   el.innerHTML = `
     <div class="clist">${items}</div>
+    
+    <!-- Coupon Section -->
+    <div style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px dashed #e2e8f0;">
+      <div style="font-size: 13px; font-weight: 700; color: #1b391b; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+        <i class="ph ph-ticket" style="font-size: 18px; color: #22c55e;"></i>
+        HAVE A COUPON?
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="coupon-input" placeholder="Enter code..." style="flex: 1; padding: 10px 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; font-weight: 700; text-transform: uppercase;" value="${discData ? discData.code : ''}" ${discData ? 'disabled' : ''}>
+        ${discData ? 
+          `<button onclick="window.removeCoupon()" style="padding: 8px 15px; background: #fee2e2; color: #ef4444; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">REMOVE</button>` : 
+          `<button onclick="window.applyCoupon()" style="padding: 8px 15px; background: #1b391b; color: white; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">APPLY</button>`
+        }
+      </div>
+      ${discData ? `<div style="font-size: 11px; color: #22c55e; font-weight: 800; margin-top: 8px;">✨ CODE "${discData.code}" APPLIED SUCCESSFULLY!</div>` : ''}
+    </div>
+
     <div class="csummary">
-      <div class="srow"><span>Subtotal</span><span>₹${sub}</span></div>
-      <div class="srow"><span style="color:#666;">Delivery</span><span style="color:${deliveryFee === 0 ? '#22c55e' : '#666'};">${deliveryFee === 0 ? 'Free' : '₹' + deliveryFee}</span></div>
-      <div class="srow total" style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;"><span>Total</span><span style="font-size:24px; font-weight:900;">₹${total}</span></div>
-      <div id="co-tot" style="display:none">${total}</div>
+      <div class="srow"><span>Subtotal</span><span>₹${totals.subtotal}</span></div>
+      ${totals.coupleDiscount > 0 ? `<div class="srow" style="color:#1b391b; background:#f0fdf4; padding:4px 8px; border-radius:8px; margin:4px 0;"><span style="font-weight:700;">Couple Discount</span><span style="font-weight:900;">-₹${totals.coupleDiscount}</span></div>` : ''}
+      ${totals.couponDiscount > 0 ? `<div class="srow" style="color:#1b391b; background:#ecfdf5; padding:4px 8px; border-radius:8px; margin:4px 0;"><span style="font-weight:700;">Coupon Discount (${discData.code})</span><span style="font-weight:900;">-₹${totals.couponDiscount}</span></div>` : ''}
+      <div class="srow"><span style="color:#666;">Delivery</span><span style="color:${totals.deliveryFee === 0 ? '#22c55e' : '#666'};">${totals.deliveryFee === 0 ? 'Free' : '₹' + totals.deliveryFee}</span></div>
+      <div class="srow total" style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;"><span>Total</span><span style="font-size:24px; font-weight:900;">₹${totals.total}</span></div>
+      <div id="co-tot" style="display:none">${totals.total}</div>
       <div class="slide-wrap" id="cart-slider" style="margin-top:24px;">
         <div class="slide-bg"></div>
         <div class="slide-text">SLIDE TO PAY</div>
@@ -1528,8 +1621,9 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
   const tot = totEl ? parseInt(totEl.innerText) : 0;
   if (!tot) return;
 
+  const totals = getCartTotals();
   const options = {
-    key: "rzp_live_SblSXsCRc6GjPo", amount: tot * 100, currency: "INR", name: "Farmmily Foods",
+    key: "rzp_live_SblSXsCRc6GjPo", amount: totals.total * 100, currency: "INR", name: "Farmmily Foods",
     handler: async response => {
       showToast('Payment Successful!');
 
@@ -1557,9 +1651,11 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
           const { data: orderData, error: orderErr } = await supabaseClient
             .from('orders')
             .insert([{
-              subtotal: tot - (tot > 1000 ? 0 : 49),
-              delivery_charge: (tot > 1000 ? 0 : 49),
-              total: tot,
+              subtotal: totals.subtotal - totals.coupleDiscount - totals.couponDiscount,
+              delivery_charge: totals.deliveryFee,
+              total: totals.total,
+              discount_code: window.appliedCoupon ? window.appliedCoupon.code : null,
+              discount_amount: totals.couponDiscount + totals.coupleDiscount,
               payment_status: 'paid',
               status: 'confirmed',
               customer_name: customerName,
@@ -2127,9 +2223,13 @@ function handleDynamicProducts(data) {
           inStock: product.in_stock !== false, // Fallback to product level in_stock
           stockCount: Number(product.stock_count || 0),
           cat: category,
+          badge: product.badge,
           rating: product.rating || 5.0,
           revs: product.review_count || 10,
           desc: getProductDescription(product),
+          about_item: product.about_item,
+          harvest_journey: product.harvest_journey,
+          benefits: product.benefits,
           isFeatured: product.is_featured
         };
       });

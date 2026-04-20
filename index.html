@@ -6975,7 +6975,7 @@
         <!-- Variant chips added via JS -->
       </div>
 
-      <div
+      <div id="pd-static-about"
         style="background:#fff; border-radius:12px; padding:12px 16px; border:1px solid #f0f0f0; box-shadow:0 8px 24px rgba(0,0,0,0.01); position:relative; overflow:hidden; margin-bottom:12px;">
         <div style="position:absolute; top:0; left:0; width:3px; height:100%; background:#1b391b;"></div>
         <h2
@@ -6986,10 +6986,14 @@
         </p>
       </div>
 
-
+      <!-- Dynamic About Item -->
+      <div id="pd-premium-about-wrap" style="display:none; margin-bottom:24px; border-top:1px solid #f8fafc; padding-top:16px;">
+        <h3 style="font-size:11px; font-weight:900; color:#1b391b; text-transform:uppercase; margin-bottom:12px; letter-spacing:2px;">About This Item</h3>
+        <ul id="pd-dynamic-about" style="list-style-type:disc; padding-left:18px; font-size:12px; color:#555; line-height:1.6; font-family:'Inter', sans-serif;"></ul>
+      </div>
 
       <!-- NEW PROFESSIONAL CONTENT: HARVEST JOURNEY -->
-      <div style="margin-bottom:32px;">
+      <div id="pd-static-journey" style="margin-bottom:32px;">
         <h3
           style="font-size:11px; font-weight:900; color:#1b391b; text-transform:uppercase; margin-bottom:16px; letter-spacing:2px; text-align:center;">
           Our Harvest Journey</h3>
@@ -7026,6 +7030,12 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Dynamic Harvest Journey -->
+      <div id="pd-journey-wrap" style="display:none; margin-bottom:32px;">
+         <h3 style="font-size:11px; font-weight:900; color:#1b391b; text-transform:uppercase; margin-bottom:16px; letter-spacing:2px; text-align:center;">The Journey</h3>
+         <div id="pd-dynamic-journey" style="display:flex; flex-direction:column; gap:16px;"></div>
       </div>
       <div class="desktop-info"
         style="display: none; margin-bottom: 32px; border-top: 1px solid #f0f0f0; padding-top: 24px;">
@@ -7179,6 +7189,48 @@
 
         title.innerText = cap(cleanVariety).replace(/ mangoes/i, '') + (cleanVariety.toLowerCase().includes('mango') ? ' Mangoes' : '');
         desc.innerText = mangoDescriptions[cleanVariety] || variants[0].desc || 'Premium quality selection harvested fresh from our heritage farms.';
+
+        // --- DYNAMIC ABOUT ITEM ---
+        const aboutWrap = document.getElementById('pd-premium-about-wrap');
+        const aboutList = document.getElementById('pd-dynamic-about');
+        const staticAbout = document.getElementById('pd-static-about');
+        if (aboutWrap && aboutList) {
+          const content = variants[0].about_item || '';
+          const benefits = variants[0].benefits || [];
+          
+          if (content || (Array.isArray(benefits) && benefits.length)) {
+            let html = '';
+            if (content) html += content.split('\n').filter(l => l.trim()).map(l => `<li style="margin-bottom:8px;">${l}</li>`).join('');
+            if (Array.isArray(benefits)) html += benefits.filter(b => b).map(b => `<li style="margin-bottom:8px;">${b}</li>`).join('');
+            
+            aboutList.innerHTML = html;
+            aboutWrap.style.display = 'block';
+            if (staticAbout) staticAbout.style.display = 'none';
+          } else {
+            aboutWrap.style.display = 'none';
+            if (staticAbout) staticAbout.style.display = 'block';
+          }
+        }
+
+        // --- DYNAMIC HARVEST JOURNEY ---
+        const journeyWrap = document.getElementById('pd-journey-wrap');
+        const journeyList = document.getElementById('pd-dynamic-journey');
+        const staticJourney = document.getElementById('pd-static-journey');
+        if (journeyWrap && journeyList) {
+          const content = variants[0].harvest_journey || '';
+          if (content) {
+            journeyList.innerHTML = content.split('\n').filter(l => l.trim()).map((step, idx) => `
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:24px; height:24px; background:#f0fdf4; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:10px; font-weight:900; color:#22c55e;">${idx + 1}</div>
+                <div><p style="font-size:11px; color:#777; line-height:1.4;">${step}</p></div>
+              </div>`).join('');
+            journeyWrap.style.display = 'block';
+            if (staticJourney) staticJourney.style.display = 'none';
+          } else {
+            journeyWrap.style.display = 'none';
+            if (staticJourney) staticJourney.style.display = 'block';
+          }
+        }
 
         const ratingEl = document.getElementById('pd-rating');
         if (ratingEl) ratingEl.innerText = variants[0].rating ? Number(variants[0].rating).toFixed(1) : '5.0';
@@ -7545,7 +7597,7 @@
     <div class="promo-title">Signature Harvest Offer</div>
     <div class="promo-desc">
       Enjoy <b>10% OFF</b> on our heritage mango collection. <br>
-      Pure. Natural. Honest. ₹ Direct from our farm to your family.
+      Pure. Natural. Honest. Direct from our farm to your family.
     </div>
     <div class="promo-badge" onclick="window.copyPromoCode()">
       <div class="promo-code-val">FARM10</div>
