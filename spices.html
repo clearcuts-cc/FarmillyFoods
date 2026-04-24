@@ -7111,7 +7111,9 @@
 
         let variants = [];
         if (productId) {
-          const target = (window.displayProducts || []).find(x => Number(x.productId || x.id) === Number(productId));
+          // Prioritize finding by the specific variant ID first
+          const target = (window.displayProducts || []).find(x => Number(x.id) === Number(productId)) || 
+                         (window.displayProducts || []).find(x => Number(x.productId) === Number(productId));
           if (target && target.variants) variants = target.variants;
         }
 
@@ -7281,7 +7283,8 @@
         el.querySelector('div').style.color = '#1b391b';
         selectedPdVariant = v;
         const uI = window.getUnitPrice(v.price, v.wt);
-        const isMango = (cleanVariety || '').toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => (cleanVariety || '').toLowerCase().includes(k));
+        const currentVariety = (v.name || '').replace(/\(.*\)/, '').trim();
+        const isMango = currentVariety.toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => currentVariety.toLowerCase().includes(k));
         if (isMango) {
           document.getElementById('v-foot-wt').innerText = '1 ' + uI.unit.toUpperCase() + ' RATE';
           document.getElementById('v-foot-pr').innerText = 'â‚¹' + uI.rate;

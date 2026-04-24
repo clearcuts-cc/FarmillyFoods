@@ -2201,11 +2201,20 @@ function handleDynamicProducts(data) {
     const basePricePerKg = Number(product.base_price_per_kg || 0);
     const compareAtPerKg = Number(product.compare_at_price_per_kg || 0);
     const low = (product.name || '').toLowerCase();
-    let img = product.image_url;
-    if (img && img.includes('unsplash.com')) img = null;
+    let img = null;
+    
+    // Check assetMap first for known varieties to ensure consistency with static UI
+    for (const k in assetMap) {
+      if (low.includes(k)) {
+        img = assetMap[k];
+        break;
+      }
+    }
 
-    if (!img || img === 'undefined') {
-      for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    // Fallback to database URL if not in assetMap or if it's not a known variety
+    if (!img) {
+      img = product.image_url;
+      if (img && img.includes('unsplash.com')) img = null;
     }
     const categoryList = window.cats || (typeof cats !== 'undefined' ? cats : []);
     const category = categoryList.find(c => c.id === product.category_id)?.name || 'Products';
@@ -3034,12 +3043,12 @@ window.renderCrateVarieties = function () {
   if (!container || !activeCrateProduct) return;
 
   container.innerHTML = activeCrateProduct.selectionPool.map(v => {
-    const sku = v.sku;
+    const sku = v.sku || '';
     const qty = crateMix[sku] || 0;
     const unitPrice = v.price || 0;
     
     // Try to find the actual product for name and image
-    const p = window.products.find(x => x.sku === sku || x.rawName?.toLowerCase().includes(sku.toLowerCase()));
+    const p = sku ? window.products.find(x => x.sku === sku || (x.rawName && x.rawName.toLowerCase().includes(sku.toLowerCase()))) : null;
     const name = p ? p.name : v.label.replace('VarietyPool:', '');
     const img = p ? p.img : 'assets/placeholder.png';
 
@@ -3140,7 +3149,7 @@ async function initApp() {
     await fetchDeliveryConfig();
     await loadCategories();
     await loadProducts();
-    loadCart();
+    // loadCart() is redundant as cart is loaded at top of file
   } catch (err) {
     console.error("Initialization error:", err);
   }

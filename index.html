@@ -6420,25 +6420,25 @@
               <div class="grid grid-cols-2 gap-6">
                 <div class="space-y-2">
                   <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Contact Phone *</label>
-                  <input type="text" placeholder="+91 98765 43210"
+                  <input id="corp-phone" type="text" placeholder="+91 98765 43210"
                     class="w-full border-b-2 border-gray-100 py-3 outline-none focus:border-amber-600 font-medium bg-transparent">
                 </div>
                 <div class="space-y-2">
                   <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Company Email</label>
-                  <input type="email" placeholder="orders@company.com"
+                  <input id="corp-email" type="email" placeholder="orders@company.com"
                     class="w-full border-b-2 border-gray-100 py-3 outline-none focus:border-amber-600 font-medium bg-transparent">
                 </div>
               </div>
               <div class="space-y-2">
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Company Name on
                   Sleeve</label>
-                <input type="text" onkeyup="updateAllBranding(this.value)" placeholder="TATA STEEL, RELIANCE, etc."
+                <input id="corp-company-name" type="text" onkeyup="updateAllBranding(this.value)" placeholder="TATA STEEL, RELIANCE, etc."
                   class="w-full border-b-2 border-gray-100 py-4 outline-none focus:border-amber-600 font-serif text-xl md:text-3xl uppercase bg-transparent">
               </div>
               <div class="space-y-2">
                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inner Heritage Card
                   Message</label>
-                <textarea onkeyup="updateAllMessages(this.value)"
+                <textarea id="corp-message" onkeyup="updateAllMessages(this.value)"
                   placeholder="Write your personalized message to partners..."
                   class="w-full border-b-2 border-gray-100 py-4 outline-none focus:border-amber-600 font-serif text-xl resize-none h-32 bg-transparent"></textarea>
               </div>
@@ -6535,7 +6535,7 @@
                       class="w-full bg-white/5 border-b-2 border-white/20 py-2 md:py-4 text-3xl md:text-5xl font-serif outline-none focus:border-amber-400 transition-colors">
                   </div>
                 </div>
-                <button onclick="showToast('Bespoke Inquiry Initiated! We will reach out within 2 hours.')"
+                <button onclick="window.submitCorpOrder()"
                   class="w-full bg-amber-500 text-emerald-950 py-5 md:py-7 rounded-[18px] md:rounded-[24px] font-black text-[10px] md:text-xs uppercase tracking-[3px] md:tracking-[4px] hover:bg-amber-400 active:scale-[0.98] transition-all shadow-2xl shadow-amber-500/20">PAY
                   & CONFIRM ORDER</button>
                 <div
@@ -7153,7 +7153,9 @@
 
         let variants = [];
         if (productId) {
-          const target = (window.displayProducts || []).find(x => Number(x.productId || x.id) === Number(productId));
+          // Prioritize finding by the specific variant ID first
+          const target = (window.displayProducts || []).find(x => Number(x.id) === Number(productId)) || 
+                         (window.displayProducts || []).find(x => Number(x.productId) === Number(productId));
           if (target && target.variants) variants = target.variants;
         }
 
@@ -7365,7 +7367,8 @@
         el.querySelector('div').style.color = '#1b391b';
         selectedPdVariant = v;
         const uI = window.getUnitPrice(v.price, v.wt);
-        const isMango = (cleanVariety || '').toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => (cleanVariety || '').toLowerCase().includes(k));
+        const currentVariety = (v.name || '').replace(/\(.*\)/, '').trim();
+        const isMango = currentVariety.toLowerCase().includes('mango') || ['imam', 'alph', 'bang', 'sent'].some(k => currentVariety.toLowerCase().includes(k));
         if (isMango) {
           document.getElementById('v-foot-wt').innerText = '1 ' + uI.unit.toUpperCase() + ' RATE';
           document.getElementById('v-foot-pr').innerText = '₹' + uI.rate;
