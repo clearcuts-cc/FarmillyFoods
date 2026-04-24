@@ -1391,11 +1391,11 @@ function renderCart() {
         <i class="ph ph-ticket" style="font-size: 18px; color: #22c55e;"></i>
         HAVE A COUPON?
       </div>
-      <div style="display: flex; gap: 8px;">
-        <input type="text" id="coupon-input" placeholder="Enter code..." style="flex: 1; padding: 10px 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; font-weight: 700; text-transform: uppercase;" value="${discData ? discData.code : ''}" ${discData ? 'disabled' : ''}>
+      <div style="display: flex; gap: 8px; align-items: stretch;">
+        <input type="text" id="coupon-input" placeholder="Enter code..." style="flex: 1; min-width: 0; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; font-weight: 700; text-transform: uppercase;" value="${discData ? discData.code : ''}" ${discData ? 'disabled' : ''}>
         ${discData ? 
-          `<button onclick="window.removeCoupon()" style="padding: 8px 15px; background: #fee2e2; color: #ef4444; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">REMOVE</button>` : 
-          `<button onclick="window.applyCoupon()" style="padding: 8px 15px; background: #1b391b; color: white; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">APPLY</button>`
+          `<button onclick="window.removeCoupon()" style="padding: 0 15px; background: #fee2e2; color: #ef4444; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; white-space: nowrap; font-size: 12px;">REMOVE</button>` : 
+          `<button onclick="window.applyCoupon()" style="padding: 0 15px; background: #1b391b; color: white; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; white-space: nowrap; font-size: 12px;">APPLY</button>`
         }
       </div>
       ${discData ? `<div style="font-size: 11px; color: #22c55e; font-weight: 800; margin-top: 8px;">✨ CODE "${discData.code}" APPLIED SUCCESSFULLY!</div>` : ''}
