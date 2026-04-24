@@ -1049,38 +1049,43 @@ window.getItemPrice = function (price, qty) {
 
 // ===== PRODUCT CARD HTML ====
 function pcardHTML(p) {
-  if ((p.name || '').toLowerCase().includes('custom heritage')) {
-    const mangoRateKeys = ['imam', 'alph', 'bang', 'sent'];
-    const perKgRates = mangoRateKeys.map(getPerKgRateByKeyword).filter(rate => rate > 0);
-    const avgPerKgRate = perKgRates.length
-      ? Math.round(perKgRates.reduce((sum, rate) => sum + rate, 0) / perKgRates.length)
-      : 0;
+  if (p.isCustomBox) {
+    const boxSizes = p.boxSizes || [];
+    const minWt = boxSizes.length ? Math.min(...boxSizes.map(s => Number(s.quantity_kg))) : 3;
+    const maxWt = boxSizes.length ? Math.max(...boxSizes.map(s => Number(s.quantity_kg))) : 5;
+    
+    // Average price from pool
+    const pool = p.selectionPool || [];
+    const avgPrice = pool.length 
+      ? Math.round(pool.reduce((sum, v) => sum + (v.price || 0), 0) / pool.length)
+      : (p.price || 0);
+
     const ratingVal = parseFloat(p.rating || 5.0);
     const revsCount = parseInt(p.revs || 0);
     const starsHtml = '★'.repeat(Math.round(ratingVal)) + '☆'.repeat(5 - Math.round(ratingVal));
 
-    return `<div class="premium-mango-card" onclick="window.openCrateBuilder()">
+    return `<div class="premium-mango-card" onclick="window.openCrateBuilder(${p.id})">
             <div class="m-img-wrap" style="background: #e0f2f1;">
-              <img src="assets/side-01.png" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
-              <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
-                CUSTOM
+              <img src="${p.img || 'assets/side-01.png'}" alt="${p.name}" style="mix-blend-mode: multiply; opacity: 0.9;">
+              <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder(${p.id})">
+                BUILD MIX
               </div>
             </div>
             <div class="m-info">
               <div class="m-top-row">
-                <div class="m-wt-tag">3-5 KG</div>
+                <div class="m-wt-tag" style="display:block !important;">${minWt}-${maxWt} KG</div>
                 <div class="m-stats">
                   <div class="m-stars">${starsHtml}</div>
                   <span class="m-rating-val">${ratingVal.toFixed(1)} <span style="font-size:10px; color:#94a3b8; font-weight:500;">(${revsCount})</span></span>
                 </div>
               </div>
-              <h3 class="m-title" style="margin-bottom:0px;">Custom Heritage Mango Crate</h3>
+              <h3 class="m-title" style="margin-bottom:0px;">${p.name}</h3>
               <div style="font-size:10px; color:#0d47a1; font-weight:700; background:#e3f2fd; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">MIX ALL VARIETIES</div>
-              <span class="m-subtitle">Create Your Signature Blend</span>
+              <span class="m-subtitle">Select your favorite varieties</span>
               <div class="m-price-row">
                 <div class="m-price-box">
                   <span class="m-currency">₹</span>
-                  <span class="m-amt">${avgPerKgRate}</span>
+                  <span class="m-amt">${avgPrice}</span>
                   <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg avg</span>
                 </div>
                 <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Build your own mix!</div>
@@ -2095,10 +2100,13 @@ async function loadProducts() {
       weight,
       in_stock,
       stock_count,
+      product_type,
       product_variants (
         id,
         label,
         quantity_kg,
+        price,
+        sku,
         is_default
       )
     `)
@@ -2194,7 +2202,6 @@ function handleDynamicProducts(data) {
     const compareAtPerKg = Number(product.compare_at_price_per_kg || 0);
     const low = (product.name || '').toLowerCase();
     let img = product.image_url;
-    // Treat Unsplash as placeholder
     if (img && img.includes('unsplash.com')) img = null;
 
     if (!img || img === 'undefined') {
@@ -2202,6 +2209,35 @@ function handleDynamicProducts(data) {
     }
     const categoryList = window.cats || (typeof cats !== 'undefined' ? cats : []);
     const category = categoryList.find(c => c.id === product.category_id)?.name || 'Products';
+
+    if (product.product_type === 'custom_box') {
+      // Special handling for Custom Crate
+      const variants = (product.product_variants || []);
+      const boxSizes = variants.filter(v => v.label && !v.label.startsWith('VarietyPool:'));
+      const selectionPool = variants.filter(v => v.label && v.label.startsWith('VarietyPool:'));
+
+      const customProduct = {
+        id: product.id,
+        name: cap(product.name),
+        rawName: product.name,
+        price: boxSizes[0]?.price || 0,
+        wt: boxSizes[0]?.label || '3kg',
+        img: img || 'assets/side-01.png',
+        inStock: product.in_stock !== false,
+        cat: category,
+        rating: product.rating || 5.0,
+        revs: product.review_count || 10,
+        desc: getProductDescription(product),
+        isFeatured: product.is_featured,
+        isCustomBox: true,
+        boxSizes,
+        selectionPool
+      };
+      
+      flatVariants.push(customProduct);
+      groupedProducts[product.name] = { ...customProduct, variants: [customProduct] };
+      return;
+    }
 
     let variants = (product.product_variants || [])
       .filter(v => v)
@@ -2214,13 +2250,13 @@ function handleDynamicProducts(data) {
           productId: product.id,
           name: cap(product.name),
           rawName: product.name,
-          price: calculateVariantPrice(basePricePerKg, weightKg),
+          price: v.price || calculateVariantPrice(basePricePerKg, weightKg),
           originalPrice: compareAtPerKg > 0 ? calculateVariantPrice(compareAtPerKg, weightKg) : null,
           basePricePerKg,
-          wt: formatWeightLabel(weightKg),
+          wt: v.label || formatWeightLabel(weightKg),
           weightKg,
           img: img || 'assets/placeholder.png',
-          inStock: product.in_stock !== false, // Fallback to product level in_stock
+          inStock: product.in_stock !== false,
           stockCount: Number(product.stock_count || 0),
           cat: category,
           badge: product.badge,
@@ -2261,7 +2297,6 @@ function handleDynamicProducts(data) {
 
     variants.forEach(variant => flatVariants.push(variant));
 
-    // Grouping by Base Name, similar to handleRawProducts
     let baseName = product.name
       .replace(/\(.*\)/g, '')
       .replace(/\s+\d+\s*(kg|g|l|ml|litres|litre|lit|kilo|gram|oz|lb)\s*$/i, '')
@@ -2899,127 +2934,126 @@ function liveSearch(q) {
 }
 window.liveSearch = liveSearch;
 
-// ===== CUSTOM CRATE BUILDER =====
+
+// ===== CUSTOM CRATE BUILDER (DYNAMNIC HARVEST MIX) =====
+let activeCrateProduct = null;
+let crateMix = {}; // ID -> Qty
 let crateLimit = 3;
-let crateMix = {}; // { id: qty }
-let mangoVarieties = [];
 
-window.openCrateBuilder = function () {
-  const overlay = document.getElementById('crate-overlay');
-  const modal = document.getElementById('crate-builder');
-  if (!overlay || !modal) return;
+window.openCrateBuilder = function (productId = null) {
+  // If no ID provided, try to find the first custom box product
+  const product = productId ? 
+    window.products.find(p => p.productId === productId || p.id === productId) :
+    window.products.find(p => p.isCustomBox);
 
-  // Initialize mangoes - exclude the Custom Crate itself!
-  mangoVarieties = (window.displayProducts || []).filter(p => {
-    const isMangoCrate = p.name.toLowerCase().includes('custom') || p.name.toLowerCase().includes('crate');
-    const isMango = (p.cat && p.cat.toLowerCase().includes('mango')) ||
-      p.name.toLowerCase().includes('mango');
-    return isMango && !isMangoCrate;
-  });
+  if (!product || !product.isCustomBox) {
+    showToast("Custom crate configuration not found.");
+    return;
+  }
 
+  activeCrateProduct = product;
   crateMix = {};
-  mangoVarieties.forEach(v => crateMix[v.id] = 0);
-  crateLimit = 3;
+  
+  // Default to first size or 3kg
+  const defaultSize = product.boxSizes.find(s => s.is_default) || product.boxSizes[0];
+  crateLimit = defaultSize ? Number(defaultSize.quantity_kg) : 3;
 
-  window.renderCrateVarieties();
-  window.updateCrateUI();
-
-  overlay.style.display = 'block';
-  modal.style.display = 'block';
-  setTimeout(() => {
-    modal.style.transform = 'translateY(0)';
-    overlay.style.opacity = '1';
-  }, 10);
-  document.body.style.overflow = 'hidden';
+  const overlay = document.getElementById('crate-overlay');
+  const builder = document.getElementById('crate-builder');
+  if (overlay && builder) {
+    overlay.style.display = 'block';
+    builder.style.display = 'block';
+    setTimeout(() => builder.style.transform = 'translateY(0)', 10);
+    document.body.style.overflow = 'hidden';
+    
+    // Update Size Tabs
+    renderCrateSizeTabs();
+    window.updateCrateUI();
+    window.renderCrateVarieties();
+  }
 };
 
 window.closeCrateBuilder = function () {
-  const c = document.getElementById('crate-builder');
-  const o = document.getElementById('crate-overlay');
-  if (c) {
-    c.style.transform = 'translateY(100%)';
-    c.classList.remove('active');
+  const overlay = document.getElementById('crate-overlay');
+  const builder = document.getElementById('crate-builder');
+  if (overlay && builder) {
+    builder.style.transform = 'translateY(100%)';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      builder.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 400);
   }
-  setTimeout(() => {
-    if (o) o.style.display = 'none';
-    if (c) {
-      c.style.display = 'none';
-      c.style.transform = '';
-      c.style.transition = '';
-    }
-  }, 400);
-  document.body.style.overflow = '';
 };
 
-window.setCrateLimit = function (lim) {
-  crateLimit = lim;
-  console.log("Crate limit changed to:", lim);
+function renderCrateSizeTabs() {
+  const container = document.querySelector('#crate-builder > div:nth-child(3)'); // The tab container
+  if (!container || !activeCrateProduct) return;
 
-  // Reset previous mixes to avoid weight overflow
-  if (mangoVarieties && mangoVarieties.length) {
-    mangoVarieties.forEach(v => crateMix[String(v.id)] = 0);
-  } else {
-    crateMix = {};
-  }
+  container.innerHTML = activeCrateProduct.boxSizes.map(size => {
+    const kg = Number(size.quantity_kg);
+    const isActive = kg === crateLimit;
+    return `
+      <div class="crate-size-tab ${isActive ? 'active' : ''}" 
+           onclick="window.setCrateLimit(${kg})" 
+           id="tab-${kg}kg"
+           style="flex:1; text-align:center; padding:15px; border-radius:16px; border:2px solid ${isActive ? '#22c55e' : '#eee'}; background:${isActive ? '#f0fdf4' : '#f8fafc'}; color:${isActive ? '#166534' : '#64748b'}; font-weight:900; cursor:pointer; transition:0.3s;">
+        ${size.label.toUpperCase()}<br><span style="font-size:10px; opacity:0.7;">Select ${kg} items</span>
+      </div>
+    `;
+  }).join('');
+}
 
-  // Update Tab UI
-  document.querySelectorAll('.crate-size-tab').forEach(t => {
-    t.style.background = '#f8fafc';
-    t.style.borderColor = '#eee';
-    t.style.color = '#64748b';
-    t.classList.remove('active');
-  });
-
-  const activeTab = document.getElementById(`tab-${lim}kg`);
-  if (activeTab) {
-    activeTab.style.background = '#f0fdf4';
-    activeTab.style.borderColor = '#22c55e';
-    activeTab.style.color = '#166534';
-    activeTab.classList.add('active');
-  }
-
+window.setCrateLimit = function (limit) {
+  crateLimit = limit;
+  crateMix = {}; // Reset mix on size change
+  renderCrateSizeTabs();
   window.renderCrateVarieties();
   window.updateCrateUI();
 };
 
 window.updateCrateVariety = function (id, delta) {
-  const cid = String(id);
   const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
-
-  if (delta > 0 && currentTotal + delta > crateLimit) {
-    showToast(`Crate limit reached (${crateLimit} KG)`);
+  const currentVal = crateMix[id] || 0;
+  
+  if (delta > 0 && currentTotal >= crateLimit) {
+    showToast(`Crate is full! Remove items to add more.`);
     return;
   }
-
-  const currentQty = crateMix[cid] || 0;
-  if (currentQty + delta < 0) return;
-
-  crateMix[cid] = currentQty + delta;
-  console.log(`Updated ${cid} to ${crateMix[cid]}`);
-
+  
+  const newVal = Math.max(0, currentVal + delta);
+  if (newVal === 0) delete crateMix[id];
+  else crateMix[id] = newVal;
+  
   window.renderCrateVarieties();
   window.updateCrateUI();
 };
 
 window.renderCrateVarieties = function () {
   const container = document.getElementById('crate-varieties');
-  if (!container) return;
+  if (!container || !activeCrateProduct) return;
 
-  container.innerHTML = mangoVarieties.map(v => {
-    const qty = crateMix[String(v.id)] || 0;
-    const unitPrice = getPerKgRate(v);
+  container.innerHTML = activeCrateProduct.selectionPool.map(v => {
+    const sku = v.sku;
+    const qty = crateMix[sku] || 0;
+    const unitPrice = v.price || 0;
+    
+    // Try to find the actual product for name and image
+    const p = window.products.find(x => x.sku === sku || x.rawName?.toLowerCase().includes(sku.toLowerCase()));
+    const name = p ? p.name : v.label.replace('VarietyPool:', '');
+    const img = p ? p.img : 'assets/placeholder.png';
 
     return `
     <div style="display:flex; align-items:center; gap:15px; padding:15px; border-bottom:1px solid #f1f5f9;">
-        <img src="${v.img}" style="width:60px; height:60px; border-radius:12px; object-fit:contain; background:#f8fafc; border:1px solid #f1f5f9; padding:4px;">
+        <img src="${img}" style="width:60px; height:60px; border-radius:12px; object-fit:contain; background:#f8fafc; border:1px solid #f1f5f9; padding:4px;">
         <div style="flex:1">
-            <div style="font-weight:700; color:#1b391b;">${v.name}</div>
+            <div style="font-weight:700; color:#1b391b;">${name}</div>
             <div style="font-size:12px; color:#22c55e; font-weight:700;">₹${unitPrice} / KG</div>
         </div>
         <div style="display:flex; align-items:center; gap:12px; background:#f8fafc; border-radius:50px; padding:6px 14px; border:1px solid #e2e8f0;">
-            <button onclick="window.updateCrateVariety('${v.id}', -1)" style="background:none; border:none; font-weight:900; color:#ef4444; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">-</button>
+            <button onclick="window.updateCrateVariety('${sku}', -1)" style="background:none; border:none; font-weight:900; color:#ef4444; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">-</button>
             <span style="font-weight:900; min-width:20px; text-align:center; font-size:16px; color:#1b391b;">${qty}</span>
-            <button onclick="window.updateCrateVariety('${v.id}', 1)" style="background:none; border:none; font-weight:900; color:#22c55e; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">+</button>
+            <button onclick="window.updateCrateVariety('${sku}', 1)" style="background:none; border:none; font-weight:900; color:#22c55e; cursor:pointer; font-size:22px; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">+</button>
         </div>
     </div>
   `}).join('');
@@ -3027,7 +3061,15 @@ window.renderCrateVarieties = function () {
 
 window.updateCrateUI = function () {
   const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
-  const totalPrice = calculateSelectionTotalPrice(mangoVarieties, crateMix);
+  
+  // Dynamic price calculation
+  let totalPrice = 0;
+  if (activeCrateProduct) {
+    activeCrateProduct.selectionPool.forEach(v => {
+      const qty = crateMix[v.sku] || 0;
+      totalPrice += qty * (v.price || 0);
+    });
+  }
 
   const curWtEl = document.getElementById('crate-current-wt');
   const maxLimEl = document.getElementById('crate-max-limit');
@@ -3055,31 +3097,29 @@ window.updateCrateUI = function () {
   }
 };
 
-window.crateLimit = crateLimit;
-window.crateMix = crateMix;
-
 window.addCustomCrateToCart = function () {
   const currentTotal = Object.values(crateMix).reduce((a, b) => a + b, 0);
   if (currentTotal !== crateLimit) return;
 
   let totalPrice = 0;
   let summary = [];
-  mangoVarieties.forEach(v => {
-    const qty = crateMix[String(v.id)] || 0;
+  activeCrateProduct.selectionPool.forEach(v => {
+    const qty = crateMix[v.sku] || 0;
     if (qty > 0) {
-      const perKgRate = getPerKgRate(v);
-      totalPrice += qty * perKgRate;
-      summary.push(`${qty}kg ${v.name}`);
+      totalPrice += qty * (v.price || 0);
+      // Find actual name
+      const p = window.products.find(x => x.sku === v.sku);
+      summary.push(`${qty}kg ${p ? p.name : v.label.replace('VarietyPool:', '')}`);
     }
   });
 
   const customId = 999000 + (Date.now() % 10000);
   const customProduct = {
     id: customId,
-    name: `Custom Crate (${crateLimit}kg)`,
+    name: `${activeCrateProduct.name} (${crateLimit}kg)`,
     price: totalPrice,
-    img: 'assets/side-01.png',
-    desc: `Mixed Pack: ${summary.join(', ')}`,
+    img: activeCrateProduct.img || 'assets/side-01.png',
+    desc: `Harvest Mix: ${summary.join(', ')}`,
     wt: `${crateLimit}kg`,
     is_active: true,
     inStock: true,
@@ -3087,9 +3127,9 @@ window.addCustomCrateToCart = function () {
   };
 
   addToCart(customId, customProduct);
-  showToast('Custom Crate added to harvest bag!');
+  showToast('Harvest Mix added to bag! 🥭');
   window.closeCrateBuilder();
-  refreshCurrentView();
+  updateCartCount();
 };
 
 // End of App logic
@@ -3097,11 +3137,9 @@ window.addCustomCrateToCart = function () {
 async function initApp() {
   try {
     // Parallelize initialization for maximum speed
-    await Promise.all([
-      fetchDeliveryConfig(),
-      loadCategories(),
-      loadProducts()
-    ]);
+    await fetchDeliveryConfig();
+    await loadCategories();
+    await loadProducts();
     loadCart();
   } catch (err) {
     console.error("Initialization error:", err);
