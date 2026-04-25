@@ -240,17 +240,20 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
-    @media print {
-      @page { size: A4; margin: 10mm; }
-      body { visibility: hidden !important; background: white !important; }
-      #invoice-modal, #invoice-modal * { visibility: visible !important; }
+      @page { size: A4; margin: 0; }
+      body > *:not(#invoice-modal) { display: none !important; }
       #invoice-modal { 
-        position: absolute !important; left: 0 !important; top: 0 !important;
-        width: 100% !important; max-width: none !important; 
-        margin: 0 !important; padding: 0 !important;
-        transform: none !important; box-shadow: none !important; border: none !important;
-        display: block !important;
+        display: block !important; 
+        position: static !important; 
+        width: 100% !important; 
+        max-width: none !important; 
+        margin: 0 !important; 
+        padding: 20mm !important; 
+        box-shadow: none !important; 
+        transform: none !important;
+        overflow: visible !important;
       }
+      #invoice-overlay { display: none !important; }
       .no-print { display: none !important; }
     }
     :root {
@@ -5657,7 +5660,7 @@
           <!-- CUSTOM CRATE -->
           <div class="premium-mango-card" onclick="window.openCrateBuilder()">
             <div class="m-img-wrap" style="background: #e0f2f1;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1VZcc8uDcKUKJm6ZP77Ymzh1ok1g1ZVuJ&sz=w1000" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
+              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1VZcc8uDcKUKJm6ZP77Ymzh1ok1g1ZVuJ&sz=w1000" alt="Custom Crate">
               <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
                 CUSTOM
               </div>
