@@ -2201,21 +2201,21 @@ function handleDynamicProducts(data) {
     const basePricePerKg = Number(product.base_price_per_kg || 0);
     const compareAtPerKg = Number(product.compare_at_price_per_kg || 0);
     const low = (product.name || '').toLowerCase();
-    let img = null;
-    
-    // Check assetMap first for known varieties to ensure consistency with static UI
-    for (const k in assetMap) {
-      if (low.includes(k)) {
-        img = assetMap[k];
-        break;
+    let img = product.image_url;
+    if (img && img.includes('unsplash.com')) img = null;
+
+    // If no valid DB image, check assetMap for defaults
+    if (!img) {
+      for (const k in assetMap) {
+        if (low.includes(k)) {
+          img = assetMap[k];
+          break;
+        }
       }
     }
 
-    // Fallback to database URL if not in assetMap or if it's not a known variety
-    if (!img) {
-      img = product.image_url;
-      if (img && img.includes('unsplash.com')) img = null;
-    }
+    // Ultimate fallback if still no image
+    if (!img) img = 'assets/placeholder.png';
     const categoryList = window.cats || (typeof cats !== 'undefined' ? cats : []);
     const category = categoryList.find(c => c.id === product.category_id)?.name || 'Products';
 
