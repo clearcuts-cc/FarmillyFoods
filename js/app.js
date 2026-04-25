@@ -3101,7 +3101,7 @@ window.updateCrateUI = function () {
       btn.style.cursor = 'not-allowed';
       btn.style.background = '#64748b';
       btn.disabled = true;
-      btn.textContent = `SELECT ${crateLimit - currentTotal} KG MORE...`;
+      btn.textContent = `SELECT ${crateLimit - currentTotal} ITEMS MORE...`;
     }
   }
 };
