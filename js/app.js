@@ -2240,7 +2240,8 @@ function handleDynamicProducts(data) {
         isFeatured: product.is_featured,
         isCustomBox: true,
         boxSizes,
-        selectionPool
+        selectionPool,
+        sku: product.sku
       };
       
       flatVariants.push(customProduct);
@@ -2275,7 +2276,8 @@ function handleDynamicProducts(data) {
           about_item: product.about_item,
           harvest_journey: product.harvest_journey,
           benefits: product.benefits,
-          isFeatured: product.is_featured
+          isFeatured: product.is_featured,
+          sku: product.sku
         };
       });
 
@@ -3048,9 +3050,12 @@ window.renderCrateVarieties = function () {
     const unitPrice = v.price || 0;
     
     // Try to find the actual product for name and image
-    const p = sku ? window.products.find(x => x.sku === sku || (x.rawName && x.rawName.toLowerCase().includes(sku.toLowerCase()))) : null;
-    const name = p ? p.name : v.label.replace('VarietyPool:', '');
-    const img = p ? p.img : 'assets/placeholder.png';
+    const p = sku ? window.products.find(x => 
+      (x.sku && x.sku.toLowerCase() === sku.toLowerCase()) || 
+      (x.rawName && x.rawName.toLowerCase().includes(sku.toLowerCase().split('-')[0]))
+    ) : null;
+    const name = p ? p.name : v.label.replace('VarietyPool:', '').trim();
+    const img = (p && p.img && !p.img.includes('placeholder')) ? p.img : 'https://cdn-icons-png.flaticon.com/512/1617/1617537.png'; // Use a real fruit icon as fallback
 
     return `
     <div style="display:flex; align-items:center; gap:15px; padding:15px; border-bottom:1px solid #f1f5f9;">
