@@ -155,11 +155,18 @@ function getCurrentInternalPath() {
 }
 
 function buildInternalUrl(targetPath) {
-  // Enhanced detection: assume physical if any .html file is in the path or if we're on a local file
-  const isPhysical = window.location.pathname.includes('.html') || window.location.protocol === 'file:';
+  // Enhanced detection: assume physical if we're on a local file or if the environment uses .html files
+  const isPhysical = window.location.pathname.includes('.html') || 
+                     window.location.protocol === 'file:' || 
+                     window.location.hostname.includes('localhost') ||
+                     window.location.hostname.includes('127.0.0.1');
+  
   const path = targetPath.toLowerCase().replace(/^\/+|\/+$/g, '').replace(/\.html$/, '');
   
-  if (isPhysical) {
+  // These pages always have dedicated physical files in this project
+  const physicalPages = ['shop', 'track', 'corporate', 'contact', 'cart', 'mangoes', 'honey', 'ghee', 'spices', 'beverages', 'bee-products'];
+  
+  if (isPhysical || physicalPages.includes(path)) {
     if (path === 'home' || path === '' || path === 'index') return 'index.html';
     
     // Fuzzy matching for Flagship pages with dedicated files
@@ -851,12 +858,14 @@ window.contactViaWhatsApp = function () {
 // ===== ROUTING =====
 function showPage(page, push = true) {
   try {
-    // If we are using physical .html files, check if we need to redirect
-    const isPhysical = window.location.pathname.endsWith('.html');
+    const isPhysical = window.location.pathname.endsWith('.html') || window.location.protocol === 'file:';
     const currentFile = window.location.pathname.split('/').pop() || 'index.html';
     const targetFile = buildInternalUrl(page);
 
-    if (push && isPhysical && targetFile !== currentFile && !targetFile.includes('?cat=')) {
+    // List of pages that are definitely separate physical files
+    const physicalPages = ['shop.html', 'track.html', 'corporate.html', 'contact.html', 'cart.html', 'mangoes.html', 'honey.html', 'ghee.html', 'spices.html', 'beverages.html', 'bee-products.html'];
+
+    if (push && (isPhysical || physicalPages.includes(targetFile)) && targetFile !== currentFile && !targetFile.includes('?cat=')) {
       window.location.href = targetFile;
       return;
     }
@@ -2088,6 +2097,8 @@ async function loadProducts() {
       name,
       description,
       image_url,
+      image_url_2,
+      image_url_3,
       category_id,
       is_active,
       is_featured,
@@ -2266,6 +2277,8 @@ function handleDynamicProducts(data) {
           wt: v.label || formatWeightLabel(weightKg),
           weightKg,
           img: img || 'assets/placeholder.png',
+          img2: product.image_url_2,
+          img3: product.image_url_3,
           inStock: product.in_stock !== false,
           stockCount: Number(product.stock_count || 0),
           cat: category,
@@ -2296,6 +2309,8 @@ function handleDynamicProducts(data) {
         wt: product.weight || '1kg',
         weightKg: parseFloat(product.weight || '1') || 1,
         img: img || 'assets/placeholder.png',
+        img2: product.image_url_2,
+        img3: product.image_url_3,
         inStock: product.in_stock !== false,
         stockCount: Number(product.stock_count || 0),
         cat: category,

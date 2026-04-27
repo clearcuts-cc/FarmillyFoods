@@ -7001,6 +7001,18 @@
         onerror="this.src='https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=1000&auto=format&fit=crop'; this.style.opacity='0.8';"
         style="width:100%; height:100%; object-fit:cover; transform:scale(1); transition:all 0.8s cubic-bezier(0.23, 1, 0.32, 1); opacity:0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.08));">
     </div>
+    <!-- Gallery Thumbnails -->
+    <div id="pd-gallery" style="display:none; gap:12px; justify-content:center; padding:0 20px 20px; background:#fff;">
+      <div class="pd-thumb active" onclick="window.setPdHeroImage(this, 'main')" style="width:50px; height:50px; border-radius:10px; overflow:hidden; border:2px solid #1b391b; cursor:pointer; transition:all 0.3s;">
+        <img id="pd-thumb-main" src="" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div id="pd-thumb-2-wrap" class="pd-thumb" onclick="window.setPdHeroImage(this, '2')" style="display:none; width:50px; height:50px; border-radius:10px; overflow:hidden; border:2px solid transparent; cursor:pointer; transition:all 0.3s;">
+        <img id="pd-thumb-2" src="" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div id="pd-thumb-3-wrap" class="pd-thumb" onclick="window.setPdHeroImage(this, '3')" style="display:none; width:50px; height:50px; border-radius:10px; overflow:hidden; border:2px solid transparent; cursor:pointer; transition:all 0.3s;">
+        <img id="pd-thumb-3" src="" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+    </div>
     <div class="pd-content" id="pd-content" style="padding:0 16px 220px; max-width:800px; margin:0 auto;">
       <div class="pd-stars"
         style="color:#d4af37; font-size:13px; margin-bottom:12px; font-weight:800; letter-spacing:2px; display:flex; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -7319,11 +7331,69 @@
         }
 
         selectedPdVariant = variants[0];
-        hero.src = imageUrl || variants[0].img;
+        const mainImg = imageUrl || variants[0].img;
+        hero.src = mainImg;
         hero.onerror = function () {
           this.src = cleanVariety.toLowerCase().includes('imam') ? 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000' :
             (cleanVariety.toLowerCase().includes('alph') ? 'assets/alphonso.png' :
               (cleanVariety.toLowerCase().includes('sent') ? 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000' : 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000'));
+        };
+
+        // --- GALLERY LOGIC ---
+        const gallery = document.getElementById('pd-gallery');
+        const thumbMain = document.getElementById('pd-thumb-main');
+        const thumb2 = document.getElementById('pd-thumb-2');
+        const thumb2Wrap = document.getElementById('pd-thumb-2-wrap');
+        const thumb3 = document.getElementById('pd-thumb-3');
+        const thumb3Wrap = document.getElementById('pd-thumb-3-wrap');
+
+        if (gallery) {
+          thumbMain.src = mainImg;
+          let hasExtra = false;
+
+          if (variants[0].img2) {
+            thumb2.src = variants[0].img2;
+            thumb2Wrap.style.display = 'block';
+            hasExtra = true;
+          } else {
+            thumb2Wrap.style.display = 'none';
+          }
+
+          if (variants[0].img3) {
+            thumb3.src = variants[0].img3;
+            thumb3Wrap.style.display = 'block';
+            hasExtra = true;
+          } else {
+            thumb3Wrap.style.display = 'none';
+          }
+
+          gallery.style.display = hasExtra ? 'flex' : 'none';
+          // Reset thumbnails state
+          document.querySelectorAll('.pd-thumb').forEach(t => {
+            t.classList.remove('active');
+            t.style.borderColor = 'transparent';
+          });
+          const firstThumb = document.querySelector('.pd-thumb');
+          if(firstThumb) {
+            firstThumb.classList.add('active');
+            firstThumb.style.borderColor = '#1b391b';
+          }
+        }
+
+        window.setPdHeroImage = function(el, type) {
+          const heroImg = document.getElementById('det-img-main');
+          if(!heroImg) return;
+
+          document.querySelectorAll('.pd-thumb').forEach(t => {
+            t.classList.remove('active');
+            t.style.borderColor = 'transparent';
+          });
+          el.classList.add('active');
+          el.style.borderColor = '#1b391b';
+
+          if(type === 'main') heroImg.src = mainImg;
+          else if(type === '2') heroImg.src = variants[0].img2;
+          else if(type === '3') heroImg.src = variants[0].img3;
         };
 
         // Calculate unit rate from total price:
