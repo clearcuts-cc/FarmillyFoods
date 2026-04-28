@@ -82,29 +82,31 @@ function syncStaticMangoPricing() {
     const metaEl = metaEls.length > 1 ? metaEls[1] : null;
     if (!amountEl) return;
 
+    let p = null;
     if (title.includes('custom heritage')) {
       const keys = ['imam', 'alph', 'bang', 'sent'];
       const rates = keys.map(getPerKgRateByKeyword).filter(rate => rate > 0);
-      if (!rates.length) return;
-      amountEl.textContent = String(Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length));
-      return;
+      if (rates.length) {
+        amountEl.textContent = String(Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length));
+      }
+      p = (window.displayProducts || window.products || []).find(x => x.name.toLowerCase().includes('custom heritage'));
+    } else {
+      const mappings = [
+        { match: 'imam', label: 'imam' },
+        { match: 'alphonso', label: 'alph' },
+        { match: 'banganapalli', label: 'bang' },
+        { match: 'senthura', label: 'sent' }
+      ];
+      const mapping = mappings.find(item => title.includes(item.match));
+      if (mapping) {
+        p = (window.displayProducts || window.products || []).find(x => x.name.toLowerCase().includes(mapping.match));
+        const rate = p ? getPerKgRate(p) : getPerKgRateByKeyword(mapping.label);
+        if (rate > 0) {
+          amountEl.textContent = String(rate);
+          if (metaEl) metaEl.textContent = `Total: Rs${calculateVariantPrice(rate, 3)} for 3 kg`;
+        }
+      }
     }
-
-    const mappings = [
-      { match: 'imam', label: 'imam' },
-      { match: 'alphonso', label: 'alph' },
-      { match: 'banganapalli', label: 'bang' },
-      { match: 'senthura', label: 'sent' }
-    ];
-    const mapping = mappings.find(item => title.includes(item.match));
-    if (!mapping) return;
-
-    const p = (window.displayProducts || window.products || []).find(x => x.name.toLowerCase().includes(mapping.match));
-    const rate = p ? getPerKgRate(p) : getPerKgRateByKeyword(mapping.label);
-    if (rate <= 0) return;
-
-    amountEl.textContent = String(rate);
-    if (metaEl) metaEl.textContent = `Total: Rs${calculateVariantPrice(rate, 3)} for 3 kg`;
 
     // SYNC IMAGE
     if (p && p.img) {
