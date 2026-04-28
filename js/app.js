@@ -1077,7 +1077,7 @@ function pcardHTML(p) {
 
     return `<div class="premium-mango-card" onclick="window.openCrateBuilder(${p.id})">
             <div class="m-img-wrap" style="background: #e0f2f1;">
-              <img src="${p.img || 'assets/side-01.png'}" alt="${p.name}" style="mix-blend-mode: multiply; opacity: 0.9;">
+              <img src="${p.img || 'assets/side-01.png'}" alt="${p.name}" style="mix-blend-mode: multiply; opacity: 0.9;" onerror="this.src='assets/side-01.png'; this.onerror=null;">
               <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder(${p.id})">
                 BUILD MIX
               </div>
@@ -1158,7 +1158,7 @@ function pcardHTML(p) {
     <div class="premium-mango-card" onclick="${cardOnclick}">
           <div class="m-img-wrap" style="background: ${bg}">
               ${badgeHTML}
-              <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" style="${(p.name || '').toLowerCase().includes('custom') ? 'mix-blend-mode: multiply; opacity: 0.9;' : ''}" onerror="this.style.opacity='0'; this.parentElement.style.background='#f0f4f0'">
+              <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" style="${(p.name || '').toLowerCase().includes('custom') ? 'mix-blend-mode: multiply; opacity: 0.9;' : ''}" onerror="this.src='assets/placeholder.png'; this.onerror=null;">
               ${action}
           </div>
         <div class="m-info">
