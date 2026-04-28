@@ -111,7 +111,15 @@ function syncStaticMangoPricing() {
     // SYNC IMAGE
     if (p && p.img) {
       const imgEl = card.querySelector('.m-img-wrap img');
-      if (imgEl) imgEl.src = p.img;
+      if (imgEl) {
+        // Add error handler before setting src
+        imgEl.onerror = function() {
+          console.warn('Image failed to load, falling back:', p.name);
+          this.src = 'assets/side-01.png';
+          this.onerror = null; // Prevent infinite loop if fallback also fails
+        };
+        imgEl.src = p.img;
+      }
     }
   });
 }
