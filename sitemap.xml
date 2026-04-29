@@ -3,31 +3,26 @@
   <!-- Core Pages -->
   <url>
     <loc>https://farmmilyfoods.com/</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/shop</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/track</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/corporate</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/contact</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -35,85 +30,77 @@
   <!-- Product Categories -->
   <url>
     <loc>https://farmmilyfoods.com/mangoes</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/honey-&amp;-jaggery</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/ghee-&amp;-oils</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/spices</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/bee-products</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/beverages</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- Individual Products -->
-  <url><loc>https://farmmilyfoods.com/product/103/alphonso</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/34/pure-turmeric-powder-500g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/101/imam-pasand-3kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/32/pure-turmeric-powder-100g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/33/pure-turmeric-powder-250g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/36/traditional-cow-ghee-250ml</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/37/traditional-cow-ghee-500ml</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/49/coconut-bee-pollen</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/40/natural-cane-jaggery-500g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/35/bold-black-pepper-100g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/24/amla-honey-infusion</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/42/royal-estate-coffee-100g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/26/dry-fig-honey-infusion-500g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/107/senthura-3kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/15/wild-forest-honey-1kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/13/wild-forest-honey-250g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/38/traditional-cow-ghee-1l</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/18/signature-multifloral-honey-1kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/41/natural-cane-jaggery-1kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/100/custom-mango-crate</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/105/bang-3kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/39/traditional-cow-ghee-5l</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/106/bang-5kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/108/senthura-5kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/16/signature-multifloral-honey-250g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/17/signature-multifloral-honey-500g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/20/wild-jackfruit-honey-500g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/50/multifloral-bee-pollen</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/102/imam-pasand-5kg</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/45/coffee-floral-honey</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/14/wild-forest-honey-500g</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://farmmilyfoods.com/product/22/ginger-honey-infusion</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/103/alphonso</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/34/pure-turmeric-powder-500g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/101/imam-pasand-3kg</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/32/pure-turmeric-powder-100g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/33/pure-turmeric-powder-250g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/36/traditional-cow-ghee-250ml</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/37/traditional-cow-ghee-500ml</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/49/coconut-bee-pollen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/40/natural-cane-jaggery-500g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/35/bold-black-pepper-100g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/24/amla-honey-infusion</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/42/royal-estate-coffee-100g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/26/dry-fig-honey-infusion-500g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/107/senthura-3kg</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/15/wild-forest-honey-1kg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/13/wild-forest-honey-250g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/38/traditional-cow-ghee-1l</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/18/signature-multifloral-honey-1kg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/41/natural-cane-jaggery-1kg</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/100/custom-mango-crate</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/105/bang-3kg</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/39/traditional-cow-ghee-5l</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/106/bang-5kg</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/108/senthura-5kg</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/16/signature-multifloral-honey-250g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/17/signature-multifloral-honey-500g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/20/wild-jackfruit-honey-500g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/50/multifloral-bee-pollen</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/102/imam-pasand-5kg</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/45/coffee-floral-honey</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/14/wild-forest-honey-500g</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://farmmilyfoods.com/product/22/ginger-honey-infusion</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 
   <!-- Policies -->
   <url>
     <loc>https://farmmilyfoods.com/refund-policy</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://farmmilyfoods.com/shipping-policy</loc>
-    <lastmod>2026-04-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

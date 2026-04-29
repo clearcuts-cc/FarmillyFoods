@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
   <!-- Favicon / Brand Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="apple-touch-icon" href="assets/favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="shortcut icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=2">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="apple-touch-icon" href="assets/favicon.svg?v=2">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="shortcut icon" type="image/svg+xml" href="assets/favicon.svg?v=2">
 
   <!-- Primary Meta Tags -->
   <title>Farmmily Farms | Buy Natural Mangoes, A2 Ghee & Raw Honey Online</title>
@@ -63,7 +63,7 @@
   <meta property="og:url" content="https://farmmilyfoods.com/">
   <meta property="og:title" content="Farmmily Farms | Heritage Harvest Natural Mangoes & Ghee">
   <meta property="og:description"
-    content="Shop the 2026 harvest! Pure natural Imam Pasand mangoes, A2 Ghee, and Raw Honey direct from our private estates. Sustainable harvest, legendary purity.">
+    content="Shop the latest natural harvest! Pure natural Imam Pasand mangoes, A2 Ghee, and Raw Honey direct from our private estates. Sustainable harvest, legendary purity.">
   <meta property="og:image" content="https://farmmilyfoods.com/assets/og-preview.jpg">
 
   <!-- Twitter -->
@@ -195,7 +195,7 @@
       "url": "https://farmmilyfoods.com/mangoes",
       "priceCurrency": "INR",
       "price": "897",
-      "priceValidUntil": "2026-12-31",
+      "priceValidUntil": "2030-12-31",
       "availability": "https://schema.org/InStock",
       "itemCondition": "https://schema.org/NewCondition"
     },
@@ -222,7 +222,7 @@
       "url": "https://farmmilyfoods.com/mangoes",
       "priceCurrency": "INR",
       "price": "837",
-      "priceValidUntil": "2026-12-31",
+      "priceValidUntil": "2030-12-31",
       "availability": "https://schema.org/InStock",
       "itemCondition": "https://schema.org/NewCondition"
     },
@@ -2776,16 +2776,18 @@
     /* HOME HERO */
     .hero {
       position: relative;
-      height: 90vh;
-      min-height: 500px;
-      max-height: 780px;
-      overflow: hidden
+      width: 100%;
+      height: 56.25vw;
+      max-height: 400px;
+      overflow: hidden;
     }
-
     .hero img {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover
+      object-fit: cover;
     }
 
     .hero-ov {
@@ -5605,22 +5607,9 @@
 
 
   <!-- ========== HOME ========== -->
-  <div id="page-home" class="page active">
-    <section class="hero"><img loading="lazy" decoding="async" src="assets/DSC00269.JPG" alt="Premium Harvest Mangoes">
-      <div class="hero-ov"></div>
-      <div class="hero-c">
-        <div class="hero-eye" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border-color: #d4af37;">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-          </svg> 2026 SEASON LIVE - LIMITED HARVEST
-        </div>
-        <h1 style="font-size: clamp(3rem, 8vw, 5rem); letter-spacing: -2px;">Heritage Natural<br><span
-            style="color: #ea9800;">Mangoes & Ghee</span> Harvest.</h1>
-        <p>Pure, sustainable, and hand-harvested from our private estates. Experience the legendary purity of our
-          seasonal harvest, delivered fresh to your doorstep.</p>
-        <a class="btn-ha" onclick="showPage('shop')" style="background: #ea9800; border-color: #ea9800;">Reserve Your
-          Crate</a>
-      </div>
+  <div id="page-home" class="page">
+    <section class="hero">
+      <img loading="lazy" decoding="async" src="assets/hero-16-9.png" alt="Premium Harvest Mangoes">
     </section>
     <div class="trust-bar" style="background: #0a1a0a;">
       <div class="trust-inner">
@@ -6263,7 +6252,7 @@
     </section>
   </div>
 
-  <div id="page-refund-policy" class="page">
+  <div id="page-refund-policy" class="page active">
     <section class="sec py-20" style="background:#fffcf7;">
       <div class="inner" style="max-width:900px;">
         <div class="sec-title text-center mb-12">
@@ -6626,7 +6615,7 @@
         </ul>
       </div>
     </div>
-    <div class="fbot"> 2026 Farmmily Farms and Foods</div>
+    <div class="fbot"> Farmmily Farms and Foods</div>
   </footer>
 
   <!-- FLOATING CART BAR (ZEPTO STYLE) -->
