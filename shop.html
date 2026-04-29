@@ -2805,16 +2805,18 @@
     /* HOME HERO */
     .hero {
       position: relative;
-      height: 90vh;
-      min-height: 500px;
-      max-height: 780px;
-      overflow: hidden
+      width: 100%;
+      height: 56.25vw;
+      max-height: 400px;
+      overflow: hidden;
     }
-
     .hero img {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover
+      object-fit: cover;
     }
 
     .hero-ov {
@@ -5641,21 +5643,8 @@
 
   <!-- ========== HOME ========== -->
   <div id="page-home" class="page">
-    <section class="hero"><img loading="lazy" decoding="async" src="assets/DSC00269.JPG" alt="Premium Harvest Mangoes">
-      <div class="hero-ov"></div>
-      <div class="hero-c">
-        <div class="hero-eye" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border-color: #d4af37;">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-          </svg> 2026 SEASON LIVE — LIMITED HARVEST
-        </div>
-        <h1 style="font-size: clamp(3rem, 8vw, 5rem); letter-spacing: -2px;">Heritage Natural<br><span
-            style="color: #ea9800;">Mangoes & Ghee</span> Harvest.</h1>
-        <p>Pure, sustainable, and hand-harvested from our private estates. Experience the legendary purity of our
-          seasonal harvest, delivered fresh to your doorstep.</p>
-        <a class="btn-ha" onclick="showPage('shop')" style="background: #ea9800; border-color: #ea9800;">Reserve Your
-          Crate</a>
-      </div>
+    <section class="hero">
+      <img loading="lazy" decoding="async" src="assets/hero-16-9.png" alt="Premium Harvest Mangoes">
     </section>
     <div class="trust-bar" style="background: #0a1a0a;">
       <div class="trust-inner">
@@ -5698,9 +5687,7 @@
               <img loading="lazy" decoding="async"
                 src="https://drive.google.com/thumbnail?id=1VZcc8uDcKUKJm6ZP77Ymzh1ok1g1ZVuJ&sz=w1000"
                 alt="Custom Crate" onerror="this.src='assets/side-01.png'; this.onerror=null;">
-              <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
-                CUSTOM
-              </div>
+
             </div>
             <div class="m-info">
               <div class="m-top-row">
@@ -5731,9 +5718,7 @@
               <img loading="lazy" decoding="async"
                 src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
                 alt="Imam Pasand">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Imam Pasand')">
-                ADD
-              </div>
+
             </div>
             <div class="m-info">
               <div class="m-top-row">
@@ -5763,9 +5748,7 @@
           <div class="premium-mango-card" onclick="showPremiumDetail('Alphonso')">
             <div class="m-img-wrap" style="background: #FFE0B2;">
               <img loading="lazy" decoding="async" src="assets/alphonso.png" alt="Alphonso">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Alphonso')">
-                ADD
-              </div>
+
             </div>
             <div class="m-info">
               <div class="m-top-row">
@@ -5797,9 +5780,7 @@
               <img loading="lazy" decoding="async"
                 src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
                 alt="Banganapalli">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Banganapalli')">
-                ADD
-              </div>
+
             </div>
             <div class="m-info">
               <div class="m-top-row">
@@ -5830,9 +5811,7 @@
             <div class="m-img-wrap" style="background: #FFEBEE;">
               <img loading="lazy" decoding="async"
                 src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000" alt="Senthura">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Senthura')">
-                ADD
-              </div>
+
             </div>
             <div class="m-info">
               <div class="m-top-row">
