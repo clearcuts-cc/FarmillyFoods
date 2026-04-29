@@ -6139,7 +6139,7 @@
             <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12₹3 2,6" />
+                <polyline points="22,6 12,13 2,6" />
               </svg>
               <div><strong>Email:</strong> support@farmmilyfoods.com</div>
             </div>
@@ -6659,7 +6659,7 @@
           <div class="f-con">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <polyline points="22,6 12,3 2,6" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
             <div><strong>Email:</strong> support@farmmilyfoods.com</div>
           </div>
@@ -7522,7 +7522,7 @@
       };
 
       function openVariantSheet(e, variety, variantIds) {
-        // Robust parameter handling (check if first param is actually the variety string)
+        // Robust parameter handling
         if (typeof e === 'string' && !variety) {
           variety = e;
           e = null;
@@ -7537,12 +7537,13 @@
         const overlay = document.getElementById('variant-sheet-overlay');
         const options = document.getElementById('sheet-options');
         const title = document.getElementById('sheet-title');
+        const footer = document.getElementById('sheet-footer');
 
         if (!sheet || !overlay || !options || !title) return;
 
         const cleanVariety = (variety || '').replace(/\(.*\)/, '')
-          .replace(/ mangoes/i, '')
-          .replace(/ powder/i, '')
+          .replace(/ mangoes/i, '').replace(/ mango/i, '')
+          .replace(/ powder/i, '').replace(/ oil/i, '').replace(/ ghee$/i, '')
           .trim();
 
         if (!cleanVariety) {
@@ -7550,8 +7551,7 @@
           return;
         }
 
-        const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-        title.innerHTML = cap(cleanVariety);
+        title.innerHTML = cleanVariety;
         title.style.textAlign = 'center';
         title.style.fontFamily = "'Playfair Display', serif";
         title.style.fontWeight = '900';
@@ -7572,17 +7572,15 @@
           const list = window.products || [];
           let variants;
 
-          // ₹ Prefer direct ID lookup (fast, accurate, no name-matching bugs)
+          // Robust direct ID lookup
           if (variantIds && variantIds.length > 0) {
             const idSet = new Set(variantIds.map(Number));
             variants = list.filter(p => idSet.has(Number(p.id)));
           } else {
-            // Fallback: name-based matching
+            // Fallback: Name-based matching
             variants = list.filter(p => {
               const baseP = (p.name || '').replace(/\(.*\)/, '')
                 .replace(/\s+\d+\s*(kg|g|l|ml|litres?|lit|kilo|gram|oz|lb)\s*$/i, '')
-                .replace(/ mangoes$/i, '').replace(/ mango$/i, '')
-                .replace(/ powder$/i, '').replace(/ oil$/i, '').replace(/ ghee$/i, '')
                 .trim().toLowerCase();
               const baseV = cleanVariety.toLowerCase();
               return baseP === baseV || baseP.includes(baseV) || baseV.includes(baseP);
@@ -7590,19 +7588,20 @@
           }
 
           if (!variants.length) {
-            console.warn("openVariantSheet: No variants found for", cleanVariety, "in list of", list.length);
+            console.warn("openVariantSheet: No variants found for", cleanVariety);
             options.innerHTML = '<div style="text-align:center;padding:60px;"><p style="color:#aaa;">No variants found.</p></div>';
+            if (footer) footer.style.display = 'none';
             return;
           }
 
           options.innerHTML = variants.map(v => {
-            const cartItem = (window.cart || []).find(ci => ci.id === v.id);
+            const cartItem = (window.cart || []).find(ci => Number(ci.id) === Number(v.id));
             const qtyInCart = cartItem ? cartItem.qty : 0;
-            const uV = window.getUnitPrice(v.price, v.wt);
+            const uV = (window.getUnitPrice && typeof window.getUnitPrice === 'function') ? window.getUnitPrice(v.price, v.wt) : { rate: 0, unit: 'kg' };
 
             return `
-                    <div class="variant-item">
-                        <div class="vi-img" style="background:${window.getProductBG ? window.getProductBG(v) : '#f8fafc'};">
+                    <div class="variant-item" style="display:flex; align-items:center; gap:15px; padding:20px; background:#fff; border-radius:24px; margin-bottom:12px; border:1px solid #f1f5f9; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+                        <div class="vi-img" style="width:60px; height:60px; background:${window.getProductBG ? window.getProductBG(v) : '#f8fafc'}; border-radius:16px; padding:5px;">
                             <img loading="lazy" decoding="async" src="${v.img}" style="width:100%; height:100%; object-fit:contain;">
                         </div>
                         <div style="flex:1">
@@ -7620,16 +7619,29 @@
                         ${qtyInCart > 0 ? `
                         <div class="v-qty-ctrl" style="display:flex; align-items:center; gap:16px; background:#f0fdf4; border:2px solid #22c55e; border-radius:18px; padding:8px 16px;">
                            <button onclick="window.updCart(${v.id}, -1)" style="border:none; background:none; font-size:20px; font-weight:900; color:#22c55e; cursor:pointer;">-</button>
-                           <span style="font-weight:900; font-size:16px; color:#111; min-width:20px; text-align:center;">${qtyInCart}</span>
+                           <span style="font-size:18px; font-weight:900; color:#1b391b; min-width:12px; text-align:center;">${qtyInCart}</span>
                            <button onclick="window.updCart(${v.id}, 1)" style="border:none; background:none; font-size:20px; font-weight:900; color:#22c55e; cursor:pointer;">+</button>
                         </div>
                         ` : `
-                        <button class="vi-add" onclick="window.addToCartAndFeedback(this, ${v.id})">ADD</button>
+                        <button class="vi-add" onclick="window.addToCartAndFeedback(this, ${v.id})" style="background:#1b391b; color:#fff; border:none; padding:12px 20px; border-radius:50px; font-weight:900; cursor:pointer;">ADD</button>
                         `}
                     </div>
                 `;
           }).join('');
-        }, 100);
+
+          // Update Sheet Footer
+          const footerTotal = document.getElementById('sheet-footer-total');
+          const n = (window.cart || []).reduce((s, i) => s + i.qty, 0);
+          if (footer && n > 0) {
+            footer.style.display = 'block';
+            if (footerTotal) {
+              const totals = typeof window.getCartTotals === 'function' ? window.getCartTotals() : { total: 0 };
+              footerTotal.textContent = `₹${totals.total}`;
+            }
+          } else if (footer) {
+            footer.style.display = 'none';
+          }
+        }, 150);
       }
       window.openVariantSheet = openVariantSheet;
 
@@ -7742,8 +7754,20 @@
   <div id="variant-sheet">
     <div class="sheet-handle"></div>
     <h3 id="sheet-title">variant selector</h3>
-    <div id="sheet-options">
+    <div id="sheet-options" style="flex:1; overflow-y:auto; padding-bottom:20px;">
       <!-- Dyn contents -->
+    </div>
+    <div id="sheet-footer" style="padding:16px 20px 32px; border-top:1px solid #f1f5f9; background:#fff; display:none;">
+        <button onclick="window.showPage('cart'); window.closeVariantSheet()" 
+                style="width:100%; padding:18px; background:#1b391b; color:#fff; border-radius:14px; font-weight:900; border:none; display:flex; align-items:center; justify-content:space-between; box-shadow: 0 10px 25px rgba(27,57,27,0.15);">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+                </svg>
+                VIEW BASKET
+            </div>
+            <div id="sheet-footer-total" style="opacity:0.9;">₹0</div>
+        </button>
     </div>
   </div>
 

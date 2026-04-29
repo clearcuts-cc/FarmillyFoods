@@ -1,7 +1,18 @@
 // ===== SUPABASE =====
 const supabaseUrl = 'https://jztreusepxilnfqffwka.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dHJldXNlcHhpbG5mcWZmd2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NzA5OTUsImV4cCI6MjA5MDQ0Njk5NX0.AXaOi_ax6esifM7DzwVjNXQrm3XLNPnzT_0yQWm6ahY';
-const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+
+// Robust client initialization
+let supabaseClient = null;
+function initSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+  if (window.supabase) {
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+  }
+  return supabaseClient;
+}
+// Initial attempt
+initSupabaseClient();
 
 const svgCheck = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
 
@@ -14,6 +25,16 @@ try {
   cart = [];
 }
 window.cart = cart;
+
+// Global Error Handler for "Silent" Failures
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+  console.error("Global Error:", msg, url, lineNo, columnNo, error);
+  // Optionally show a toast for critical errors in dev/live
+  if (typeof window.showToast === 'function') {
+    window.showToast("An unexpected error occurred. Please refresh the page.", "error");
+  }
+  return false;
+};
 
 // Signature Heritage Collection (Static Initialization)
 var products = [];
@@ -72,56 +93,70 @@ function calculateSelectionTotalPrice(items, selections) {
 }
 
 function syncStaticMangoPricing() {
-  const cards = document.querySelectorAll('.premium-mango-card');
-  if (!cards.length) return;
+  try {
+    const cards = document.querySelectorAll('.premium-mango-card');
+    if (!cards.length) return;
 
-  cards.forEach(card => {
-    const title = (card.querySelector('.m-title')?.textContent || '').toLowerCase();
-    const amountEl = card.querySelector('.m-amt');
-    const metaEls = card.querySelectorAll('.m-price-row > div');
-    const metaEl = metaEls.length > 1 ? metaEls[1] : null;
-    if (!amountEl) return;
-
-    let p = null;
-    if (title.includes('custom heritage')) {
-      const keys = ['imam', 'alph', 'bang', 'sent'];
-      const rates = keys.map(getPerKgRateByKeyword).filter(rate => rate > 0);
-      if (rates.length) {
-        amountEl.textContent = String(Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length));
+    cards.forEach(card => {
+      // Get title from .m-title or from an onclick attribute if it's a detail card
+      let title = (card.querySelector('.m-title')?.textContent || '').toLowerCase().trim();
+      if (!title && card.getAttribute('onclick')?.includes('showPremiumDetail')) {
+        const match = card.getAttribute('onclick').match(/'([^']+)'/);
+        if (match) title = match[1].toLowerCase().trim();
       }
-      p = (window.displayProducts || window.products || []).find(x => x.name.toLowerCase().includes('custom heritage'));
-    } else {
-      const mappings = [
-        { match: 'imam', label: 'imam' },
-        { match: 'alphonso', label: 'alph' },
-        { match: 'banganapalli', label: 'bang' },
-        { match: 'senthura', label: 'sent' }
-      ];
-      const mapping = mappings.find(item => title.includes(item.match));
-      if (mapping) {
-        p = (window.displayProducts || window.products || []).find(x => x.name.toLowerCase().includes(mapping.match));
-        const rate = p ? getPerKgRate(p) : getPerKgRateByKeyword(mapping.label);
-        if (rate > 0) {
-          amountEl.textContent = String(rate);
-          if (metaEl) metaEl.textContent = `Total: Rs${calculateVariantPrice(rate, 3)} for 3 kg`;
+      
+      const amountEl = card.querySelector('.m-amt');
+      const metaEls = card.querySelectorAll('.m-price-row > div');
+      const metaEl = metaEls.length > 1 ? metaEls[1] : null;
+      if (!amountEl) return;
+
+      let p = null;
+      if (title.includes('custom heritage')) {
+        const keys = ['imam', 'alph', 'bang', 'sent'];
+        const rates = keys.map(getPerKgRateByKeyword).filter(rate => rate > 0);
+        if (rates.length) {
+          amountEl.textContent = String(Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length));
+        }
+        p = (window.displayProducts || window.products || []).find(x => x.name.toLowerCase().includes('custom heritage'));
+      } else {
+        const mappings = [
+          { match: 'imam', label: 'imam' },
+          { match: 'alphonso', label: 'alph' },
+          { match: 'banganapalli', label: 'bang' },
+          { match: 'senthura', label: 'sent' }
+        ];
+        const mapping = mappings.find(item => title.includes(item.match));
+        if (mapping) {
+          p = (window.displayProducts || window.products || []).find(x => 
+            x.name.toLowerCase().includes(mapping.match) || 
+            (x.rawName && x.rawName.toLowerCase().includes(mapping.match))
+          );
+          const rate = p ? getPerKgRate(p) : getPerKgRateByKeyword(mapping.label);
+          if (rate > 0) {
+            amountEl.textContent = String(rate);
+            if (metaEl && metaEl.textContent.includes('Total')) {
+               metaEl.textContent = `Total: ₹${calculateVariantPrice(rate, 3)} for 3 kg`;
+            }
+          }
         }
       }
-    }
 
-    // SYNC IMAGE
-    if (p && p.img) {
-      const imgEl = card.querySelector('.m-img-wrap img');
-      if (imgEl) {
-        // Add error handler before setting src
-        imgEl.onerror = function() {
-          console.warn('Image failed to load, falling back:', p.name);
-          this.src = 'assets/side-01.png';
-          this.onerror = null; // Prevent infinite loop if fallback also fails
-        };
-        imgEl.src = p.img;
+      // SYNC IMAGE
+      if (p && p.img) {
+        const imgEl = card.querySelector('.m-img-wrap img');
+        if (imgEl) {
+          imgEl.onerror = function() {
+            console.warn('Image failed to load, falling back:', p.name);
+            this.src = 'assets/side-01.png';
+            this.onerror = null;
+          };
+          imgEl.src = p.img;
+        }
       }
-    }
-  });
+    });
+  } catch (err) {
+    console.warn("syncStaticMangoPricing failed:", err);
+  }
 }
 
 window.calculateVariantPrice = calculateVariantPrice;
@@ -309,41 +344,49 @@ function saveCart() {
 window.saveCart = saveCart;
 
 function updateCartCount() {
-  const n = window.cart.reduce((s, i) => s + i.qty, 0);
-  
-  // Use the new central calculation
-  const totals = getCartTotals();
+  try {
+    const n = window.cart.reduce((s, i) => s + i.qty, 0);
+    
+    // Use the central totals calculation
+    const totals = typeof window.getCartTotals === 'function' ? window.getCartTotals() : { total: 0 };
 
-  const el = document.getElementById('cart-count');
-  const m = document.getElementById('mob-cnt');
-  const fBar = document.getElementById('floating-cart-bar');
-  const fCount = document.getElementById('f-cart-count');
-  const fPrice = document.getElementById('f-cart-price');
+    const el = document.getElementById('cart-count');
+    const m = document.getElementById('mob-cnt');
+    const fBar = document.getElementById('floating-cart-bar');
+    const fCount = document.getElementById('f-cart-count');
+    const fPrice = document.getElementById('f-cart-price');
 
-  if (fBar) {
-    const deliveryModal = document.getElementById('delivery-modal');
-    const isModalOpen = deliveryModal && deliveryModal.style.display === 'block';
-    const isPayPage = (window.curPage === 'cart' || window.curPage === 'success' || isModalOpen);
-    if (n > 0 && !isPayPage) {
-      fBar.classList.add('show');
-      if (fCount) fCount.textContent = `${n} item${n > 1 ? 's' : ''}`;
-      if (fPrice) fPrice.textContent = `₹${totals.total}`;
-    } else {
-      fBar.classList.remove('show');
+    if (fBar) {
+      const deliveryModal = document.getElementById('delivery-modal');
+      const isModalOpen = deliveryModal && deliveryModal.style.display === 'block';
+      const isPayPage = (window.curPage === 'cart' || window.curPage === 'success' || isModalOpen);
+      if (n > 0 && !isPayPage) {
+        fBar.classList.add('show');
+        if (fCount) fCount.textContent = `${n} item${n > 1 ? 's' : ''}`;
+        if (fPrice) fPrice.textContent = `₹${totals.total}`;
+      } else {
+        fBar.classList.remove('show');
+      }
     }
+
+    if (el) { el.textContent = n; n > 0 ? el.classList.add('show') : el.classList.remove('show'); }
+    if (m) { m.textContent = n; n > 0 ? m.classList.add('show') : m.classList.remove('show'); }
+
+    const mb = document.getElementById('mob-badge');
+    if (mb) {
+      mb.textContent = n;
+      n > 0 ? mb.classList.add('show') : mb.classList.remove('show');
+    }
+
+    if (typeof window.renderCartDrawer === 'function') window.renderCartDrawer();
+    
+    // Ensure fBar is updated even if refreshCurrentView has issues
+    setTimeout(() => {
+        try { refreshCurrentView(); } catch(e) { console.warn("refreshCurrentView failed:", e); }
+    }, 0);
+  } catch (err) {
+    console.warn("updateCartCount failed gracefully:", err);
   }
-
-  if (el) { el.textContent = n; n > 0 ? el.classList.add('show') : el.classList.remove('show'); }
-  if (m) { m.textContent = n; n > 0 ? m.classList.add('show') : m.classList.remove('show'); }
-
-  const mb = document.getElementById('mob-badge');
-  if (mb) {
-    mb.textContent = n;
-    n > 0 ? mb.classList.add('show') : mb.classList.remove('show');
-  }
-
-  if (typeof window.renderCartDrawer === 'function') window.renderCartDrawer();
-  refreshCurrentView();
 }
 window.updateCartCount = updateCartCount;
 
@@ -367,38 +410,39 @@ function addToCart(id, customProduct = null) {
     return;
   }
 
-  if (p && p.inStock === false) {
-    showToast("This item is currently sold out.");
-    return;
-  }
-
-  const ex = window.cart.find(x => Number(x.id) === nid);
-  if (ex) {
-    ex.qty++;
+  const existing = window.cart.find(item => Number(item.id) === nid);
+  if (existing) {
+    existing.qty++;
   } else {
     window.cart.push({ id: nid, qty: 1, p: customProduct });
   }
-
   saveCart();
-  console.log("Cart updated:", window.cart);
 }
 window.addToCart = addToCart;
 
 function updCart(id, d) {
-  const nid = Number(id);
-  const ci = window.cart.find(x => Number(x.id) === nid);
-  if (!ci && d > 0) { addToCart(nid); return; }
-  if (!ci) return;
-  ci.qty += d;
-  if (ci.qty <= 0) window.cart = window.cart.filter(x => Number(x.id) !== nid);
-  saveCart();
+  try {
+    const nid = Number(id);
+    const ci = window.cart.find(x => Number(x.id) === nid);
+    if (!ci && d > 0) { addToCart(nid); return; }
+    if (!ci) return;
+    ci.qty += d;
+    if (ci.qty <= 0) {
+      window.cart = window.cart.filter(x => Number(x.id) !== nid);
+    }
+    saveCart();
+  } catch (err) {
+    console.error("updCart error:", err);
+  }
 }
 window.updCart = updCart;
 
 function deleteFromCart(id) {
-  window.cart = window.cart.filter(x => Number(x.id) !== Number(id));
+  const nid = Number(id);
+  window.cart = window.cart.filter(x => Number(x.id) !== nid);
   saveCart();
 }
+window.deleteFromCart = deleteFromCart;
 window.deleteFromCart = deleteFromCart;
 
 function showToast(msg) {
@@ -1641,13 +1685,24 @@ window.parseMapLink = function (url) {
 };
 
 function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest', stateVal = 'Order', pinVal = '000000', mapLink = '') {
-  const totEl = document.getElementById('co-tot');
-  const tot = totEl ? parseInt(totEl.innerText) : 0;
-  if (!tot) return;
+  const totals = typeof window.getCartTotals === 'function' ? window.getCartTotals() : { total: 0 };
+  if (totals.total <= 0) {
+    if (typeof window.showToast === 'function') window.showToast("Your basket is empty!", "error");
+    return;
+  }
+  const amount = Math.round(totals.total * 100);
+  
+  if (amount <= 0) {
+    showToast("Your cart total must be greater than zero to checkout.");
+    return;
+  }
 
-  const totals = getCartTotals();
   const options = {
-    key: "rzp_live_SblSXsCRc6GjPo", amount: totals.total * 100, currency: "INR", name: "Farmmily Foods",
+    key: "rzp_live_SblSXsCRc6GjPo", 
+    amount: amount, 
+    currency: "INR", 
+    name: "Farmmily Foods",
+    description: "Farm Fresh Harvest Order",
     handler: async response => {
       showToast('Payment Successful!');
 
@@ -1679,7 +1734,8 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
               delivery_charge: totals.deliveryFee,
               total: totals.total,
               discount_code: window.appliedCoupon ? window.appliedCoupon.code : null,
-              discount_amount: totals.couponDiscount + totals.coupleDiscount,
+              discount: totals.couponDiscount + totals.coupleDiscount, // Use 'discount' column
+              discount_amount: totals.couponDiscount + totals.coupleDiscount, // Also use 'discount_amount' as fallback
               payment_status: 'paid',
               status: 'confirmed',
               customer_name: customerName,
@@ -1690,15 +1746,18 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
             .select()
             .single();
 
-          if (orderErr) throw orderErr;
+          if (orderErr) {
+            console.error("Supabase Order Insert Error:", orderErr);
+            throw new Error("Failed to create order: " + orderErr.message);
+          }
 
           if (orderData) {
             // 2. Add line items
             const itemInserts = window.cart.map(ci => {
-              const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
+              const p = ci.p || (window.products || []).find(x => Number(x.id) === Number(ci.id));
               return {
                 order_id: orderData.id,
-                product_id: (p && p.isCustom) ? null : (p ? (p.productId || p.id) : null),
+                product_id: (p && p.isCustomBox) ? null : (p ? (p.productId || p.id) : null),
                 product_name: p ? p.name : 'Unknown Product',
                 product_image: p ? p.img : null,
                 quantity: ci.qty,
@@ -1715,7 +1774,7 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
             const { error: payErr } = await supabaseClient.from('payments').insert([{
               order_id: orderData.id,
               razorpay_payment_id: response.razorpay_payment_id,
-              amount: tot,
+              amount: totals.total,
               status: 'paid',
               method: 'card'
             }]);
@@ -1723,8 +1782,8 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
 
             // 3.5 Update Stock (Admin Side Sync)
             for (const ci of window.cart) {
-              const p = ci.p || window.products.find(x => Number(x.id) === Number(ci.id));
-              if (!p || p.isCustom) continue;
+              const p = ci.p || (window.products || []).find(x => Number(x.id) === Number(ci.id));
+              if (!p || p.isCustomBox) continue;
 
               if (p.variantId) {
                 const { data: variantData } = await supabaseClient
@@ -1774,11 +1833,12 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
           }
         } catch (err) {
           console.error("Order completion failed:", err);
-          showToast("Order saved but navigation failed.");
+          showToast("Order saved but navigation failed: " + err.message, "error");
           window.cart = []; saveCart(); showPage('home');
         }
       } else {
         // Fallback for demo
+        showToast("Supabase not connected. Order not saved.");
         window.cart = []; saveCart(); showPage('home');
       }
     },
@@ -1799,6 +1859,22 @@ function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest'
   const rzp = new Razorpay(options);
   rzp.open();
 }
+window.openRazorpayWithDetails = openRazorpayWithDetails;
+
+window.addToCartAndFeedback = function (btn, id) {
+  window.addToCart(id);
+  const original = btn.innerHTML;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" style="animation: bounce 0.5s ease infinite;"><polyline points="20 6 9 17 4 12"></polyline></svg> ADDED';
+  btn.style.background = '#22c55e';
+  btn.style.color = '#fff';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.innerHTML = original;
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.disabled = false;
+  }, 1500);
+};
 
 // ===== SUPABASE LOAD =====
 async function loadCategories() {
@@ -2154,7 +2230,7 @@ function handleRawProducts(data) {
   const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'assets/side-01.png' };
 
   const allProds = (data || []).map(p => {
-    let img = p.image_url;
+    let img = p.image_url || 'assets/placeholder.png';
     // Treat Unsplash as placeholder to use assetMap fallbacks
     if (img && img.includes('unsplash.com')) img = null;
     
@@ -3174,6 +3250,9 @@ window.addCustomCrateToCart = function () {
 // End of App logic
 
 async function initApp() {
+  // Ensure Supabase is initialized
+  if (!supabaseClient) initSupabaseClient();
+  
   try {
     // Parallelize initialization for maximum speed
     await fetchDeliveryConfig();

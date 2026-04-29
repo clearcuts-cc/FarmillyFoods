@@ -5646,14 +5646,7 @@
     <section class="hero">
       <img loading="lazy" decoding="async" src="assets/hero-16-9.png" alt="Premium Harvest Mangoes">
     </section>
-    
-        <div class="ti"><iconify-icon icon="solar:verified-check-bold-duotone"
-            style="font-size: 24px; margin-right: 10px; color: #4ADE80;"></iconify-icon> 100% certified</div>
-        <div class="tdiv"></div>
-        <div class="ti"><iconify-icon icon="solar:delivery-bold-duotone"
-            style="font-size: 24px; margin-right: 10px; color: #FBBF24;"></iconify-icon> Same-Day Farm Dispatch</div>
-      </div>
-    </div>
+    </section>
     <section class="sec" id="categories-sec" style="padding-top: 10px; padding-bottom: 0px;">
       <div class="inner">
         <div class="sec-title">
@@ -6114,7 +6107,7 @@
             <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12₹3 2,6" />
+                <polyline points="22,6 12,13 2,6" />
               </svg>
               <div><strong>Email:</strong> support@farmmilyfoods.com</div>
             </div>
@@ -6633,7 +6626,7 @@
           <div class="f-con">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <polyline points="22,6 12,3 2,6" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
             <div><strong>Email:</strong> support@farmmilyfoods.com</div>
           </div>
@@ -7365,12 +7358,13 @@
         const overlay = document.getElementById('variant-sheet-overlay');
         const options = document.getElementById('sheet-options');
         const title = document.getElementById('sheet-title');
+        const footer = document.getElementById('sheet-footer');
 
         if (!sheet || !overlay || !options || !title) return;
 
         const cleanVariety = (variety || '').replace(/\(.*\)/, '')
-          .replace(/ mangoes/i, '')
-          .replace(/ powder/i, '')
+          .replace(/ mangoes/i, '').replace(/ mango/i, '')
+          .replace(/ powder/i, '').replace(/ oil/i, '').replace(/ ghee$/i, '')
           .trim();
 
         if (!cleanVariety) {
@@ -7400,17 +7394,15 @@
           const list = window.products || [];
           let variants;
 
-          // ₹ Prefer direct ID lookup (fast, accurate, no name-matching bugs)
+          // Robust direct ID lookup
           if (variantIds && variantIds.length > 0) {
             const idSet = new Set(variantIds.map(Number));
             variants = list.filter(p => idSet.has(Number(p.id)));
           } else {
-            // Fallback: name-based matching
+            // Fallback: Name-based matching
             variants = list.filter(p => {
               const baseP = (p.name || '').replace(/\(.*\)/, '')
                 .replace(/\s+\d+\s*(kg|g|l|ml|litres?|lit|kilo|gram|oz|lb)\s*$/i, '')
-                .replace(/ mangoes$/i, '').replace(/ mango$/i, '')
-                .replace(/ powder$/i, '').replace(/ oil$/i, '').replace(/ ghee$/i, '')
                 .trim().toLowerCase();
               const baseV = cleanVariety.toLowerCase();
               return baseP === baseV || baseP.includes(baseV) || baseV.includes(baseP);
@@ -7418,15 +7410,16 @@
           }
 
           if (!variants.length) {
-            console.warn("openVariantSheet: No variants found for", cleanVariety, "in list of", list.length);
+            console.warn("openVariantSheet: No variants found for", cleanVariety);
             options.innerHTML = '<div style="text-align:center;padding:60px;"><p style="color:#aaa;">No variants found.</p></div>';
+            if (footer) footer.style.display = 'none';
             return;
           }
 
           options.innerHTML = variants.map(v => {
             const cartItem = (window.cart || []).find(ci => ci.id === v.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;
-            const uV = window.getUnitPrice(v.price, v.wt);
+            const uV = (window.getUnitPrice && typeof window.getUnitPrice === 'function') ? window.getUnitPrice(v.price, v.wt) : { rate: 0, unit: 'kg' };
 
             return `
                     <div class="variant-item">
@@ -7448,7 +7441,7 @@
                         ${qtyInCart > 0 ? `
                         <div class="v-qty-ctrl" style="display:flex; align-items:center; gap:16px; background:#f0fdf4; border:2px solid #22c55e; border-radius:18px; padding:8px 16px;">
                            <button onclick="window.updCart(${v.id}, -1)" style="border:none; background:none; font-size:20px; font-weight:900; color:#22c55e; cursor:pointer;">-</button>
-                           <span style="font-weight:900; font-size:16px; color:#111; min-width:20px; text-align:center;">${qtyInCart}</span>
+                           <span style="font-size:18px; font-weight:900; color:#1b391b; min-width:12px; text-align:center;">${qtyInCart}</span>
                            <button onclick="window.updCart(${v.id}, 1)" style="border:none; background:none; font-size:20px; font-weight:900; color:#22c55e; cursor:pointer;">+</button>
                         </div>
                         ` : `
@@ -7457,7 +7450,20 @@
                     </div>
                 `;
           }).join('');
-        }, 100);
+
+          // Update Sheet Footer
+          const footerTotal = document.getElementById('sheet-footer-total');
+          const n = (window.cart || []).reduce((s, i) => s + i.qty, 0);
+          if (footer && n > 0) {
+            footer.style.display = 'block';
+            if (footerTotal) {
+              const totals = typeof window.getCartTotals === 'function' ? window.getCartTotals() : { total: 0 };
+              footerTotal.textContent = `₹${totals.total}`;
+            }
+          } else if (footer) {
+            footer.style.display = 'none';
+          }
+        }, 150);
       }
       window.openVariantSheet = openVariantSheet;
 
@@ -7572,6 +7578,33 @@
     <h3 id="sheet-title">variant selector</h3>
     <div id="sheet-options">
       <!-- Dyn contents -->
+    </div>
+    <div id="sheet-footer"
+      style="padding:16px 20px 32px; border-top:1px solid #f1f5f9; background:#fff; display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div
+            style="width:42px; height:42px; background:#f0fdf4; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#22c55e;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 01-8 0" />
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:10px; font-weight:800; color:#888; text-transform:uppercase; letter-spacing:1px;">
+              Basket Total</div>
+            <div id="sheet-footer-total" style="font-size:20px; font-weight:900; color:#1b391b;">₹0</div>
+          </div>
+        </div>
+        <button onclick="showPage('cart')"
+          style="background:#1b391b; color:#fff; border:none; padding:12px 24px; border-radius:14px; font-weight:900; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 10px 20px rgba(27,57,27,0.15);">
+          VIEW BASKET
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
