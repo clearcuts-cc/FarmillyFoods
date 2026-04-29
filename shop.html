@@ -7,9 +7,15 @@
   <meta name="referrer" content="no-referrer">
 
   <!-- Favicon / Brand Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="apple-touch-icon" href="assets/favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="shortcut icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="apple-touch-icon" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="shortcut icon" type="image/svg+xml" href="assets/favicon.svg">
 
   <!-- Primary Meta Tags -->
   <title>Farmmily Farms | Buy Natural Mangoes, A2 Ghee & Raw Honey Online</title>
@@ -57,7 +63,9 @@
   <meta name="keywords"
     content="natural mangoes, imam pasand, alphonso mangoes online, a2 ghee online, raw honey india, buy natural spices, farm fresh mangoes bangalore, farmmily farms">
   <meta name="author" content="Farmmily Agro Infra Developers">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="canonical" href="https://farmmilyfoods.com/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="canonical" href="https://farmmilyfoods.com/">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
@@ -235,28 +243,45 @@
   }
   </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;600&display=swap"
     rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
-      @page { size: A4; margin: 0; }
-      body > *:not(#invoice-modal) { display: none !important; }
-      #invoice-modal { 
-        display: block !important; 
-        position: static !important; 
-        width: 100% !important; 
-        max-width: none !important; 
-        margin: 0 !important; 
-        padding: 20mm !important; 
-        box-shadow: none !important; 
+    @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      body>*:not(#invoice-modal) {
+        display: none !important;
+      }
+
+      #invoice-modal {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 20mm !important;
+        box-shadow: none !important;
         transform: none !important;
         overflow: visible !important;
       }
-      #invoice-overlay { display: none !important; }
-      .no-print { display: none !important; }
+
+      #invoice-overlay {
+        display: none !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
     }
+
     :root {
       --primary: #0a1a0a;
       --secondary: #D4AF37;
@@ -5509,9 +5534,12 @@
   <!-- MOBILE MENU SIDE DRAWER -->
   <div id="mob-menu-overlay" onclick="closeMobileSidebar()"></div>
   <div id="mob-menu">
-    <a href="/home" class="mob-menu-item" onclick="event.preventDefault(); showPage('home');closeMobileSidebar()">Home</a>
-    <a href="/shop" class="mob-menu-item" onclick="event.preventDefault(); showPage('shop');closeMobileSidebar()">Shop</a>
-    <a href="/mangoes" class="mob-menu-item" onclick="event.preventDefault(); filterBycat('Mangoes');closeMobileSidebar()">Mangoes</a>
+    <a href="/home" class="mob-menu-item"
+      onclick="event.preventDefault(); showPage('home');closeMobileSidebar()">Home</a>
+    <a href="/shop" class="mob-menu-item"
+      onclick="event.preventDefault(); showPage('shop');closeMobileSidebar()">Shop</a>
+    <a href="/mangoes" class="mob-menu-item"
+      onclick="event.preventDefault(); filterBycat('Mangoes');closeMobileSidebar()">Mangoes</a>
     <div class="mob-menu-item" onclick="toggleMobCat(this)">
       Categories
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;">
@@ -5521,9 +5549,12 @@
     <div id="mob-drawer-cats" style="display:none; padding-left: 20px;">
       <div id="mob-cat-list"></div>
     </div>
-    <a href="/track" class="mob-menu-item" onclick="event.preventDefault(); showPage('track');closeMobileSidebar()">Track Order</a>
-    <a href="/contact" class="mob-menu-item" onclick="event.preventDefault(); showPage('contact');closeMobileSidebar()">Contact</a>
-    <a href="/corporate" class="mob-menu-item" onclick="event.preventDefault(); showPage('corporate');closeMobileSidebar()">Corporate</a>
+    <a href="/track" class="mob-menu-item"
+      onclick="event.preventDefault(); showPage('track');closeMobileSidebar()">Track Order</a>
+    <a href="/contact" class="mob-menu-item"
+      onclick="event.preventDefault(); showPage('contact');closeMobileSidebar()">Contact</a>
+    <a href="/corporate" class="mob-menu-item"
+      onclick="event.preventDefault(); showPage('corporate');closeMobileSidebar()">Corporate</a>
   </div>
 
   <header id="header">
@@ -5628,11 +5659,14 @@
     </section>
     <div class="trust-bar" style="background: #0a1a0a;">
       <div class="trust-inner">
-        <div class="ti"><iconify-icon icon="solar:medal-ribbons-star-bold-duotone" style="font-size: 24px; margin-right: 10px; color: #FFD700;"></iconify-icon> A-Grade Export Quality</div>
+        <div class="ti"><iconify-icon icon="solar:medal-ribbons-star-bold-duotone"
+            style="font-size: 24px; margin-right: 10px; color: #FFD700;"></iconify-icon> A-Grade Export Quality</div>
         <div class="tdiv"></div>
-        <div class="ti"><iconify-icon icon="solar:verified-check-bold-duotone" style="font-size: 24px; margin-right: 10px; color: #4ADE80;"></iconify-icon> 100% certified</div>
+        <div class="ti"><iconify-icon icon="solar:verified-check-bold-duotone"
+            style="font-size: 24px; margin-right: 10px; color: #4ADE80;"></iconify-icon> 100% certified</div>
         <div class="tdiv"></div>
-        <div class="ti"><iconify-icon icon="solar:delivery-bold-duotone" style="font-size: 24px; margin-right: 10px; color: #FBBF24;"></iconify-icon> Same-Day Farm Dispatch</div>
+        <div class="ti"><iconify-icon icon="solar:delivery-bold-duotone"
+            style="font-size: 24px; margin-right: 10px; color: #FBBF24;"></iconify-icon> Same-Day Farm Dispatch</div>
       </div>
     </div>
     <section class="sec" id="categories-sec" style="padding-top: 10px; padding-bottom: 0px;">
@@ -5661,7 +5695,9 @@
           <!-- CUSTOM CRATE -->
           <div class="premium-mango-card" onclick="window.openCrateBuilder()">
             <div class="m-img-wrap" style="background: #e0f2f1;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1VZcc8uDcKUKJm6ZP77Ymzh1ok1g1ZVuJ&sz=w1000" alt="Custom Crate" onerror="this.src='assets/side-01.png'; this.onerror=null;">
+              <img loading="lazy" decoding="async"
+                src="https://drive.google.com/thumbnail?id=1VZcc8uDcKUKJm6ZP77Ymzh1ok1g1ZVuJ&sz=w1000"
+                alt="Custom Crate" onerror="this.src='assets/side-01.png'; this.onerror=null;">
               <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
                 CUSTOM
               </div>
@@ -5692,7 +5728,8 @@
           <!-- IMAM PASAND -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Imam Pasand')">
             <div class="m-img-wrap" style="background: #FFF9C4;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
+              <img loading="lazy" decoding="async"
+                src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
                 alt="Imam Pasand">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Imam Pasand')">
                 ADD
@@ -5757,7 +5794,8 @@
           <!-- BANGANAPALLI -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Banganapalli')">
             <div class="m-img-wrap" style="background: #FFF17644;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
+              <img loading="lazy" decoding="async"
+                src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
                 alt="Banganapalli">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Banganapalli')">
                 ADD
@@ -5790,8 +5828,8 @@
           <!-- SENTHURA -->
           <div class="premium-mango-card" onclick="showPremiumDetail('Senthura')">
             <div class="m-img-wrap" style="background: #FFEBEE;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
-                alt="Senthura">
+              <img loading="lazy" decoding="async"
+                src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000" alt="Senthura">
               <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Senthura')">
                 ADD
               </div>
@@ -5996,22 +6034,28 @@
           <div class="title-bar"></div>
         </div>
         <div class="farm-grid">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
+          <img loading="lazy" decoding="async"
+            src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
             alt="Farmmily Farms mango orchard landscape showing natural cultivation" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1eKPe111RBdVG8hBDqKdi7tq3oLlqIB3T&sz=w1000"
+          <img loading="lazy" decoding="async"
+            src="https://drive.google.com/thumbnail?id=1eKPe111RBdVG8hBDqKdi7tq3oLlqIB3T&sz=w1000"
             alt="Traditional natural cultivation rows at Farmmily heritage estates" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
+          <img loading="lazy" decoding="async"
+            src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
             alt="Hand-harvesting fresh natural mangoes at Farmmily Farms" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1PhPv6kIFIw7TGN_4Erb8MRxyxADlaO3p&sz=w1000"
+          <img loading="lazy" decoding="async"
+            src="https://drive.google.com/thumbnail?id=1PhPv6kIFIw7TGN_4Erb8MRxyxADlaO3p&sz=w1000"
             alt="Sorted high-quality farm produce ready for packing" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
+          <img loading="lazy" decoding="async"
+            src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
             alt="Lush green mango orchard at Mambalam estates" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1QMOJPuelPW4-ObmKD993WZXxfyV64G2i&sz=w1000"
+          <img loading="lazy" decoding="async"
+            src="https://drive.google.com/thumbnail?id=1QMOJPuelPW4-ObmKD993WZXxfyV64G2i&sz=w1000"
             alt="Farm workers collecting seasonal heritage harvest" loading="lazy"
             style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
         </div>
@@ -6921,7 +6965,8 @@
           style="background:#f0fdf4; color:#1b6b5b; padding:4px 10px; border-radius:8px; border:1px solid #dcfce7; display:flex; align-items:center; gap:4px; font-size:10px; text-transform:uppercase;">
           <span class="live-dot"></span> Freshly Harvested Today
         </span>
-        <span id="pd-reviews" style="color:#aaa; font-weight:400; font-family:'Inter', sans-serif;">(128 Verified Reviews)</span>
+        <span id="pd-reviews" style="color:#aaa; font-weight:400; font-family:'Inter', sans-serif;">(128 Verified
+          Reviews)</span>
       </div>
       <h1 class="pd-title" id="pd-title"
         style="font-family:'Playfair Display', serif; font-size:24px; font-weight:900; color:#1b391b; margin-bottom:24px; letter-spacing:-0.5px; line-height:1.2;">
@@ -7028,31 +7073,45 @@
 
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:40px;">
         <!-- Quick Delivery -->
-        <div style="text-align:center; padding:16px 8px; background:linear-gradient(to bottom, #f0fdf4, #fff); border:1px solid #dcfce7; border-radius:20px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.02);">
-          <div style="width:36px; height:36px; background:#22c55e; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#fff; box-shadow:0 8px 20px rgba(34,197,94,0.2);">
+        <div
+          style="text-align:center; padding:16px 8px; background:linear-gradient(to bottom, #f0fdf4, #fff); border:1px solid #dcfce7; border-radius:20px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.02);">
+          <div
+            style="width:36px; height:36px; background:#22c55e; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#fff; box-shadow:0 8px 20px rgba(34,197,94,0.2);">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0L17 4H7L4 13m16 0h-3.5a1.5 1.5 0 00-1.5 1.5V15a2 2 0 11-4 0v-.5a1.5 1.5 0 00-1.5-1.5H4" />
+              <path
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0L17 4H7L4 13m16 0h-3.5a1.5 1.5 0 00-1.5 1.5V15a2 2 0 11-4 0v-.5a1.5 1.5 0 00-1.5-1.5H4" />
             </svg>
           </div>
-          <div style="font-size:9px; font-weight:900; color:#166534; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">Fast<br>Delivery</div>
+          <div
+            style="font-size:9px; font-weight:900; color:#166534; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">
+            Fast<br>Delivery</div>
         </div>
         <!-- 100% Natural -->
-        <div style="text-align:center; padding:16px 8px; background:linear-gradient(to bottom, #fefce8, #fff); border:1px solid #fef08a; border-radius:20px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.02);">
-          <div style="width:36px; height:36px; background:#eab308; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#fff; box-shadow:0 8px 20px rgba(234,179,8,0.2);">
+        <div
+          style="text-align:center; padding:16px 8px; background:linear-gradient(to bottom, #fefce8, #fff); border:1px solid #fef08a; border-radius:20px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.02);">
+          <div
+            style="width:36px; height:36px; background:#eab308; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#fff; box-shadow:0 8px 20px rgba(234,179,8,0.2);">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path d="M12 3C7.029 3 3 7.029 3 12s4.029 9 9 9m6-17a4 4 0 011 7l-7 7m0-11l3-3" />
             </svg>
           </div>
-          <div style="font-size:9px; font-weight:900; color:#854d0e; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">100%<br>Natural</div>
+          <div
+            style="font-size:9px; font-weight:900; color:#854d0e; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">
+            100%<br>Natural</div>
         </div>
         <!-- Estate Quality -->
-        <div style="text-align:center; padding:16px 8px; background:linear-gradient(to bottom, #f8fafc, #fff); border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.02);">
-          <div style="width:36px; height:36px; background:#1b391b; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#fff; box-shadow:0 8px 20px rgba(27,57,27,0.2);">
+        <div
+          style="text-align:center; padding:16px 8px; background:linear-gradient(to bottom, #f8fafc, #fff); border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.02);">
+          <div
+            style="width:36px; height:36px; background:#1b391b; border-radius:12px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#fff; box-shadow:0 8px 20px rgba(27,57,27,0.2);">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              <path
+                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
           </div>
-          <div style="font-size:9px; font-weight:900; color:#1b391b; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">Estate<br>Quality</div>
+          <div
+            style="font-size:9px; font-weight:900; color:#1b391b; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">
+            Estate<br>Quality</div>
         </div>
       </div>
     </div>
@@ -7106,8 +7165,8 @@
         let variants = [];
         if (productId) {
           // Prioritize finding by the specific variant ID first
-          const target = (window.displayProducts || []).find(x => Number(x.id) === Number(productId)) || 
-                         (window.displayProducts || []).find(x => Number(x.productId) === Number(productId));
+          const target = (window.displayProducts || []).find(x => Number(x.id) === Number(productId)) ||
+            (window.displayProducts || []).find(x => Number(x.productId) === Number(productId));
           if (target && target.variants) variants = target.variants;
         }
 
@@ -7144,11 +7203,11 @@
 
         const ratingEl = document.getElementById('pd-rating');
         if (ratingEl) ratingEl.innerText = variants[0].rating ? Number(variants[0].rating).toFixed(1) : '5.0';
-        
+
         const reviewsEl = document.getElementById('pd-reviews');
         if (reviewsEl) {
-            const revCount = variants[0].revs || 128;
-            reviewsEl.innerText = `(${revCount} Verified Reviews)`;
+          const revCount = variants[0].revs || 128;
+          reviewsEl.innerText = `(${revCount} Verified Reviews)`;
         }
 
         selectedPdVariant = variants[0];
@@ -7527,24 +7586,61 @@
   </div>
 
   <!-- PROFESSIONAL INVOICE MODAL -->
-  <div id="invoice-overlay" onclick="window.closeInvoice()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); z-index:9500;"></div>
-  <div id="invoice-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:95%; max-width:800px; max-height:90vh; background:white; border-radius:12px; z-index:9501; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif;">
+  <div id="invoice-overlay" onclick="window.closeInvoice()"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); z-index:9500;">
+  </div>
+  <div id="invoice-modal"
+    style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:95%; max-width:800px; max-height:90vh; background:white; border-radius:12px; z-index:9501; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif;">
     <div style="padding:20px; position:relative;" id="invoice-printable-area">
       <!-- Content populated by JS -->
     </div>
-    <div style="padding:20px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:center; background:#f9fafb;" class="no-print">
-      <button onclick="window.printInvoice()" style="background:#1b391b; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Print Invoice</button>
-      <button onclick="window.closeInvoice()" style="background:#f1f5f9; color:#444; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Close</button>
+    <div
+      style="padding:20px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:center; background:#f9fafb;"
+      class="no-print">
+      <button onclick="window.printInvoice()"
+        style="background:#1b391b; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Print
+        Invoice</button>
+      <button onclick="window.closeInvoice()"
+        style="background:#f1f5f9; color:#444; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer;">Close</button>
     </div>
   </div>
 
   <style>
-    .invoice-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
-    .invoice-table th { background: #444; color: white; padding: 6px; text-align: left; }
-    .invoice-table td { border-bottom: 1px solid #eee; padding: 8px 6px; color: #333; }
-    .invoice-header-right { text-align: right; }
-    .invoice-header-right h1 { font-size: 22px; font-weight: 400; color: #111; margin: 0; }
-    .invoice-header-right span { color: #888; font-size: 11px; }
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 11px;
+    }
+
+    .invoice-table th {
+      background: #444;
+      color: white;
+      padding: 6px;
+      text-align: left;
+    }
+
+    .invoice-table td {
+      border-bottom: 1px solid #eee;
+      padding: 8px 6px;
+      color: #333;
+    }
+
+    .invoice-header-right {
+      text-align: right;
+    }
+
+    .invoice-header-right h1 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #111;
+      margin: 0;
+    }
+
+    .invoice-header-right span {
+      color: #888;
+      font-size: 11px;
+    }
   </style>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -7751,8 +7847,3 @@
 </body>
 
 </html>
-
-
-
-
-
