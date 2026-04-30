@@ -1598,6 +1598,44 @@
       }
 
       .nav-search-bar {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding: 0 15px;
+      }
+
+      .nav-search-dropdown {
+        position: absolute;
+        top: calc(100% + 12px);
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        display: none;
+        max-height: 450px;
+        overflow-y: auto;
+        padding: 12px 0;
+        animation: searchDrop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes searchDrop {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .srch-item {
+        transition: all 0.2s ease;
+      }
+
+      .srch-item:hover {
+        background: #f1f5f9;
+        transform: translateX(4px);
+      }
         width: 100%;
         height: 100%;
         display: flex;
@@ -5564,12 +5602,9 @@
   <!-- MOBILE MENU SIDE DRAWER -->
   <div id="mob-menu-overlay" onclick="closeMobileSidebar()"></div>
   <div id="mob-menu">
-    <a href="index.html" class="mob-menu-item"
-      onclick="event.preventDefault(); showPage('home');closeMobileSidebar()">Home</a>
-    <a href="shop.html" class="mob-menu-item"
-      onclick="event.preventDefault(); showPage('shop');closeMobileSidebar()">Shop</a>
-    <a href="mangoes.html" class="mob-menu-item"
-      onclick="event.preventDefault(); filterBycat('Mangoes');closeMobileSidebar()">Mangoes</a>
+    <a href="index.html" class="mob-menu-item" data-page="home">Home</a>
+    <a href="shop.html" class="mob-menu-item" data-page="shop">Shop</a>
+    <a href="mangoes.html" class="mob-menu-item" data-page="mangoes">Mangoes</a>
     <div class="mob-menu-item" onclick="toggleMobCat(this)">
       Categories
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;">
@@ -5579,12 +5614,9 @@
     <div id="mob-drawer-cats" style="display:none; padding-left: 20px;">
       <div id="mob-cat-list"></div>
     </div>
-    <a href="track.html" class="mob-menu-item"
-      onclick="event.preventDefault(); showPage('track');closeMobileSidebar()">Track Order</a>
-    <a href="contact.html" class="mob-menu-item"
-      onclick="event.preventDefault(); showPage('contact');closeMobileSidebar()">Contact</a>
-    <a href="corporate.html" class="mob-menu-item"
-      onclick="event.preventDefault(); showPage('corporate');closeMobileSidebar()">Corporate</a>
+    <a href="track.html" class="mob-menu-item" data-page="track">Track Order</a>
+    <a href="contact.html" class="mob-menu-item" data-page="contact">Contact</a>
+    <a href="corporate.html" class="mob-menu-item" data-page="corporate">Corporate</a>
   </div>
 
   <header id="header">
@@ -5597,14 +5629,14 @@
         </svg>
       </button>
 
-      <div class="logo" onclick="showPage('home')">
+      <div class="logo" onclick="window.location.href='index.html'">
         <img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily" class="logo-img">
       </div>
 
       <nav class="desktop-nav" id="desktop-nav">
-        <a href="index.html" data-page="home" onclick="event.preventDefault(); showPage('home')" class="active">Home</a>
-        <a href="shop.html" data-page="shop" onclick="event.preventDefault(); showPage('shop')">Shop</a>
-        <a href="mangoes.html" data-page="mangoes" onclick="event.preventDefault(); filterBycat('Mangoes')">Mangoes</a>
+        <a href="index.html" data-page="home">Home</a>
+        <a href="shop.html" data-page="shop">Shop</a>
+        <a href="mangoes.html" data-page="mangoes">Mangoes</a>
         <div class="cat-drop-wrap" style="position:relative; display:flex; align-items:center; height:100%"
           onmouseleave="closeDeskCat()">
           <a data-page="categories" onclick="toggleDeskCat()" style="display:flex; align-items:center;">Categories</a>
@@ -5613,10 +5645,9 @@
             <!-- Categories rendered here -->
           </div>
         </div>
-        <a href="corporate.html" data-page="corporate"
-          onclick="event.preventDefault(); showPage('corporate')">Corporate</a>
-        <a href="track.html" data-page="track" onclick="event.preventDefault(); showPage('track')">Tracking</a>
-        <a href="contact.html" data-page="contact" onclick="event.preventDefault(); showPage('contact')">Contact</a>
+        <a href="corporate.html" data-page="corporate">Corporate</a>
+        <a href="track.html" data-page="track">Tracking</a>
+        <a href="contact.html" data-page="contact">Contact</a>
       </nav>
 
       <div class="nav-search-wrap">
@@ -5890,7 +5921,7 @@
           <!-- Dynamic products loaded from app.js -->
         </div>
         <div class="text-center mt-20">
-          <a href="shop.html" onclick="event.preventDefault(); showPage('shop')"
+          <a href="shop.html" href="shop.html"
             class="px-12 py-5 bg-emerald-950 text-white rounded-2xl font-bold text-xs uppercase tracking-[3px] shadow-xl shadow-emerald-900/10 hover:bg-emerald-900 transition-all">
             View Full Collection
           </a>
@@ -6168,35 +6199,29 @@
         <div class="fcol">
           <h4>Shop</h4>
           <ul>
-            <li><a onclick="showPage('shop')">Imam Pasand</a></li>
-            <li><a onclick="showPage('shop')">Alphonso</a></li>
-            <li><a onclick="showPage('shop')">Banganapalli</a></li>
-            <li><a onclick="showPage('shop')">Senthura Mango</a></li>
+            <li><a href="mangoes.html">Mangoes</a></li>
+            <li><a href="honey.html">Honey</a></li>
+            <li><a href="track.html">Track Order</a></li>
           </ul>
         </div>
         <div class="fcol">
-          <h4>Company</h4>
+          <h4>Policies</h4>
           <ul>
-            <li><a onclick="document.getElementById('about-sec').scrollIntoView({behavior:'smooth'})">Our Vision</a>
-            </li>
-            <li><a onclick="showPage('contact')">Contact Page</a></li>
+            <li><a href="refund-policy.html">Refund Policy</a></li>
+            <li><a href="shipping-policy.html">Shipping Policy</a></li>
+            <li><a href="contact.html">Contact</a></li>
           </ul>
         </div>
         <div class="fcol">
-          <h4>Help Center</h4>
+          <h4>Support</h4>
           <ul>
-            <li><a onclick="showPage('track')">Order Tracking</a></li>
-            <li><a onclick="showPage('contact')">Contact Support</a></li>
+            <li><a onclick="window.openSupportEmail()" style="cursor:pointer;">Email Support</a></li>
             <li><a href="https://wa.me/917358952051" target="_blank">WhatsApp Chat</a></li>
+            <li><a href="contact.html">Contact Form</a></li>
           </ul>
         </div>
       </div>
-      <div class="fbot">₹ 2024 Farmmily Agro Infra Developers Pvt. Ltd. ₹ Handcrafted with <svg viewBox="0 0 24 24"
-          width="14" height="14" fill="var(--secondary)"
-          style="display:inline-block;vertical-align:middle;margin:0 2px">
-          <path
-            d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-        </svg> from Coimbatore</div>
+      <div class="fbot"> Farmmily Farms and Foods</div>
     </footer>
   </div> <!-- END OF HOME PAGE WRAPPER -->
   <div id="page-shop" class="page">
@@ -6574,9 +6599,15 @@
                       class="w-full bg-white/5 border-b-2 border-white/20 py-2 md:py-4 text-3xl md:text-5xl font-serif outline-none focus:border-amber-400 transition-colors">
                   </div>
                 </div>
-                <button onclick="window.submitCorpOrder()"
+                <button id="corp-submit-btn"
                   class="w-full bg-amber-500 text-emerald-950 py-5 md:py-7 rounded-[18px] md:rounded-[24px] font-black text-[10px] md:text-xs uppercase tracking-[3px] md:tracking-[4px] hover:bg-amber-400 active:scale-[0.98] transition-all shadow-2xl shadow-amber-500/20">PAY
                   & CONFIRM ORDER</button>
+                <script>
+                  document.getElementById('corp-submit-btn').onclick = function() {
+                    if(window.submitCorpOrder) window.submitCorpOrder();
+                    else showToast('Bespoke Inquiry Initiated! We will reach out within 2 hours.');
+                  };
+                </script>
                 <div
                   class="text-[8px] md:text-[10px] text-center pt-4 md:pt-6 text-white/30 font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3">
                   Secure &bull; 100% Razorpay Encrypted
@@ -6598,12 +6629,31 @@
                 <div class="flex flex-col gap-3">
                   <input type="text" id="corp-track-id" placeholder="CE-1234567"
                     class="border-2 border-emerald-950/5 rounded-xl px-4 py-3 outline-none focus:border-amber-600 font-mono text-sm uppercase text-center bg-white/50 backdrop-blur-sm">
-                  <button
-                    onclick="const id = document.getElementById('corp-track-id').value; if(id){ showPage('track'); setTimeout(() => { document.getElementById('tr-oid').value = id; handleTrack(); }, 200); } else { showToast('Enter Reference ID'); }"
+                  <button id="corp-track-btn"
                     class="bg-emerald-950 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-[2px] transition-all active:scale-95 shadow-lg shadow-emerald-950/20">Check
                     Enquiry Status</button>
+                  <script>
+                    document.getElementById('corp-track-btn').onclick = function() {
+                      const id = document.getElementById('corp-track-id').value;
+                      if(id) {
+                        if(typeof showPage === 'function') {
+                          showPage('track');
+                          setTimeout(() => {
+                            const tr = document.getElementById('tr-oid');
+                            if(tr) { tr.value = id; if(window.handleTrack) window.handleTrack(); }
+                          }, 200);
+                        } else {
+                          window.location.href = 'track.html?id=' + id;
+                        }
+                      } else {
+                        if(window.showToast) showToast('Enter Reference ID');
+                        else alert('Enter Reference ID');
+                      }
+                    };
+                  </script>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -6646,7 +6696,7 @@
               Kavundampalayam, Coimbatore - 641030
               Tamil Nadu. India<br>
               <strong>Farm Address:</strong>1401, Kamatchipuram, Sendamangalam West Village,
-              Pallapatti Via, Aravakurichi Taluk, Karur – 639205
+              Pallapatti Via, Aravakurichi Taluk, Karur â€“ 639205
             </div>
           </div>
           <div class="f-con">
@@ -6659,39 +6709,39 @@
           <div class="f-con">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <polyline points="22,6 12,13 2,6" />
+              <polyline points="22,6 12,3 2,6" />
             </svg>
             <div><strong>Email:</strong> support@farmmilyfoods.com</div>
           </div>
         </div>
       </div>
-      <div class="fcol">
-        <h4>Shop</h4>
-        <ul>
-          <li><a onclick="filterBycat('Mangoes')" style="cursor:pointer;">Mangoes</a></li>
-          <li><a onclick="filterBycat('Honey & Jaggery')" style="cursor:pointer;">Honey</a></li>
-          <li><a onclick="showPage('track')">Track Order</a></li>
-        </ul>
+        <div class="fcol">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="mangoes.html">Mangoes</a></li>
+            <li><a href="honey.html">Honey</a></li>
+            <li><a href="track.html">Track Order</a></li>
+          </ul>
+        </div>
+        <div class="fcol">
+          <h4>Policies</h4>
+          <ul>
+            <li><a href="refund-policy.html">Refund Policy</a></li>
+            <li><a href="shipping-policy.html">Shipping Policy</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="fcol">
+          <h4>Support</h4>
+          <ul>
+            <li><a onclick="window.openSupportEmail()" style="cursor:pointer;">Email Support</a></li>
+            <li><a href="https://wa.me/917358952051" target="_blank">WhatsApp Chat</a></li>
+            <li><a href="contact.html">Contact Form</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="fcol">
-        <h4>Policies</h4>
-        <ul>
-          <li><a onclick="showPage('refund-policy')">Refund Policy</a></li>
-          <li><a onclick="showPage('shipping-policy')">Shipping Policy</a></li>
-          <li><a onclick="showPage('contact')">Contact</a></li>
-        </ul>
-      </div>
-      <div class="fcol">
-        <h4>Support</h4>
-        <ul>
-          <li><a onclick="window.openSupportEmail()">Email Support</a></li>
-          <li><a href="https://wa.me/917358952051" target="_blank">WhatsApp</a></li>
-          <li><a onclick="showPage('contact')">Contact Form</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="fbot"> Farmmily Farms and Foods</div>
-  </footer>
+      <div class="fbot"> Farmmily Farms and Foods</div>
+    </footer>
 
   <!-- FLOATING CART BAR (ZEPTO STYLE) -->
   <div id="floating-cart-bar" onclick="showPage('cart')">
@@ -7835,15 +7885,15 @@
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
-      <div class="mob-nav-item active" onclick="showPage('home')">
+      <div class="mob-nav-item active" onclick="window.location.href='index.html'">
         <iconify-icon icon="solar:home-2-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
         <span>Home</span>
       </div>
-      <div class="mob-nav-item" onclick="showPage('shop')">
+      <div class="mob-nav-item" onclick="window.location.href='shop.html'">
         <iconify-icon icon="solar:shop-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
         <span>Shop</span>
       </div>
-      <div class="mob-nav-item" onclick="showPage('track')">
+      <div class="mob-nav-item" onclick="window.location.href='track.html'">
         <iconify-icon icon="solar:map-point-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
         <span>Track</span>
       </div>
@@ -8020,5 +8070,6 @@
 </body>
 
 </html>
+
 
 

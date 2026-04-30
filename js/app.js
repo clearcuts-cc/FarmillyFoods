@@ -924,16 +924,21 @@ function showPage(page, push = true) {
       return;
     }
 
+    // STRICT DOM CLEANUP: Hide all page containers before showing target
     const pages = document.querySelectorAll('.page');
     pages.forEach(p => {
       p.classList.remove('active');
       p.style.display = 'none';
       p.style.opacity = '0';
+      p.style.visibility = 'hidden';
+      p.style.pointerEvents = 'none';
     });
 
     const el = document.getElementById('page-' + page);
     if (el) {
       el.style.display = 'block';
+      el.style.visibility = 'visible';
+      el.style.pointerEvents = 'auto';
       setTimeout(() => {
         el.classList.add('active');
         el.style.opacity = '1';
@@ -947,7 +952,6 @@ function showPage(page, push = true) {
       if (typeof window.closeCrateSheet === 'function') window.closeCrateSheet(false);
       if (typeof window.closeVariantSheet === 'function') window.closeVariantSheet();
 
-      // Ensure floating bar and badges are updated for the current page
       updateCartCount();
 
       // --- Update Nav Bar Active State ---
@@ -959,15 +963,12 @@ function showPage(page, push = true) {
       const navLinks = document.querySelectorAll('.desktop-nav a, .mob-menu-item');
       navLinks.forEach(link => {
         const dp = link.getAttribute('data-page');
+        link.classList.remove('active');
+        
         if (dp === highlightPage) {
           link.classList.add('active');
-        } else if (dp === 'shop' && highlightPage === 'mangoes') {
-          // Don't highlight shop if mangoes is active
-          link.classList.remove('active');
-        } else if (link.getAttribute('onclick')?.includes("'"+page+"'")) {
+        } else if (link.getAttribute('onclick')?.includes("'"+page+"'") || link.getAttribute('href')?.includes(page)) {
           link.classList.add('active');
-        } else {
-          link.classList.remove('active');
         }
       });
 
@@ -977,7 +978,12 @@ function showPage(page, push = true) {
         syncUrl(path);
       }
     } else {
-      console.warn(`Page element 'page-${page}' not found.`);
+      console.warn(`Page element 'page-${page}' not found. Defaulting to first available page.`);
+      const firstPage = document.querySelector('.page');
+      if (firstPage) {
+        const id = firstPage.id.replace('page-', '');
+        if (id !== page) showPage(id, push);
+      }
     }
 
     if (page === 'home') renderHome();
@@ -990,7 +996,6 @@ function showPage(page, push = true) {
     }
   } catch (err) {
     console.error("Navigation error:", err);
-    showToast('Something went wrong. Refreshing...');
   }
 }
 window.showPage = showPage;
@@ -1304,6 +1309,9 @@ function addToCartAnim(btn, id) {
 
 // ===== HOME =====
 function renderHome() {
+  const isHomePage = document.getElementById('page-home')?.classList.contains('active');
+  if (!isHomePage) return;
+
   const cr = document.getElementById('cats-row');
   if (cr) {
     cr.innerHTML = cats.map(c =>
@@ -1975,8 +1983,12 @@ function updateSEO(title, description) {
 
 function filterBycat(c, push = true) {
   // Gracefully resolve partial category names
-  if (c !== 'All') {
+  if (c && c !== 'All') {
     const list = window.cats || (typeof cats !== 'undefined' ? cats : []);
+    if (list.length === 0) {
+      // If categories aren't loaded yet, try to find in window.products as fallback or just proceed
+      console.warn("Categories not yet loaded during filterBycat");
+    }
     const found = list.find(cat => 
       cat.name.toLowerCase() === c.toLowerCase() || 
       cat.name.toLowerCase().includes(c.toLowerCase())
@@ -1987,17 +1999,28 @@ function filterBycat(c, push = true) {
   // If we are using physical .html files, check if we need to redirect to a flagship page
   const isPhysical = window.location.pathname.includes('.html') || window.location.protocol === 'file:';
   const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+  
   if (push && isPhysical) {
-    if (c === 'Mangoes' && currentFile !== 'mangoes.html') {
+    const catLow = (c || '').toLowerCase();
+    if (catLow.includes('mango') && currentFile !== 'mangoes.html') {
       window.location.href = 'mangoes.html';
       return;
     }
-    if (c === 'Honey & Jaggery' && currentFile !== 'honey.html') {
+    if ((catLow.includes('honey') || catLow.includes('jaggery')) && currentFile !== 'honey.html') {
       window.location.href = 'honey.html';
       return;
     }
-    if (c === 'Pure Ghee' && currentFile !== 'ghee.html') {
+    if (catLow.includes('ghee') && currentFile !== 'ghee.html') {
       window.location.href = 'ghee.html';
+      return;
+    }
+    if (catLow.includes('spice') && currentFile !== 'spices.html') {
+      window.location.href = 'spices.html';
+      return;
+    }
+    // If it's another category and we are not on shop.html, redirect to shop.html
+    if (currentFile !== 'shop.html' && currentFile !== 'index.html' && !['mangoes.html', 'honey.html', 'ghee.html', 'spices.html'].includes(currentFile)) {
+      window.location.href = 'shop.html?cat=' + encodeURIComponent(c);
       return;
     }
   }
@@ -2049,8 +2072,14 @@ function handleRoute() {
 
   console.log('Router: Normalizing raw path', rawPath, 'to', path);
 
+  const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+
   // 1. Basic Pages
   if (path === '/' || path === '/home' || path === '/index') {
+    if (currentFile !== 'index.html' && currentFile !== '') {
+      window.location.href = 'index.html';
+      return;
+    }
     showPage('home', false);
     return;
   }
@@ -3155,7 +3184,9 @@ window.renderCrateVarieties = function () {
       (x.sku && x.sku.toLowerCase() === sku.toLowerCase()) || 
       (x.rawName && x.rawName.toLowerCase().includes(sku.toLowerCase().split('-')[0]))
     ) : null;
-    const name = p ? p.name : v.label.replace('VarietyPool:', '').trim();
+    const rawName = p ? p.name : v.label.replace('VarietyPool:', '').trim();
+    // Strip (3KG Box) or similar suffixes for cleaner UI
+    const name = rawName.replace(/\s*\(\d+KG\s*Box\)/gi, '').trim();
     const img = (p && p.img && !p.img.includes('placeholder')) ? p.img : 'https://cdn-icons-png.flaticon.com/512/1617/1617537.png'; // Use a real fruit icon as fallback
 
     return `

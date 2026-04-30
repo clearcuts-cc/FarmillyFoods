@@ -5504,13 +5504,12 @@
     </div>
     <button class="close-banner" onclick="this.parentElement.style.display='none'">&times;</button>
   </div>
-  <!-- HEADER -->
   <!-- MOBILE MENU SIDE DRAWER -->
   <div id="mob-menu-overlay" onclick="closeMobileSidebar()"></div>
   <div id="mob-menu">
-    <a href="/home" class="mob-menu-item" onclick="event.preventDefault(); showPage('home');closeMobileSidebar()">Home</a>
-    <a href="/shop" class="mob-menu-item" onclick="event.preventDefault(); showPage('shop');closeMobileSidebar()">Shop</a>
-    <a href="/mangoes" class="mob-menu-item" onclick="event.preventDefault(); filterBycat('Mangoes');closeMobileSidebar()">Mangoes</a>
+    <a href="index.html" class="mob-menu-item" data-page="home">Home</a>
+    <a href="shop.html" class="mob-menu-item" data-page="shop">Shop</a>
+    <a href="mangoes.html" class="mob-menu-item" data-page="mangoes">Mangoes</a>
     <div class="mob-menu-item" onclick="toggleMobCat(this)">
       Categories
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;">
@@ -5520,9 +5519,9 @@
     <div id="mob-drawer-cats" style="display:none; padding-left: 20px;">
       <div id="mob-cat-list"></div>
     </div>
-    <a href="/track" class="mob-menu-item" onclick="event.preventDefault(); showPage('track');closeMobileSidebar()">Track Order</a>
-    <a href="/contact" class="mob-menu-item" onclick="event.preventDefault(); showPage('contact');closeMobileSidebar()">Contact</a>
-    <a href="/corporate" class="mob-menu-item" onclick="event.preventDefault(); showPage('corporate');closeMobileSidebar()">Corporate</a>
+    <a href="track.html" class="mob-menu-item" data-page="track">Track Order</a>
+    <a href="contact.html" class="mob-menu-item" data-page="contact">Contact</a>
+    <a href="corporate.html" class="mob-menu-item" data-page="corporate">Corporate</a>
   </div>
 
   <header id="header">
@@ -5535,14 +5534,14 @@
         </svg>
       </button>
 
-      <div class="logo" onclick="showPage('home')">
+      <div class="logo" onclick="window.location.href='index.html'">
         <img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily" class="logo-img">
       </div>
 
       <nav class="desktop-nav" id="desktop-nav">
-        <a href="/home" data-page="home" onclick="event.preventDefault(); showPage('home')" class="active">Home</a>
-        <a href="/shop" data-page="shop" onclick="event.preventDefault(); showPage('shop')">Shop</a>
-        <a href="/mangoes" data-page="mangoes" onclick="event.preventDefault(); filterBycat('Mangoes')">Mangoes</a>
+        <a href="index.html" data-page="home">Home</a>
+        <a href="shop.html" data-page="shop">Shop</a>
+        <a href="mangoes.html" data-page="mangoes">Mangoes</a>
         <div class="cat-drop-wrap" style="position:relative; display:flex; align-items:center; height:100%"
           onmouseleave="closeDeskCat()">
           <a data-page="categories" onclick="toggleDeskCat()" style="display:flex; align-items:center;">Categories</a>
@@ -5551,9 +5550,9 @@
             <!-- Categories rendered here -->
           </div>
         </div>
-        <a href="/corporate" data-page="corporate" onclick="event.preventDefault(); showPage('corporate')">Corporate</a>
-        <a href="/track" data-page="track" onclick="event.preventDefault(); showPage('track')">Tracking</a>
-        <a href="/contact" data-page="contact" onclick="event.preventDefault(); showPage('contact')">Contact</a>
+        <a href="corporate.html" data-page="corporate">Corporate</a>
+        <a href="track.html" data-page="track">Tracking</a>
+        <a href="contact.html" data-page="contact">Contact</a>
       </nav>
 
       <div class="nav-search-wrap">
@@ -5608,521 +5607,6 @@
 
 
   <!-- ========== HOME ========== -->
-  <div id="page-home" class="page">
-    <section class="hero">
-      <img loading="lazy" decoding="async" src="assets/hero-16-9.png" alt="Premium Harvest Mangoes">
-    </section>
-    
-        <div class="ti"><iconify-icon icon="solar:verified-check-bold-duotone" style="font-size: 24px; margin-right: 10px; color: #4ADE80;"></iconify-icon> 100% certified</div>
-        <div class="tdiv"></div>
-        <div class="ti"><iconify-icon icon="solar:delivery-bold-duotone" style="font-size: 24px; margin-right: 10px; color: #FBBF24;"></iconify-icon> Same-Day Farm Dispatch</div>
-      </div>
-    </div>
-    <section class="sec" id="categories-sec" style="padding-top: 10px; padding-bottom: 0px;">
-      <div class="inner">
-        <div class="sec-title">
-          <h2 style="margin-bottom: 4px;">Shop By Category</h2>
-          <div class="title-bar" style="margin-top: 8px;"></div>
-        </div>
-        <div class="cats-row" id="cats-row"></div>
-      </div>
-    </section>
-
-    <!-- NEW PREMIUM VARIETIES (REF STYLE) -->
-    <section id="varieties" class="pb-20 px-4 sm:px-12"
-      style="padding-top: 0 !important; margin-top: -10px !important; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #ffffff 100%); position: relative; overflow: hidden;">
-      <div class="absolute top-0 right-0 w-96 h-96 bg-white/40 blur-[120px] rounded-full"></div>
-      <div class="absolute bottom-0 left-0 w-96 h-96 bg-white/20 blur-[100px] rounded-full"></div>
-      <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-8" style="padding-top: 20px;">
-          <h2 class="text-4xl font-serif text-emerald-950 mb-1" style="margin-top: 0 !important;">Heritage Varieties
-          </h2>
-          <p class="text-gray-400 text-xs font-bold uppercase tracking-[6px]">From Our Own Mambalam Estates</p>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
-          <!-- CUSTOM CRATE -->
-          <div class="premium-mango-card" onclick="window.openCrateBuilder()">
-            <div class="m-img-wrap" style="background: #e0f2f1;">
-              <img loading="lazy" decoding="async" src="assets/side-01.png" alt="Custom Crate" style="mix-blend-mode: multiply; opacity: 0.9;">
-              <div class="m-add-btn-image" onclick="event.stopPropagation(); window.openCrateBuilder()">
-                CUSTOM
-              </div>
-            </div>
-            <div class="m-info">
-              <div class="m-top-row">
-                <div class="m-wt-tag">3-5 KG</div>
-                <div class="m-stats">
-                  <div class="m-stars">â˜…â˜…â˜…â˜…â˜…</div>
-                  <span class="m-rating-val">5.0</span>
-                </div>
-              </div>
-              <h3 class="m-title" style="margin-bottom:0px;">Custom Heritage Mango Crate</h3>
-              <div
-                style="font-size:10px; color:#0d47a1; font-weight:700; background:#e3f2fd; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">
-                MIX ALL VARIETIES</div>
-              <span class="m-subtitle">Create Your Signature Blend</span>
-              <div class="m-price-row">
-                <div class="m-price-box">
-                  <span class="m-currency">₹</span>
-                  <span class="m-amt">299</span>
-                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg avg</span>
-                </div>
-                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Build your own mix!</div>
-              </div>
-            </div>
-          </div>
-          <!-- IMAM PASAND -->
-          <div class="premium-mango-card" onclick="showPremiumDetail('Imam Pasand')">
-            <div class="m-img-wrap" style="background: #FFF9C4;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
-                alt="Imam Pasand">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Imam Pasand')">
-                ADD
-              </div>
-            </div>
-            <div class="m-info">
-              <div class="m-top-row">
-                <div class="m-wt-tag">3 kg</div>
-                <div class="m-stats">
-                  <div class="m-stars">â˜…â˜…â˜…â˜…â˜…</div>
-                  <span class="m-rating-val">5.0</span>
-                </div>
-              </div>
-              <h3 class="m-title" style="margin-bottom:0px;">Imam pasand mangoes</h3>
-              <div
-                style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">
-                1 KG PRICE RATE</div>
-              <span class="m-subtitle">Naturalally grown, naturally ripened</span>
-              <div class="m-price-row">
-                <div class="m-price-box">
-                  <span class="m-currency">₹</span>
-                  <span class="m-amt">349</span>
-                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
-                </div>
-                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹1047 for 3 kg</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ALPHONSO -->
-          <div class="premium-mango-card" onclick="showPremiumDetail('Alphonso')">
-            <div class="m-img-wrap" style="background: #FFE0B2;">
-              <img loading="lazy" decoding="async" src="assets/alphonso.png" alt="Alphonso">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Alphonso')">
-                ADD
-              </div>
-            </div>
-            <div class="m-info">
-              <div class="m-top-row">
-                <div class="m-wt-tag">3 kg</div>
-                <div class="m-stats">
-                  <div class="m-stars">â˜…â˜…â˜…â˜…â˜…</div>
-                  <span class="m-rating-val">4.3</span>
-                </div>
-              </div>
-              <h3 class="m-title" style="margin-bottom:0px;">Alphonso mangoes</h3>
-              <div
-                style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">
-                1 KG PRICE RATE</div>
-              <span class="m-subtitle">Naturalally grown, naturally ripened</span>
-              <div class="m-price-row">
-                <div class="m-price-box">
-                  <span class="m-currency">₹</span>
-                  <span class="m-amt">299</span>
-                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
-                </div>
-                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹897 for 3 kg</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- BANGANAPALLI -->
-          <div class="premium-mango-card" onclick="showPremiumDetail('Banganapalli')">
-            <div class="m-img-wrap" style="background: #FFF17644;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
-                alt="Banganapalli">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Banganapalli')">
-                ADD
-              </div>
-            </div>
-            <div class="m-info">
-              <div class="m-top-row">
-                <div class="m-wt-tag">3 kg</div>
-                <div class="m-stats">
-                  <div class="m-stars">â˜…â˜…â˜…â˜…â˜…</div>
-                  <span class="m-rating-val">4.9</span>
-                </div>
-              </div>
-              <h3 class="m-title" style="margin-bottom:0px;">Banganapalli mangoes</h3>
-              <div
-                style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">
-                1 KG PRICE RATE</div>
-              <span class="m-subtitle">Naturalally grown, naturally ripened</span>
-              <div class="m-price-row">
-                <div class="m-price-box">
-                  <span class="m-currency">₹</span>
-                  <span class="m-amt">259</span>
-                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
-                </div>
-                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹777 for 3 kg</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SENTHURA -->
-          <div class="premium-mango-card" onclick="showPremiumDetail('Senthura')">
-            <div class="m-img-wrap" style="background: #FFEBEE;">
-              <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
-                alt="Senthura">
-              <div class="m-add-btn-image" onclick="openVariantSheet(event, 'Senthura')">
-                ADD
-              </div>
-            </div>
-            <div class="m-info">
-              <div class="m-top-row">
-                <div class="m-wt-tag">3 kg</div>
-                <div class="m-stats">
-                  <div class="m-stars">â˜…â˜…â˜…â˜…â˜…</div>
-                  <span class="m-rating-val">4.5</span>
-                </div>
-              </div>
-              <h3 class="m-title" style="margin-bottom:0px;">Senthura mangoes</h3>
-              <div
-                style="font-size:10px; color:#22c55e; font-weight:700; background:#f0fdf4; display:inline-block; padding:2px 8px; border-radius:4px; margin:4px 0;">
-                1 KG PRICE RATE</div>
-              <span class="m-subtitle">Naturalally grown, naturally ripened</span>
-              <div class="m-price-row">
-                <div class="m-price-box">
-                  <span class="m-currency">₹</span>
-                  <span class="m-amt">239</span>
-                  <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
-                </div>
-                <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹717 for 3 kg</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-
-
-    <!-- EXPLORE CATALOG -->
-    <section class="sec" id="explore-catalog" style="padding-top: 40px; background: #fffcf7;">
-      <div class="inner">
-        <div class="sec-title flex flex-col items-center text-center mb-16">
-          <span class="text-[10px] font-black tracking-[4px] text-amber-700 uppercase mb-4">Direct From Estate</span>
-          <h2 class="text-5xl font-serif text-emerald-950 mb-4">The Fresh Harvest</h2>
-          <p class="text-gray-500 max-w-xl italic mx-auto">Explore our full selection of artisan ghee, natural honey,
-            and hand-processed spices.</p>
-          <div class="title-bar" style="margin-top: 20px;"></div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8" id="feat-row">
-          <!-- Dynamic products loaded from app.js -->
-        </div>
-        <div class="text-center mt-20">
-          <a href="/shop" onclick="event.preventDefault(); showPage('shop')"
-            class="px-12 py-5 bg-emerald-950 text-white rounded-2xl font-bold text-xs uppercase tracking-[3px] shadow-xl shadow-emerald-900/10 hover:bg-emerald-900 transition-all">
-            View Full Collection
-          </a>
-        </div>
-      </div>
-    </section>
-
-
-
-    <!-- STORY - THE NEW FIELD -->
-    <footer class="bg-white py-12 text-center border-t border-orange-100">
-      <h2 class="text-4xl font-serif mb-8 italic text-emerald-950">The Stones to Stories Journey</h2>
-      <p class="max-w-3xl mx-auto text-gray-500 text-lg leading-relaxed px-6 font-light">
-        Remember the pure taste of farm-fresh food from your childhood? We've brought that honesty back. 100% Natural,
-        purity-verified, and nourished by age-old <b>Panchagavya</b> wisdom. Every product tells the story of a return
-        to the
-        soil.
-      </p>
-    </footer>
-    <section class="why-sec" id="about-sec">
-      <div class="inner">
-        <div class="sec-title">
-          <h2>Why Farmmily?</h2>
-          <p>We stand for purity, integrity, and your family's well-being</p>
-          <div class="title-bar"></div>
-        </div>
-        <div class="why-grid">
-          <div class="why-card">
-            <div class="wicon">
-              <!-- Farmer/Seed Icon -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-              </svg>
-            </div>
-            <h3>New Farmer Community</h3>
-            <p>We empower a new generation of growers with the infrastructure to produce honest, clean food.</p>
-          </div>
-          <div class="why-card">
-            <div class="wicon">
-              <!-- Land/Leaf Icon -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <h3>Barren to Bountiful</h3>
-            <p>Our products come from land we have personally transformed into thriving, green agricultural assets.</p>
-          </div>
-          <div class="why-card">
-            <div class="wicon">
-              <!-- Direct/Shield Icon -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <h3>Direct & Transparent</h3>
-            <p>No middlemen; we own and manage the estates, ensuring a direct link from our home to yours.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="sec" style="background:#fffcf7;">
-      <div class="inner">
-        <div class="sec-title">
-          <h2>What Families Are Saying</h2>
-          <p>Real stories from our beloved community</p>
-          <div class="title-bar"></div>
-        </div>
-        <div class="trow">
-          <div class="tcard">
-            <div class="qm">&ldquo;</div>
-            <div class="ttop">
-              <div>
-                <div class="tname">Priya S. <span class="vbadge">Verified</span></div>
-                <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                  </svg> Bengaluru</div>
-              </div>
-            </div>
-            <div class="tstars"><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg></div>
-            <div class="tquote">"The color is so deep and the taste is incredibly rich; it feels very medicinal and
-              pure. I wish you had a 100g trial pack for travel!"</div>
-          </div>
-          <div class="tcard">
-            <div class="qm">&ldquo;</div>
-            <div class="ttop">
-              <div>
-                <div class="tname">Janaki R. <span class="vbadge">Verified</span></div>
-                <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                  </svg> Kumbakonam</div>
-              </div>
-            </div>
-            <div class="tstars"><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg></div>
-            <div class="tquote">"The grainy texture and smell remind me of the ghee my grandmother made. I'd love to see
-              a 5-liter tin for our big family lunches!"</div>
-          </div>
-          <div class="tcard">
-            <div class="qm">&ldquo;</div>
-            <div class="ttop">
-              <div>
-                <div class="tname">Raghav S. <span class="vbadge">Verified</span></div>
-                <div class="tloc"><svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5-2.5z" />
-                  </svg> Chikmagalur</div>
-              </div>
-            </div>
-            <div class="tstars"><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg><svg viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg></div>
-            <div class="tquote">"Even being from a coffee-growing region, I found this estate coffee very smooth. I'd
-              love to see different grind sizes offered for French Press users."</div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="sec" style="padding-top:0">
-      <div class="inner">
-        <div class="sec-title">
-          <h2>Life at Our Farm</h2>
-          <p>From our estates to your table</p>
-          <div class="title-bar"></div>
-        </div>
-        <div class="farm-grid">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000"
-            alt="Farmmily Farms mango orchard landscape showing natural cultivation" loading="lazy"
-            style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1eKPe111RBdVG8hBDqKdi7tq3oLlqIB3T&sz=w1000"
-            alt="Traditional natural cultivation rows at Farmmily heritage estates" loading="lazy"
-            style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000"
-            alt="Hand-harvesting fresh natural mangoes at Farmmily Farms" loading="lazy"
-            style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1PhPv6kIFIw7TGN_4Erb8MRxyxADlaO3p&sz=w1000"
-            alt="Sorted high-quality farm produce ready for packing" loading="lazy"
-            style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000"
-            alt="Lush green mango orchard at Mambalam estates" loading="lazy"
-            style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-          <img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1QMOJPuelPW4-ObmKD993WZXxfyV64G2i&sz=w1000"
-            alt="Farm workers collecting seasonal heritage harvest" loading="lazy"
-            style="border-radius:16px; object-fit:cover; width:100%; height:100%; aspect-ratio:1/1;">
-        </div>
-        <p style="text-align:center;color:#888;font-size:.85rem;margin-top:15px">Photos from our farms, solar dryers,
-          and value-added production units</p>
-      </div>
-    </section>
-    <section class="sec" id="brand-sec" style="background:#fdfcf0;">
-      <div class="inner">
-        <div class="sec-title">
-          <h2>About Farmmily</h2>
-          <div class="title-bar"></div>
-        </div>
-        <div style="max-width:750px;margin:0 auto;text-align:center;line-height:1.8;">
-          <p style="font-size:1.15rem;margin-bottom:40px;color:var(--text);font-weight:600;">Farmmily Farms and Foods is
-            the value-added harvest of <br><span style="color:var(--primary);">FARMMILY AGRO INFRA DEVELOPERS PVT.
-              LTD.</span></p>
-          <div
-            style="background:#fff;padding:60px 40px;border-radius:var(--r);box-shadow:var(--sh2);border-top:6px solid var(--primary);position:relative;margin-top:20px;">
-            <div
-              style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:.65rem;text-transform:uppercase;letter-spacing:.25em;padding:6px 20px;border-radius:4px;font-weight:800;z-index:5;box-shadow:0 3px 10px rgba(58,107,53,.2);">
-              Our Vision</div>
-            <div
-              style="font-size:3.5rem;color:rgba(139,91,10,0.1);position:absolute;top:15px;left:25px;font-family:serif;font-weight:900;">
-              &ldquo;</div>
-            <p
-              style="font-size:1.08rem;color:#444;font-style:italic;margin:0;line-height:1.85;position:relative;z-index:2;">
-              We don't just sell food; we develop the very ecosystems that produce it &mdash; transforming barren
-              landscapes
-              into thriving estates managed by our community of new farmers.</p>
-            <div
-              style="font-size:3.5rem;color:rgba(139,91,10,0.1);position:absolute;bottom:0px;right:25px;font-family:serif;font-weight:900;">
-              &rdquo;</div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <footer id="contact-sec" style="display:none;">
-      <div class="ftop">
-        <div class="finfo">
-          <div class="flogo"><img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily"></div>
-          <div class="ftag">Farm to Family &bull; Pure Natural</div>
-          <div class="f-contacts">
-            <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              <div><strong>Corporate Office:</strong> Balakrishna complex, NO.133A, 1st Floor, Mettupalayam Road,
-                Coimbatore - 641030</div>
-            </div>
-            <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round">
-                <path
-                  d="M3 21h18M3 7v1a3 3 0 006 0V7m0 1a3 3 0 006 0V7m0 1a3 3 0 006 0V7M4 21V4a2 2 0 012-2h12a2 2 0 012 2v17" />
-              </svg>
-              <div><strong>Production Unit:</strong> 1401, Kamatchipuram, Sendamangalam West, Karur &ndash; 639205</div>
-            </div>
-            <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round">
-                <path
-                  d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.81 12.81 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
-              </svg>
-              <div><strong>Phone:</strong> +91 73589 52051</div>
-            </div>
-            <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12₹3 2,6" />
-              </svg>
-              <div><strong>Email:</strong> support@farmmilyfoods.com</div>
-            </div>
-            <div class="f-con"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-              <div><strong>FSSAI License:</strong> 12425010000120</div>
-            </div>
-          </div>
-          <div class="fsocials">
-            <a href="https://instagram.com/farmmily_foods" target="_blank" class="fsoc"><svg viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-              </svg></a>
-            <a href="https://instagram.com/farmmily_" target="_blank" class="fsoc"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-              </svg></a>
-          </div>
-        </div>
-        <div class="fcol">
-          <h4>Shop</h4>
-          <ul>
-            <li><a onclick="showPage('shop')">Imam Pasand</a></li>
-            <li><a onclick="showPage('shop')">Alphonso</a></li>
-            <li><a onclick="showPage('shop')">Banganapalli</a></li>
-            <li><a onclick="showPage('shop')">Senthura Mango</a></li>
-          </ul>
-        </div>
-        <div class="fcol">
-          <h4>Company</h4>
-          <ul>
-            <li><a onclick="document.getElementById('about-sec').scrollIntoView({behavior:'smooth'})">Our Vision</a>
-            </li>
-            <li><a onclick="showPage('contact')">Contact Page</a></li>
-          </ul>
-        </div>
-        <div class="fcol">
-          <h4>Help Center</h4>
-          <ul>
-            <li><a onclick="showPage('track')">Order Tracking</a></li>
-            <li><a onclick="showPage('contact')">Contact Support</a></li>
-            <li><a href="https://wa.me/917358952051" target="_blank">WhatsApp Chat</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="fbot">₹ 2024 Farmmily Agro Infra Developers Pvt. Ltd. ₹ Handcrafted with <svg viewBox="0 0 24 24"
-          width="14" height="14" fill="var(--secondary)"
-          style="display:inline-block;vertical-align:middle;margin:0 2px">
-          <path
-            d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-        </svg> from Coimbatore</div>
-    </footer>
-  </div> <!-- END OF HOME PAGE WRAPPER -->
   <div id="page-shop" class="page active">
     <section class="sec">
       <div class="inner">
@@ -6588,33 +6072,33 @@
           </div>
         </div>
       </div>
-      <div class="fcol">
-        <h4>Shop</h4>
-        <ul>
-          <li><a onclick="filterBycat('Mangoes')" style="cursor:pointer;">Mangoes</a></li>
-          <li><a onclick="filterBycat('Honey & Jaggery')" style="cursor:pointer;">Honey</a></li>
-          <li><a onclick="showPage('track')">Track Order</a></li>
-        </ul>
+        <div class="fcol">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="mangoes.html">Mangoes</a></li>
+            <li><a href="honey.html">Honey</a></li>
+            <li><a href="track.html">Track Order</a></li>
+          </ul>
+        </div>
+        <div class="fcol">
+          <h4>Policies</h4>
+          <ul>
+            <li><a href="refund-policy.html">Refund Policy</a></li>
+            <li><a href="shipping-policy.html">Shipping Policy</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="fcol">
+          <h4>Support</h4>
+          <ul>
+            <li><a onclick="window.openSupportEmail()" style="cursor:pointer;">Email Support</a></li>
+            <li><a href="https://wa.me/917358952051" target="_blank">WhatsApp Chat</a></li>
+            <li><a href="contact.html">Contact Form</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="fcol">
-        <h4>Policies</h4>
-        <ul>
-          <li><a onclick="showPage('refund-policy')">Refund Policy</a></li>
-          <li><a onclick="showPage('shipping-policy')">Shipping Policy</a></li>
-          <li><a onclick="showPage('contact')">Contact</a></li>
-        </ul>
-      </div>
-      <div class="fcol">
-        <h4>Support</h4>
-        <ul>
-          <li><a onclick="window.openSupportEmail()">Email Support</a></li>
-          <li><a href="https://wa.me/917358952051" target="_blank">WhatsApp</a></li>
-          <li><a onclick="showPage('contact')">Contact Form</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="fbot"> Farmmily Farms and Foods</div>
-  </footer>
+      <div class="fbot"> Farmmily Farms and Foods</div>
+    </footer>
 
   <!-- FLOATING CART BAR (ZEPTO STYLE) -->
   <div id="floating-cart-bar" onclick="showPage('cart')">
@@ -7533,33 +7017,20 @@
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
-      <div class="mob-nav-item active" onclick="showPage('home')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
+      <div class="mob-nav-item" onclick="window.location.href='index.html'">
+        <iconify-icon icon="solar:home-2-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
         <span>Home</span>
       </div>
-      <div class="mob-nav-item" onclick="showPage('shop')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <path d="M16 10a4 4 0 01-8 0" />
-        </svg>
+      <div class="mob-nav-item active" onclick="window.location.href='shop.html'">
+        <iconify-icon icon="solar:shop-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
         <span>Shop</span>
       </div>
-      <div class="mob-nav-item" onclick="showPage('track')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
+      <div class="mob-nav-item" onclick="window.location.href='track.html'">
+        <iconify-icon icon="solar:map-point-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
         <span>Track</span>
       </div>
-      <div class="mob-nav-item" onclick="window.open('https://wa.me/917708847977', '_blank')">
-        <svg viewBox="0 0 24 24" fill="#25D366">
-          <path
-            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-        </svg>
+      <div class="mob-nav-item" onclick="window.open('https://wa.me/917358952051', '_blank')">
+        <iconify-icon icon="logos:whatsapp-icon" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
         <span>WhatsApp</span>
       </div>
     </div>
@@ -7734,7 +7205,7 @@
     });
   </script>
 </body>
-</html>
+
 
 
 
