@@ -3289,6 +3289,7 @@ async function initApp() {
     await fetchDeliveryConfig();
     await loadCategories();
     await loadProducts();
+    await loadGallery();
     // loadCart() is redundant as cart is loaded at top of file
   } catch (err) {
     console.error("Initialization error:", err);
@@ -3312,6 +3313,7 @@ async function initApp() {
     supabaseClient.channel('public:products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => loadProducts()).subscribe();
     supabaseClient.channel('public:product_variants').on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, () => loadProducts()).subscribe();
     supabaseClient.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => loadCategories()).subscribe();
+    supabaseClient.channel('public:gallery').on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => loadGallery()).subscribe();
     supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, () => fetchDeliveryConfig()).subscribe();
     supabaseClient.channel('public:catalog_sync').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, (payload) => {
       if (payload?.new?.key === 'product_catalog_sync' || payload?.old?.key === 'product_catalog_sync') loadProducts();
@@ -3372,5 +3374,47 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', setupMobileMarquee);
 } else {
   setupMobileMarquee();
+}
+
+async function loadGallery() {
+  const galleryGrid = document.querySelector('.farm-grid');
+  if (!galleryGrid) return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('gallery')
+      .select('*')
+      .eq('active', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) throw error;
+    if (!data || data.length === 0) return;
+
+    // Clear existing hardcoded images
+    galleryGrid.innerHTML = '';
+
+    data.forEach(item => {
+      const img = document.createElement('img');
+      img.src = item.image_url;
+      img.alt = item.alt_text || 'Farmmily Farms heritage estates';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.style.borderRadius = '16px';
+      img.style.objectFit = 'cover';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.aspectRatio = '1/1';
+      img.style.transition = 'opacity 0.6s ease';
+      img.style.opacity = '0';
+      
+      img.onload = () => {
+        img.style.opacity = '1';
+      };
+
+      galleryGrid.appendChild(img);
+    });
+  } catch (err) {
+    console.error('Error loading gallery images:', err);
+  }
 }
 
