@@ -1731,27 +1731,47 @@
     #mob-nav {
       display: none;
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border-top: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
-      border-top-left-radius: 24px;
-      border-top-right-radius: 24px;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 9000;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(25px) saturate(200%);
+      -webkit-backdrop-filter: blur(25px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 0;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+      border-radius: 30px;
+      max-width: 500px;
+      margin: 0 auto;
+      transform: translateY(0);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Larger screens: Make it a proper bottom bar so it doesn't look "small" */
+    @media (min-width: 600px) {
+      #mob-nav {
+        max-width: 100%;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 28px 28px 0 0;
+        padding: 12px 0 24px;
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-top: 1px solid #f0f0f0;
+      }
+      .mob-nav-inner {
+        max-width: 800px;
+        margin: 0 auto;
+      }
     }
 
     .mob-nav-inner {
       display: flex;
       justify-content: space-around;
       align-items: center;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 0 4px;
+      padding: 0 12px;
     }
 
     .mob-nav-item {
@@ -1759,28 +1779,56 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      color: #999;
+      gap: 4px;
+      color: #64748b;
       cursor: pointer;
       flex: 1;
-      min-width: 0;
-      text-decoration: none;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 6px 0;
+      border-radius: 20px;
     }
 
     .mob-nav-item.active {
-      color: #22c55e;
+      color: #059669; /* Emerald 600 */
     }
 
-    .mob-nav-item svg {
-      width: 22px;
-      height: 22px;
-      stroke-width: 2px;
+    .mob-nav-item.active::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 48px;
+      height: 100%;
+      background: #f0fdf4;
+      border-radius: 16px;
+      z-index: -1;
+      animation: navBubble 0.3s ease forwards;
+    }
+
+    @keyframes navBubble {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .mob-nav-item iconify-icon {
+      font-size: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    .mob-nav-item.active iconify-icon {
+      transform: translateY(-2px) scale(1.1);
     }
 
     .mob-nav-item span {
-      font-size: 11px;
-      font-weight: 500;
-      margin-top: 1px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      transition: all 0.3s ease;
+    }
+
+    .mob-nav-item.active span {
+      font-weight: 800;
+      color: #064e3b;
     }
 
     .hamburger {
@@ -5420,7 +5468,299 @@
         display: block !important;
       }
     }
+
+    /* --- NEW CORPORATE PREMIUM DESIGN --- */
+    .corp-landing-hero {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      min-height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+      background: #0a1a0a;
+    }
+
+    .corp-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: url('assets/corp_hero.png') center/cover no-repeat;
+      opacity: 0.6;
+      transform: scale(1.1);
+      animation: heroZoom 20s infinite alternate;
+    }
+
+    @keyframes heroZoom {
+      from { transform: scale(1.05); }
+      to { transform: scale(1.15); }
+    }
+
+    .corp-hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      padding: 40px 20px;
+    }
+
+    .corp-hero-tag {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: 20px;
+      display: block;
+      animation: fadeInDown 0.8s ease;
+    }
+
+    .corp-hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      line-height: 1.1;
+      margin-bottom: 24px;
+      animation: fadeInUp 1s ease 0.2s both;
+    }
+
+    .corp-hero-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--secondary);
+      color: var(--text);
+      padding: 18px 40px;
+      border-radius: 50px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      animation: fadeInUp 1s ease 0.4s both;
+    }
+
+    .corp-hero-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3);
+    }
+
+    .corp-section {
+      padding: 100px 20px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .legacy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .legacy-img-wrap {
+      position: relative;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+    }
+
+    .legacy-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .legacy-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 24px;
+    }
+
+    .legacy-content p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    .corp-offerings {
+      background: #fdfcf8;
+      padding: 100px 20px;
+    }
+
+    .offering-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 50px;
+    }
+
+    .offering-card {
+      background: #fff;
+      padding: 50px 40px;
+      border-radius: 30px;
+      text-align: center;
+      transition: all 0.4s ease;
+      border: 1px solid #f0f0f0;
+    }
+
+    .offering-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+      border-color: var(--secondary);
+    }
+
+    .offering-icon {
+      width: 80px;
+      height: 80px;
+      background: #f0f7ef;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      color: var(--primary);
+    }
+
+    .offering-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+
+    .offering-card p {
+      font-size: 0.95rem;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    .gifting-highlight {
+      background: var(--primary);
+      color: #fff;
+      padding: 100px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gifting-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .gifting-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      margin-bottom: 24px;
+      color: var(--secondary);
+    }
+
+    .gifting-text p {
+      font-size: 1.15rem;
+      opacity: 0.9;
+      line-height: 1.8;
+      margin-bottom: 40px;
+    }
+
+    .gifting-img-wrap {
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+    }
+
+    .contact-sec {
+      background: #fff;
+      padding: 120px 20px;
+      text-align: center;
+    }
+
+    .inquiry-container {
+      max-width: 800px;
+      margin: 60px auto 0;
+      background: #fdfcf8;
+      padding: 60px;
+      border-radius: 40px;
+      border: 1px solid #f0e6c8;
+      text-align: left;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+      width: 100%;
+      background: #fff;
+      border: 2px solid #eee;
+      padding: 15px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus, 
+    .form-group select:focus, 
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 5px 15px rgba(58, 107, 53, 0.1);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #0a1a0a;
+      transform: translateY(-3px);
+    }
+
+    @media (max-width: 900px) {
+      .legacy-grid, .gifting-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .offering-grid {
+        grid-template-columns: 1fr;
+      }
+      .inquiry-container {
+        padding: 30px;
+      }
+      .legacy-content h2, .gifting-text h2 {
+        font-size: 2.5rem;
+      }
+    }
   </style>
+
   <script>
     function toggleSidebar(open = true) {
       const m = document.getElementById('mob-menu');
@@ -5609,220 +5949,205 @@
 
 
   <div id="page-corporate" class="page active">
-    <section class="max-w-7xl mx-auto py-12 md:py-24 px-4 md:px-6">
-      <div class="text-center mb-16 space-y-4">
-        <span class="text-amber-600 font-black tracking-[6px] text-[10px] uppercase">Farmmily Executive &mdash; B2B
-          Gifting
-          Portal</span>
-        <h1 class="text-3xl md:text-7xl font-serif text-emerald-950 leading-tight">Bespoke Mango Crates<br>For Your
-          Corporate
-          Partners</h1>
-        <p class="text-gray-500 max-w-2xl mx-auto italic text-sm md:text-lg font-light px-4">"Hand-curated heritage
-          mango boxes with
-          your brand sleeve and a personalised heritage card &mdash; minimum 15 units."</p>
-
-        <div class="flex justify-center gap-4 md:gap-12 pt-8">
-          <div class="text-center">
-            <div class="text-2xl font-black text-emerald-900">15+</div>
-            <div class="text-[9px] uppercase tracking-widest opacity-40 font-bold">Min Order</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-black text-emerald-900">4</div>
-            <div class="text-[9px] uppercase tracking-widest opacity-40 font-bold">Varieties</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-black text-emerald-900">2 hrs</div>
-            <div class="text-[9px] uppercase tracking-widest opacity-40 font-bold">Response Time</div>
-          </div>
-        </div>
+    <!-- HERO SECTION -->
+    <section class="corp-landing-hero">
+      <div class="corp-hero-bg"></div>
+      <div class="corp-hero-content">
+        <span class="corp-hero-tag">The Art of Pure Gifting</span>
+        <h1 class="corp-hero-title">Heritage Farms. Corporate Standards.</h1>
+        <p class="text-white/80 text-lg md:text-xl font-light mb-10 max-w-2xl mx-auto italic">
+          "Elevating corporate relations through the timeless language of India's finest heritage harvests."
+        </p>
+        <a href="#inquiry" class="corp-hero-btn">
+          Connect With Us 
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
       </div>
+    </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
-        <div class="space-y-12">
-          <!-- Step 1: Branding Details -->
-          <div
-            class="bg-white p-6 md:p-12 rounded-[32px] md:rounded-[48px] shadow-sm border border-gray-100 space-y-10">
-            <div class="space-y-6">
-              <h3 class="text-[10px] font-black tracking-[4px] text-amber-700 uppercase">Step 1: Identity & Messaging
-              </h3>
-              <div class="grid grid-cols-2 gap-6">
-                <div class="space-y-2">
-                  <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Contact Phone *</label>
-                  <input type="text" placeholder="+91 98765 43210"
-                    class="w-full border-b-2 border-gray-100 py-3 outline-none focus:border-amber-600 font-medium bg-transparent">
-                </div>
-                <div class="space-y-2">
-                  <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Company Email</label>
-                  <input type="email" placeholder="orders@company.com"
-                    class="w-full border-b-2 border-gray-100 py-3 outline-none focus:border-amber-600 font-medium bg-transparent">
-                </div>
-              </div>
-              <div class="space-y-2">
-                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Company Name on
-                  Sleeve</label>
-                <input type="text" onkeyup="updateAllBranding(this.value)" placeholder="TATA STEEL, RELIANCE, etc."
-                  class="w-full border-b-2 border-gray-100 py-4 outline-none focus:border-amber-600 font-serif text-xl md:text-3xl uppercase bg-transparent">
-              </div>
-              <div class="space-y-2">
-                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inner Heritage Card
-                  Message</label>
-                <textarea onkeyup="updateAllMessages(this.value)"
-                  placeholder="Write your personalized message to partners..."
-                  class="w-full border-b-2 border-gray-100 py-4 outline-none focus:border-amber-600 font-serif text-xl resize-none h-32 bg-transparent"></textarea>
-              </div>
-            </div>
-
-            <!-- Step 2: Varieties -->
-            <div class="space-y-6 pt-10 border-t border-gray-50">
-              <h3 class="text-[10px] font-black tracking-[4px] text-amber-700 uppercase">Step 2: Curate Your Mix</h3>
-              <div class="flex gap-4 mb-4">
-                <button id="corp-btn3" onclick="setGlobalSize(3)"
-                  class="px-8 py-5 border-2 border-emerald-950 rounded-2xl text-left bg-emerald-50 flex-1">
-                  <span class="text-[8px] font-black text-amber-700/40 uppercase tracking-widest">Standard</span>
-                  <div class="text-xl font-black">3KG Box</div>
-                </button>
-                <button id="corp-btn5" onclick="setGlobalSize(5)"
-                  class="px-8 py-5 border-2 border-gray-100 rounded-2xl text-left hover:border-emerald-200 transition-all flex-1">
-                  <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Premium</span>
-                  <div class="text-xl font-black">5KG Box</div>
-                </button>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <!-- Simplified for briefness -->
-                <div class="p-4 bg-gray-50 rounded-2xl flex justify-between items-center">
-                  <span class="text-xs font-bold">Imam Pasand</span>
-                  <div class="flex items-center gap-3">
-                    <button onclick="updateCorpMix('imam', -1)"
-                      class="w-6 h-6 rounded-full border border-gray-300">-</button>
-                    <span id="qty-imam-corp" class="font-black text-xs">0</span>
-                    <button onclick="updateCorpMix('imam', 1)"
-                      class="w-6 h-6 rounded-full border border-gray-300">+</button>
-                  </div>
-                </div>
-                <div class="p-4 bg-gray-50 rounded-2xl flex justify-between items-center">
-                  <span class="text-xs font-bold">Alphonso</span>
-                  <div class="flex items-center gap-3">
-                    <button onclick="updateCorpMix('alph', -1)"
-                      class="w-6 h-6 rounded-full border border-gray-300">-</button>
-                    <span id="qty-alph-corp" class="font-black text-xs">0</span>
-                    <button onclick="updateCorpMix('alph', 1)"
-                      class="w-6 h-6 rounded-full border border-gray-300">+</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex justify-between items-center pt-4">
-                <div class="text-[9px] font-black text-emerald-900/30 uppercase tracking-[4px]">Weight Used: <span
-                    id="totalWeightCorp">0</span>/<span id="limitWeightCorp">3</span> ITEMS</div>
-                <div id="corp-est-price" class="text-3xl font-black text-emerald-950">₹0</div>
-              </div>
-            </div>
-          </div>
+    <!-- LEGACY SECTION -->
+    <section class="corp-section">
+      <div class="legacy-grid">
+        <div class="legacy-img-wrap">
+          <img src="assets/sustainable_harvest.png" alt="Heritage Orchard" class="legacy-img">
         </div>
-
-        <div class="space-y-12">
-          <!-- LIVE PREVIEW AREA -->
-          <div class="sticky top-32 space-y-12">
-            <div class="space-y-4">
-              <div class="flex justify-between items-end">
-                <h4 class="text-[10px] font-black tracking-[4px] text-gray-400 uppercase">Live Experience Preview</h4>
-                <span class="text-[8px] font-bold text-emerald-500 uppercase flex items-center gap-1"><span
-                    class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Your Brand Stamp</span>
-              </div>
-              <div
-                class="bg-zinc-950 p-8 md:p-20 rounded-[32px] md:rounded-[56px] shadow-2xl relative border border-white/5 flex items-center justify-center min-h-[300px] md:min-h-[420px] overflow-hidden group">
-                <div
-                  class="absolute inset-0 bg-[url('https://antigravity-assets.s3.amazonaws.com/black-linen-2.png')] opacity-20 transition-transform duration-1000 group-hover:scale-110">
-                </div>
-                <div class="text-center relative z-10">
-                  <div id="corp-prev-logo"
-                    class="text-2xl md:text-5xl font-serif border-b-2 border-amber-500/50 pb-4 md:pb-6 mb-6 text-amber-500/90 tracking-widest leading-none">
-                    YOUR BRAND</div>
-                  <p class="text-[10px] tracking-[8px] text-white/20 uppercase font-black">Heritage Collection</p>
-                </div>
-              </div>
+        <div class="legacy-content">
+          <span class="text-amber-600 font-bold tracking-widest text-xs uppercase mb-4 block">Our Story</span>
+          <h2>A Legacy Rooted in Quality</h2>
+          <p>
+            Farmmily is more than a brand; it's a commitment to preserving the purity of India's agricultural heritage. Our estates are managed with sustainable practices that have been passed down through generations, ensuring that every fruit meets the highest standards of taste and nutrition.
+          </p>
+          <p>
+            From our private mango orchards to our natural honey harvesting, we manage the entire supply chain to guarantee that what reaches your table—or your client's office—is as nature intended.
+          </p>
+          <div class="flex gap-8">
+            <div>
+              <div class="text-3xl font-serif text-emerald-900">500+</div>
+              <div class="text-[10px] uppercase tracking-widest opacity-50 font-bold">Acres of Orchards</div>
             </div>
-
-            <div
-              class="bg-emerald-950 text-white p-6 md:p-12 rounded-[28px] md:rounded-[48px] space-y-6 md:space-y-10 relative overflow-hidden">
-              <div class="absolute top-0 right-0 p-8 opacity-10 hidden md:block">
-                <svg viewBox="0 0 24 24" width="120" height="120" fill="currentColor">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-              </div>
-              <div class="relative z-10">
-                <h3 class="text-[10px] font-black tracking-[4px] uppercase opacity-40 mb-4 md:mb-6">Scale Your Harvest
-                </h3>
-                <div class="flex items-center gap-4 md:gap-8 mb-6 md:mb-10">
-                  <div class="flex-1">
-                    <label
-                      class="text-[8px] md:text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1 md:mb-2 block">Quantity
-                      (Min 15)</label>
-                    <input type="number" id="corp-total-units" value="15" min="15" oninput="calcCorpPrice()"
-                      class="w-full bg-white/5 border-b-2 border-white/20 py-2 md:py-4 text-3xl md:text-5xl font-serif outline-none focus:border-amber-400 transition-colors">
-                  </div>
-                </div>
-                <button id="corp-submit-btn"
-                  class="w-full bg-amber-500 text-emerald-950 py-5 md:py-7 rounded-[18px] md:rounded-[24px] font-black text-[10px] md:text-xs uppercase tracking-[3px] md:tracking-[4px] hover:bg-amber-400 active:scale-[0.98] transition-all shadow-2xl shadow-amber-500/20">PAY
-                  & CONFIRM ORDER</button>
-                <script>
-                  document.getElementById('corp-submit-btn').onclick = function() {
-                    if(window.submitCorpOrder) window.submitCorpOrder();
-                    else showToast('Bespoke Inquiry Initiated! We will reach out within 2 hours.');
-                  };
-                </script>
-                <div
-                  class="text-[8px] md:text-[10px] text-center pt-4 md:pt-6 text-white/30 font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3">
-                  Secure &bull; 100% Razorpay Encrypted
-                </div>
-                <a href="https://wa.me/917708847977"
-                  class="flex items-center justify-center gap-2 mt-4 text-emerald-400 text-[10px] font-black hover:text-white transition-colors cursor-pointer">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                    <path
-                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                  </svg> Or enquire on WhatsApp
-                </a>
-              </div>
-
-              <!-- Moved Corporate Tracker inside the main card area or section -->
-              <div class="mt-20 pt-10 border-t border-emerald-900/10">
-                <span class="text-[8px] font-black tracking-[3px] text-amber-700/50 uppercase mb-2 block">Post-Enquiry
-                  status</span>
-                <h4 class="text-xl font-serif text-emerald-950 mb-4 text-center">Track Corporate Status</h4>
-                <div class="flex flex-col gap-3">
-                  <input type="text" id="corp-track-id" placeholder="CE-1234567"
-                    class="border-2 border-emerald-950/5 rounded-xl px-4 py-3 outline-none focus:border-amber-600 font-mono text-sm uppercase text-center bg-white/50 backdrop-blur-sm">
-                  <button id="corp-track-btn"
-                    class="bg-emerald-950 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-[2px] transition-all active:scale-95 shadow-lg shadow-emerald-950/20">Check
-                    Enquiry Status</button>
-                  <script>
-                    document.getElementById('corp-track-btn').onclick = function() {
-                      const id = document.getElementById('corp-track-id').value;
-                      if(id) {
-                        if(typeof showPage === 'function') {
-                          showPage('track');
-                          setTimeout(() => {
-                            const tr = document.getElementById('tr-oid');
-                            if(tr) { tr.value = id; if(window.handleTrack) window.handleTrack(); }
-                          }, 200);
-                        } else {
-                          window.location.href = 'track.html?id=' + id;
-                        }
-                      } else {
-                        if(window.showToast) showToast('Enter Reference ID');
-                        else alert('Enter Reference ID');
-                      }
-                    };
-                  </script>
-                </div>
-              </div>
-
+            <div>
+              <div class="text-3xl font-serif text-emerald-900">100%</div>
+              <div class="text-[10px] uppercase tracking-widest opacity-50 font-bold">Traceability</div>
             </div>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- OFFERINGS -->
+    <section class="corp-offerings">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-amber-600 font-bold tracking-widest text-xs uppercase mb-4 block">Business Solutions</span>
+        <h2 class="font-serif text-4xl md:text-5xl text-emerald-950">Tailored for Excellence</h2>
+      </div>
+      <div class="offering-grid max-w-7xl mx-auto px-4">
+        <div class="offering-card">
+          <div class="offering-icon">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path>
+            </svg>
+          </div>
+          <h3>Wholesale Supply</h3>
+          <p>Direct farm-to-warehouse supply of premium fruits, ghee, and honey for retail chains and premium grocers with strict quality compliance.</p>
+        </div>
+        <div class="offering-card">
+          <div class="offering-icon">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </div>
+          <h3>Corporate Gifting</h3>
+          <p>Hand-curated gift boxes with custom branding and personalized messaging. Ideal for festive season, client appreciation, or employee rewards.</p>
+        </div>
+        <div class="offering-card">
+          <div class="offering-icon">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"></path>
+            </svg>
+          </div>
+          <h3>Export Services</h3>
+          <p>Global supply chain expertise for international markets, ensuring cold-chain integrity and international food safety certifications.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GIFTING HIGHLIGHT -->
+    <section class="gifting-highlight">
+      <div class="gifting-grid">
+        <div class="gifting-text">
+          <span class="text-secondary font-bold tracking-widest text-xs uppercase mb-4 block">Festive Excellence</span>
+          <h2>The Crate Collection</h2>
+          <p>
+            Make a lasting impression with our bespoke mango crates. Each box is hand-packed at our estates, wrapped in your corporate brand sleeve, and delivered with a personalized heritage card. It's not just a gift; it's an experience of the Indian summer.
+          </p>
+          <div class="space-y-4 mb-8">
+            <div class="flex items-center gap-4 text-white/80">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="text-secondary">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
+              </svg>
+              <span>Custom Brand Sleeves & Logo Stamping</span>
+            </div>
+            <div class="flex items-center gap-4 text-white/80">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="text-secondary">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
+              </svg>
+              <span>PAN India Doorstep Delivery</span>
+            </div>
+            <div class="flex items-center gap-4 text-white/80">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="text-secondary">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
+              </svg>
+              <span>Bespoke Variety Selection</span>
+            </div>
+          </div>
+        </div>
+        <div class="gifting-img-wrap">
+          <img src="assets/gift_box.png" alt="Premium Gift Box" class="legacy-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- INQUIRY SECTION -->
+    <section class="contact-sec" id="inquiry">
+      <div class="max-w-3xl mx-auto">
+        <span class="text-amber-600 font-bold tracking-widest text-xs uppercase mb-4 block">Get In Touch</span>
+        <h2 class="font-serif text-4xl md:text-5xl text-emerald-950">Let's Discuss Your Requirements</h2>
+        <p class="text-gray-500 mt-4">Our dedicated corporate account managers will respond within 2 business hours.</p>
+      </div>
+
+      <div class="inquiry-container">
+        <form id="corp-inquiry-form" onsubmit="handleCorpInquiry(event)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" name="name" required placeholder="John Doe">
+            </div>
+            <div class="form-group">
+              <label>Work Email *</label>
+              <input type="email" name="email" required placeholder="john@company.com">
+            </div>
+            <div class="form-group">
+              <label>Company Name *</label>
+              <input type="text" name="company" required placeholder="Global Corp Pvt Ltd">
+            </div>
+            <div class="form-group">
+              <label>Phone Number *</label>
+              <input type="tel" name="phone" required placeholder="+91 98765 43210">
+            </div>
+            <div class="form-group">
+              <label>Inquiry Type</label>
+              <select name="type">
+                <option value="gifting">Corporate Gifting</option>
+                <option value="wholesale">Wholesale Supply</option>
+                <option value="export">Export Inquiry</option>
+                <option value="other">Other Partnership</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Expected Quantity</label>
+              <input type="text" name="quantity" placeholder="e.g. 100 boxes or 500kg">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Message / Specific Requirements</label>
+            <textarea name="message" rows="4" placeholder="Tell us more about your needs..."></textarea>
+          </div>
+          <button type="submit" class="submit-btn" id="inquiry-submit">
+            Send Inquiry 
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" style="display:inline-block; margin-left:10px; vertical-align:middle;">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <script>
+      function handleCorpInquiry(e) {
+        e.preventDefault();
+        const btn = document.getElementById('inquiry-submit');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Sending...';
+        btn.disabled = true;
+
+        // Simulate API call
+        setTimeout(() => {
+          showToast('Inquiry Sent! We will contact you shortly.');
+          btn.innerHTML = 'Inquiry Sent ✓';
+          btn.style.background = '#27ae60';
+          e.target.reset();
+        }, 1500);
+      }
+    </script>
   </div>
 
 
@@ -5888,7 +6213,7 @@
           </ul>
         </div>
       </div>
-      <div class="fbot"> Farmmily Farms and Foods</div>
+      <div class="fbot"> Farmmily Farms and Foods | <a href="https://www.Farmmily.com" style="color:inherit; text-decoration:none;">www.Farmmily.com</a></div>
     </footer>
 
   <!-- FLOATING CART BAR (ZEPTO STYLE) -->
@@ -6407,13 +6732,16 @@
             reviewsEl.innerText = `(${revCount} Verified Reviews)`;
         }
 
-        selectedPdVariant = variants[0];
-        hero.src = imageUrl || variants[0].img;
-        hero.onerror = function () {
-          this.src = cleanVariety.toLowerCase().includes('imam') ? 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000' :
-            (cleanVariety.toLowerCase().includes('alph') ? 'assets/alphonso.png' :
-              (cleanVariety.toLowerCase().includes('sent') ? 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000' : 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000'));
-        };
+        const mainImg = imageUrl || variants[0].img;
+        if (cleanVariety.toLowerCase().includes('alph') && hero) {
+          window.handleAlphonsoTransition(hero, mainImg);
+        } else if (hero) {
+          hero.src = mainImg;
+          hero.onerror = function () {
+            this.src = cleanVariety.toLowerCase().includes('imam') ? 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000' :
+              (cleanVariety.toLowerCase().includes('sent') ? 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000' : 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000');
+          };
+        }
 
         // Calculate unit rate from total price:
         const unitInfo = window.getUnitPrice(selectedPdVariant.price, selectedPdVariant.wt);
@@ -6804,24 +7132,23 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/app.js?v=5.9"></script>
   <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
-      <div class="mob-nav-item" onclick="window.location.href='index.html'">
-        <iconify-icon icon="solar:home-2-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
+      <div class="mob-nav-item active" onclick="window.location.href='index.html'">
+        <iconify-icon icon="solar:home-2-bold-duotone"></iconify-icon>
         <span>Home</span>
       </div>
       <div class="mob-nav-item" onclick="window.location.href='shop.html'">
-        <iconify-icon icon="solar:shop-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
+        <iconify-icon icon="solar:bag-bold-duotone"></iconify-icon>
         <span>Shop</span>
       </div>
-      <div class="mob-nav-item" onclick="window.location.href='track.html'">
-        <iconify-icon icon="solar:map-point-bold-duotone" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
-        <span>Track</span>
+      <div class="mob-nav-item" onclick="window.location.href='https://www.Farmmily.com'">
+        <iconify-icon icon="solar:globus-bold-duotone"></iconify-icon>
+        <span>Website</span>
       </div>
-      <div class="mob-nav-item" onclick="window.open('https://wa.me/917358952051', '_blank')">
-        <iconify-icon icon="logos:whatsapp-icon" style="font-size: 24px; margin-bottom: 2px;"></iconify-icon>
+      <div class="mob-nav-item" onclick="window.open('https://wa.me/917358952051', '_blank')" style="color: #25d366 !important;">
+        <iconify-icon icon="solar:chat-round-dots-bold-duotone"></iconify-icon>
         <span>WhatsApp</span>
       </div>
     </div>

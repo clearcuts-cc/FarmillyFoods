@@ -92,13 +92,20 @@ function calculateSelectionTotalPrice(items, selections) {
   }, 0);
 }
 
+// Global transition handler for Alphonso - Now instant as per user request
+window.handleAlphonsoTransition = function(imgEl, originalUrl) {
+  if (!imgEl || !originalUrl) return;
+  imgEl.src = originalUrl;
+  imgEl.style.opacity = '1';
+  imgEl.style.filter = 'none';
+};
+
 function syncStaticMangoPricing() {
   try {
     const cards = document.querySelectorAll('.premium-mango-card');
     if (!cards.length) return;
 
     cards.forEach(card => {
-      // Get title from .m-title or from an onclick attribute if it's a detail card
       let title = (card.querySelector('.m-title')?.textContent || '').toLowerCase().trim();
       if (!title && card.getAttribute('onclick')?.includes('showPremiumDetail')) {
         const match = card.getAttribute('onclick').match(/'([^']+)'/);
@@ -145,12 +152,16 @@ function syncStaticMangoPricing() {
       if (p && p.img) {
         const imgEl = card.querySelector('.m-img-wrap img');
         if (imgEl) {
-          imgEl.onerror = function() {
-            console.warn('Image failed to load, falling back:', p.name);
-            this.src = 'assets/side-01.png';
-            this.onerror = null;
-          };
-          imgEl.src = p.img;
+          if (title.includes('alphonso')) {
+            // Handle Alphonso transition specially
+            window.handleAlphonsoTransition(imgEl, p.img);
+          } else {
+            imgEl.onerror = function() {
+              this.src = 'assets/side-01.png';
+              this.onerror = null;
+            };
+            imgEl.src = p.img;
+          }
         }
       }
     });
@@ -1605,92 +1616,18 @@ window.submitDeliveryAndPay = function () {
   const city = (document.getElementById('del-city')?.value || '').trim();
   const state = (document.getElementById('del-state')?.value || '').trim();
   const pin = (document.getElementById('del-pincode')?.value || '').trim();
-  const mapLink = (document.getElementById('del-maplink')?.value || '').trim();
 
   if (!name) { showToast('Please enter your full name'); return; }
   if (!phone || phone.length < 10) { showToast('Please enter a valid phone number'); return; }
   if (!bldg || !street || !city || !state || !pin) { showToast('Please fill all address fields'); return; }
 
   let fullAddress = `${bldg}, ${street}, ${city}, ${state} - ${pin}`;
-  if (mapLink) fullAddress += ` (Map: ${mapLink})`;
 
   window.closeDeliveryModal();
-  setTimeout(() => openRazorpayWithDetails(name, phone, bldg + ', ' + street, city, state, pin, mapLink), 450);
+  setTimeout(() => openRazorpayWithDetails(name, phone, bldg + ', ' + street, city, state, pin, ''), 450);
 };
 
-window.autoDetectLocation = async function () {
-  const mapInput = document.getElementById('del-maplink');
-  const pastedLink = (mapInput?.value || '').trim();
-
-  // Helper to fetch address from coords
-  const fetchAddress = async (lat, lon) => {
-    try {
-      showToast('Extracting address details...');
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-      const data = await res.json();
-      if (data && data.address) {
-        const addr = data.address;
-        const streetEl = document.getElementById('del-street');
-        if (streetEl) streetEl.value = addr.road || addr.suburb || addr.neighbourhood || addr.pedestrian || '';
-        const cityEl = document.getElementById('del-city');
-        if (cityEl) cityEl.value = addr.city || addr.town || addr.village || addr.city_district || '';
-        const stateEl = document.getElementById('del-state');
-        if (stateEl) stateEl.value = addr.state || '';
-        const pinEl = document.getElementById('del-pincode');
-        if (pinEl) pinEl.value = addr.postcode || '';
-        showToast('Address details captured!');
-      }
-    } catch (e) {
-      console.error(e);
-      showToast('Found location, but details need manual entry.');
-    }
-  };
-
-  // Choice 1: Paste a link
-  if (pastedLink.includes('google.com/maps') || pastedLink.includes('goo.gl/maps') || pastedLink.includes('maps.app.goo.gl')) {
-    const coords = window.parseMapLink(pastedLink);
-    if (coords) {
-      await fetchAddress(coords.lat, coords.lon);
-      return;
-    }
-  }
-
-  // Choice 2: Browser Geo
-  if (navigator.geolocation) {
-    showToast('Detecting live location...');
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        if (mapInput) mapInput.value = `https://maps.google.com/?q=${lat},${lon}`;
-        await fetchAddress(lat, lon);
-      },
-      (err) => {
-        let msg = 'Unable to detect location. Please paste a Google Maps link or type manually.';
-        if (err.code === 1) msg = 'Location access denied. Please allow it in settings or paste a link.';
-        showToast(msg);
-      },
-      { timeout: 8000, enableHighAccuracy: true }
-    );
-  } else {
-    showToast('Browser geolocation not supported. Please paste a link.');
-  }
-};
-
-window.parseMapLink = function (url) {
-  try {
-    // Standard link: ?q=lat,lon or @lat,lon
-    let match = url.match(/q=([\d.-]+),([\d.-]+)/) || url.match(/@([\d.-]+),([\d.-]+)/);
-    if (match) return { lat: match[1], lon: match[2] };
-
-    // Some shortened links might need to be resolved, but we can't easily do that client-side
-    // without a proxy. However, we can try to find anything that looks like lat,lon
-    match = url.match(/ll=([\d.-]+),([\d.-]+)/);
-    if (match) return { lat: match[1], lon: match[2] };
-
-    return null;
-  } catch (e) { return null; }
-};
+// Removed autoDetectLocation and parseMapLink per request
 
 function openRazorpayWithDetails(customerName, phone, address, cityVal = 'Guest', stateVal = 'Order', pinVal = '000000', mapLink = '') {
   const totals = typeof window.getCartTotals === 'function' ? window.getCartTotals() : { total: 0 };
@@ -2256,7 +2193,13 @@ async function loadProducts() {
 
 function handleRawProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'assets/side-01.png' };
+  const assetMap = {
+    'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000',
+    'alph': 'https://drive.google.com/thumbnail?id=1fqvfeJycwREQawje_WRYdZf7rXYgDuoe&sz=w1000',
+    'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000',
+    'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000',
+    'custom': 'assets/side-01.png'
+  };
 
   const allProds = (data || []).map(p => {
     let img = p.image_url || 'assets/placeholder.png';
@@ -2319,7 +2262,13 @@ function handleRawProducts(data) {
 
 function handleDynamicProducts(data) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-  const assetMap = { 'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000', 'alph': 'assets/alphonso.png', 'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000', 'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000', 'custom': 'assets/side-01.png' };
+  const assetMap = {
+    'imam': 'https://drive.google.com/thumbnail?id=1Ov-IVci_5sFoFYP5bepb8EdHBc7lfBkO&sz=w1000',
+    'alph': 'https://drive.google.com/thumbnail?id=1fqvfeJycwREQawje_WRYdZf7rXYgDuoe&sz=w1000',
+    'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000',
+    'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000',
+    'custom': 'assets/side-01.png'
+  };
   const flatVariants = [];
   const groupedProducts = {};
 
