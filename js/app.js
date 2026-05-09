@@ -14,6 +14,71 @@ function initSupabaseClient() {
 // Initial attempt
 initSupabaseClient();
 
+window.currentGalleryImages = [];
+window.currentLightboxIndex = 0;
+
+window.openLightbox = function(src) {
+  const lb = document.getElementById('gallery-lightbox');
+  const img = document.getElementById('lightbox-img');
+  if (!lb || !img) return;
+
+  // Sync gallery images from the current active grid
+  const grid = document.querySelector('.farm-grid');
+  if (grid) {
+    const images = Array.from(grid.querySelectorAll('img')).map(el => {
+      const s = el.src || '';
+      return s.includes('drive.google.com/thumbnail') ? s.replace(/sz=w\d+/, 'sz=w1200') : s;
+    });
+    window.currentGalleryImages = images;
+    const idx = images.indexOf(src);
+    window.currentLightboxIndex = idx !== -1 ? idx : 0;
+  }
+
+  img.src = src;
+  lb.style.display = 'flex';
+  setTimeout(() => lb.classList.add('active'), 10);
+  document.body.style.overflow = 'hidden';
+};
+
+window.navigateLightbox = function(direction) {
+  if (!window.currentGalleryImages.length) return;
+  
+  window.currentLightboxIndex += direction;
+  if (window.currentLightboxIndex < 0) window.currentLightboxIndex = window.currentGalleryImages.length - 1;
+  if (window.currentLightboxIndex >= window.currentGalleryImages.length) window.currentLightboxIndex = 0;
+  
+  const img = document.getElementById('lightbox-img');
+  if (img) {
+    img.style.opacity = '0';
+    img.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+      img.src = window.currentGalleryImages[window.currentLightboxIndex];
+      img.onload = () => {
+        img.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+      };
+    }, 200);
+  }
+};
+
+window.closeLightbox = function() {
+  const lb = document.getElementById('gallery-lightbox');
+  if (!lb) return;
+  lb.classList.remove('active');
+  setTimeout(() => lb.style.display = 'none', 300);
+  document.body.style.overflow = '';
+};
+
+// Keyboard navigation support
+document.addEventListener('keydown', (e) => {
+  const lb = document.getElementById('gallery-lightbox');
+  if (!lb || !lb.classList.contains('active')) return;
+  
+  if (e.key === 'ArrowLeft') window.navigateLightbox(-1);
+  if (e.key === 'ArrowRight') window.navigateLightbox(1);
+  if (e.key === 'Escape') window.closeLightbox();
+});
+
 const svgCheck = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
 
 var cart = [];
@@ -1379,6 +1444,11 @@ function filterProds() {
 
   // Use grouped products for display
   const displayList = window.displayProducts || window.products;
+
+  if (!displayList || displayList.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;width:100%;padding:100px 20px;"><div class="spinner" style="margin:0 auto 20px;"></div><p style="color:#888;">Bringing the harvest to you...</p></div>';
+    return;
+  }
 
   let list = displayList.filter(p => {
     const pCat = (p.cat || '').toLowerCase();
@@ -3295,6 +3365,8 @@ window.handleTrack = handleTrack;
 window.trackOrder = handleTrack;
 window.updCart = updCart;
 
+
+
 function setupMobileMarquee() {
   const trowNode = document.querySelector('.trow');
   if (trowNode && window.innerWidth < 900 && !trowNode.classList.contains('marquee-enabled')) {
@@ -3342,25 +3414,53 @@ async function loadGallery() {
     // Clear existing hardcoded images
     galleryGrid.innerHTML = '';
 
+    const optimizeDriveUrl = (url, size = 600) => {
+      if (url && url.includes('drive.google.com/thumbnail')) {
+        return url.replace(/sz=w\d+/, 'sz=w' + size);
+      }
+      return url;
+    };
+
     data.forEach(item => {
+      const displayUrl = optimizeDriveUrl(item.image_url, 600);
+      const fullUrl = optimizeDriveUrl(item.image_url, 1200);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'gallery-item';
+      wrapper.style.position = 'relative';
+      wrapper.style.overflow = 'hidden';
+      wrapper.style.borderRadius = '16px';
+      wrapper.style.cursor = 'pointer';
+      wrapper.style.aspectRatio = '1/1';
+      wrapper.onclick = () => {
+        if (typeof window.openLightbox === 'function') {
+          window.openLightbox(fullUrl);
+        }
+      };
+
       const img = document.createElement('img');
-      img.src = item.image_url;
+      img.src = displayUrl;
       img.alt = item.alt_text || 'Farmmily Farms heritage estates';
       img.loading = 'lazy';
       img.decoding = 'async';
-      img.style.borderRadius = '16px';
-      img.style.objectFit = 'cover';
       img.style.width = '100%';
       img.style.height = '100%';
-      img.style.aspectRatio = '1/1';
-      img.style.transition = 'opacity 0.6s ease';
+      img.style.objectFit = 'cover';
+      img.style.transition = 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
       img.style.opacity = '0';
+      img.style.transform = 'scale(1.1)';
       
       img.onload = () => {
         img.style.opacity = '1';
+        img.style.transform = 'scale(1)';
       };
 
-      galleryGrid.appendChild(img);
+      // Hover effect for premium feel
+      wrapper.onmouseenter = () => { img.style.transform = 'scale(1.05)'; };
+      wrapper.onmouseleave = () => { img.style.transform = 'scale(1)'; };
+
+      wrapper.appendChild(img);
+      galleryGrid.appendChild(wrapper);
     });
   } catch (err) {
     console.error('Error loading gallery images:', err);
