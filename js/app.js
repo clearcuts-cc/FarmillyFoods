@@ -145,7 +145,13 @@ function findProductByKeyword(keyword) {
   }) || null;
 }
 
+window.mangoPricing = { 'imam': 249, 'alph': 189, 'bang': 179, 'sent': 149 };
+
 function getPerKgRateByKeyword(keyword) {
+  const low = String(keyword || '').toLowerCase();
+  for (const k in window.mangoPricing) {
+    if (low.includes(k)) return window.mangoPricing[k];
+  }
   const product = findProductByKeyword(keyword);
   return product ? getPerKgRate(product) : 0;
 }
@@ -2277,6 +2283,17 @@ function handleRawProducts(data) {
     if (img && img.includes('unsplash.com')) img = null;
     
     const low = (p.name || '').toLowerCase();
+    let price = Number(p.price);
+    const weightKg = parseFloat(p.weight || '1') || 1;
+
+    // Apply Dynamic Mango Pricing Overrides
+    for (const k in window.mangoPricing) {
+      if (low.includes(k)) {
+        price = window.mangoPricing[k] * weightKg;
+        break;
+      }
+    }
+
     if (!img) {
       for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
     }
@@ -2284,7 +2301,7 @@ function handleRawProducts(data) {
     const category = categoryList.find(c => c.id === p.category_id)?.name || 'Products';
 
     return {
-      id: p.id, name: cap(p.name), price: Number(p.price),
+      id: p.id, name: cap(p.name), price: price,
       originalPrice: p.original_price ? Number(p.original_price) : null,
       wt: p.weight,
       img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
@@ -2293,14 +2310,17 @@ function handleRawProducts(data) {
     };
   });
 
-  // Filter Imam Pasand variants to only 3kg and 5kg as per user request
+  // Filter variants to only 3kg and 5kg as per user request
   const seenProds = new Set();
   const filteredProds = allProds.filter(v => {
-    if ((v.name || '').toLowerCase().includes('imam')) {
+    const lowName = (v.name || '').toLowerCase();
+    const varieties = ['imam', 'alph', 'bang', 'sent'];
+    if (varieties.some(varName => lowName.includes(varName))) {
       const wt = (v.wt || '').toLowerCase().trim();
       const isMatch = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
-      if (isMatch && !seenProds.has(wt)) {
-        seenProds.add(wt);
+      const key = `${lowName}-${wt}`;
+      if (isMatch && !seenProds.has(key)) {
+        seenProds.add(key);
         return true;
       }
       return false;
@@ -2358,9 +2378,17 @@ function handleDynamicProducts(data) {
   const groupedProducts = {};
 
   (data || []).forEach(product => {
-    const basePricePerKg = Number(product.base_price_per_kg || 0);
+    let basePricePerKg = Number(product.base_price_per_kg || 0);
     const compareAtPerKg = Number(product.compare_at_price_per_kg || 0);
     const low = (product.name || '').toLowerCase();
+
+    // Apply Dynamic Mango Pricing Overrides
+    for (const k in window.mangoPricing) {
+      if (low.includes(k)) {
+        basePricePerKg = window.mangoPricing[k];
+        break;
+      }
+    }
     let img = product.image_url;
     if (img && img.includes('unsplash.com')) img = null;
 
@@ -2443,8 +2471,9 @@ function handleDynamicProducts(data) {
         };
       });
 
-    // Filter Imam Pasand variants to only 3kg and 5kg as per user request
-    if (low.includes('imam')) {
+    // Filter variants to only 3kg and 5kg for heritage varieties as per user request
+    const varieties = ['imam', 'alph', 'bang', 'sent'];
+    if (varieties.some(varName => low.includes(varName))) {
       const sW = new Set();
       variants = variants.filter(v => {
         const wt = (v.wt || '').toLowerCase().trim();
@@ -3349,6 +3378,7 @@ async function initApp() {
   
   try {
     // Parallelize initialization for maximum speed
+    await loadStoreSettings();
     await fetchDeliveryConfig();
     await loadCategories();
     await loadProducts();
@@ -3377,7 +3407,7 @@ async function initApp() {
     supabaseClient.channel('public:product_variants').on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, () => loadProducts()).subscribe();
     supabaseClient.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => loadCategories()).subscribe();
     supabaseClient.channel('public:gallery').on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => loadGallery()).subscribe();
-    supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, () => fetchDeliveryConfig()).subscribe();
+    supabaseClient.channel('public:store_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, () => loadStoreSettings()).subscribe();
     supabaseClient.channel('public:catalog_sync').on('postgres_changes', { event: '*', schema: 'public', table: 'store_settings' }, (payload) => {
       if (payload?.new?.key === 'product_catalog_sync' || payload?.old?.key === 'product_catalog_sync') loadProducts();
     }).subscribe();
@@ -3390,6 +3420,43 @@ async function initApp() {
       if (curPage === 'track' && window.lastTrackQuery) handleTrack(window.lastTrackQuery);
     }).subscribe();
   }
+}
+
+async function loadStoreSettings() {
+  if (!supabaseClient) return;
+  const { data, error } = await supabaseClient.from('store_settings').select('*');
+  if (error) return;
+
+  data.forEach(s => {
+    if (s.key === 'delivery_config') window.deliveryConfig = s.value;
+    if (s.key === 'mango_pricing') {
+       window.mangoPricing = s.value;
+       syncStaticMangoPricing();
+       loadProducts(); // Re-render dynamic products with new rates
+    }
+  });
+}
+
+function syncStaticMangoPricing() {
+  if (!window.mangoPricing) return;
+  const cards = document.querySelectorAll('.premium-mango-card');
+  cards.forEach(card => {
+    const title = (card.querySelector('.m-title')?.innerText || '').toLowerCase();
+    const amtEl = card.querySelector('.m-amt');
+    // The total element is the last div in m-price-row
+    const totalEl = card.querySelector('.m-price-row div:not(.m-price-box)');
+    
+    if (!amtEl) return;
+
+    for (const k in window.mangoPricing) {
+      if (title.includes(k)) {
+        const rate = window.mangoPricing[k];
+        amtEl.innerText = rate;
+        if (totalEl) totalEl.innerText = `Total: ₹${rate * 3} for 3 kg`;
+        break;
+      }
+    }
+  });
 }
 
 async function fetchDeliveryConfig() {
