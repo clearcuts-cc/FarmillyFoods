@@ -2448,7 +2448,9 @@ function handleDynamicProducts(data) {
           productId: product.id,
           name: cap(product.name),
           rawName: product.name,
-          price: v.price || calculateVariantPrice(basePricePerKg, weightKg),
+          price: (window.mangoPricing && Object.keys(window.mangoPricing).some(k => low.includes(k)))
+            ? calculateVariantPrice(basePricePerKg, weightKg)
+            : (v.price || calculateVariantPrice(basePricePerKg, weightKg)),
           originalPrice: compareAtPerKg > 0 ? calculateVariantPrice(compareAtPerKg, weightKg) : null,
           basePricePerKg,
           wt: v.label || formatWeightLabel(weightKg),
