@@ -2310,12 +2310,13 @@ function handleRawProducts(data) {
     };
   });
 
-  // Filter variants to only 3kg and 5kg as per user request
+  // Filter all mangoes to only 3kg and 5kg as per user request
   const seenProds = new Set();
+  const varieties = ['imam', 'alph', 'bang', 'sent'];
   const filteredProds = allProds.filter(v => {
     const lowName = (v.name || '').toLowerCase();
-    const varieties = ['imam', 'alph', 'bang', 'sent'];
-    if (varieties.some(varName => lowName.includes(varName))) {
+    const isMango = varieties.some(varName => lowName.includes(varName)) || v.cat === 'Mangoes';
+    if (isMango) {
       const wt = (v.wt || '').toLowerCase().trim();
       const isMatch = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
       const key = `${lowName}-${wt}`;
@@ -2541,18 +2542,42 @@ function handleDynamicProducts(data) {
     g.inStock = g.variants.some(v => v.inStock);
   });
 
-  // Filter Imam Pasand variants to only 3kg and 5kg as per user request
+  // Filter variants based on category as per user request
   const sV = new Set();
+  const heritageVarieties = ['imam', 'alph', 'bang', 'sent'];
   const filteredVariants = flatVariants.filter(v => {
-    if ((v.name || '').toLowerCase().includes('imam')) {
-      const wt = (v.wt || '').toLowerCase().trim();
+    const lowName = (v.name || '').toLowerCase();
+    const catLow = (v.cat || '').toLowerCase();
+    const wt = (v.wt || '').toLowerCase().trim();
+    
+    // Mangoes: 3kg and 5kg ONLY
+    const isMango = heritageVarieties.some(k => lowName.includes(k)) || catLow.includes('mango');
+    if (isMango) {
       const isM = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
-      if (isM && !sV.has(wt)) {
-        sV.add(wt);
+      const key = `${lowName}-${wt}`;
+      if (isM && !sV.has(key)) {
+        sV.add(key);
         return true;
       }
       return false;
     }
+    
+    // Honey, Ghee, Powders, Spices: 200g and 500g ONLY
+    const isSmallProduct = catLow.includes('honey') || catLow.includes('ghee') || catLow.includes('powder') || catLow.includes('spice') || lowName.includes('honey') || lowName.includes('ghee');
+    if (isSmallProduct) {
+      // Allow 200g, 250g, 500g (common small sizes)
+      const isS = /\b200\s*g\b/i.test(wt) || /\b250\s*g\b/i.test(wt) || /\b500\s*g\b/i.test(wt) || /\b200\s*gram\b/i.test(wt) || /\b500\s*gram\b/i.test(wt);
+      const key = `${lowName}-${wt}`;
+      if (isS && !sV.has(key)) {
+        sV.add(key);
+        return true;
+      }
+      return false;
+    }
+
+    // Default: Remove any 10kg/15kg regardless of category if they aren't explicitly allowed
+    if (/\b10\s*kg\b/i.test(wt) || /\b15\s*kg\b/i.test(wt)) return false;
+
     return true;
   });
 

@@ -7787,20 +7787,34 @@
             return;
           }
 
-          // Filter Imam Pasand variants to only 3kg and 5kg as per user request
-          if (cleanVariety.toLowerCase().includes('imam')) {
-            const seenWeights = new Set();
-            variants = variants.filter(v => {
-              const wt = (v.wt || '').toLowerCase().trim();
-              // Strict match: avoid 15kg matching 5kg
-              const isMatch = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
-              if (isMatch && !seenWeights.has(wt)) {
-                seenWeights.add(wt);
-                return true;
-              }
-              return false;
-            });
-          }
+          // Filter variants based on category as per user request
+          const heritageKeywords = ['imam', 'alph', 'bang', 'sent'];
+          const isHeritage = heritageKeywords.some(k => cleanVariety.toLowerCase().includes(k));
+          const isMango = isHeritage || variants.some(v => v.cat === 'Mangoes');
+          const isSmall = !isMango && variants.some(v => ['honey', 'ghee', 'powder', 'spice'].some(cat => (v.cat || '').toLowerCase().includes(cat)));
+          
+          const seenWeights = new Set();
+          variants = variants.filter(v => {
+            const wt = (v.wt || '').toLowerCase().trim();
+            const lowName = (v.name || '').toLowerCase();
+            
+            let isMatch = false;
+            if (isMango) {
+              isMatch = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
+            } else if (isSmall) {
+              isMatch = /\b200\s*g\b/i.test(wt) || /\b250\s*g\b/i.test(wt) || /\b500\s*g\b/i.test(wt) || /\b200\s*gram\b/i.test(wt) || /\b500\s*gram\b/i.test(wt);
+            } else {
+              // General rule: remove any 10kg/15kg
+              if (/\b10\s*kg\b/i.test(wt) || /\b15\s*kg\b/i.test(wt)) return false;
+              return true;
+            }
+
+            if (isMatch && !seenWeights.has(wt)) {
+              seenWeights.add(wt);
+              return true;
+            }
+            return false;
+          });
 
           options.innerHTML = variants.map(v => {
             const cartItem = (window.cart || []).find(ci => Number(ci.id) === Number(v.id));
