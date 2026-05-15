@@ -6844,6 +6844,21 @@
             return;
           }
 
+          // Filter Imam Pasand variants to only 3kg and 5kg as per user request
+          if (cleanVariety.toLowerCase().includes('imam')) {
+            const seenWeights = new Set();
+            variants = variants.filter(v => {
+              const wt = (v.wt || '').toLowerCase().trim();
+              // Strict match: avoid 15kg matching 5kg
+              const isMatch = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
+              if (isMatch && !seenWeights.has(wt)) {
+                seenWeights.add(wt);
+                return true;
+              }
+              return false;
+            });
+          }
+
           options.innerHTML = variants.map(v => {
             const cartItem = (window.cart || []).find(ci => ci.id === v.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;

@@ -2293,10 +2293,25 @@ function handleRawProducts(data) {
     };
   });
 
-  window.products = allProds;
+  // Filter Imam Pasand variants to only 3kg and 5kg as per user request
+  const seenProds = new Set();
+  const filteredProds = allProds.filter(v => {
+    if ((v.name || '').toLowerCase().includes('imam')) {
+      const wt = (v.wt || '').toLowerCase().trim();
+      const isMatch = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
+      if (isMatch && !seenProds.has(wt)) {
+        seenProds.add(wt);
+        return true;
+      }
+      return false;
+    }
+    return true;
+  });
+
+  window.products = filteredProds;
 
   const grouped = {};
-  allProds.forEach(p => {
+  filteredProds.forEach(p => {
     // 1. Remove parentheses content: "Senthura Mango (3kg)" -> "Senthura Mango"
     // 2. Remove trailing weights: "Honey 500g" -> "Honey"
     // 3. Remove common product suffixes for better grouping
@@ -2428,6 +2443,20 @@ function handleDynamicProducts(data) {
         };
       });
 
+    // Filter Imam Pasand variants to only 3kg and 5kg as per user request
+    if (low.includes('imam')) {
+      const sW = new Set();
+      variants = variants.filter(v => {
+        const wt = (v.wt || '').toLowerCase().trim();
+        const isM = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
+        if (isM && !sW.has(wt)) {
+          sW.add(wt);
+          return true;
+        }
+        return false;
+      });
+    }
+
     if (!variants.length) {
       const pPrice = Number(product.price || 0);
       const pOrig = Number(product.original_price || 0);
@@ -2481,7 +2510,22 @@ function handleDynamicProducts(data) {
     g.inStock = g.variants.some(v => v.inStock);
   });
 
-  window.products = flatVariants;
+  // Filter Imam Pasand variants to only 3kg and 5kg as per user request
+  const sV = new Set();
+  const filteredVariants = flatVariants.filter(v => {
+    if ((v.name || '').toLowerCase().includes('imam')) {
+      const wt = (v.wt || '').toLowerCase().trim();
+      const isM = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
+      if (isM && !sV.has(wt)) {
+        sV.add(wt);
+        return true;
+      }
+      return false;
+    }
+    return true;
+  });
+
+  window.products = filteredVariants;
   window.displayProducts = Object.values(groupedProducts);
   updateCartCount();
   syncStaticMangoPricing();
