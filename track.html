@@ -1732,7 +1732,7 @@
       transform: translateY(-100%)
     }
 
-    #mob-nav {
+            #mob-nav {
       display: none;
       position: fixed;
       bottom: 12px;
@@ -1834,6 +1834,7 @@
       font-weight: 800;
       color: #064e3b;
     }
+
 
     .hamburger {
       display: none;
@@ -5500,6 +5501,7 @@
     window.openMobileSidebar = () => toggleSidebar(true);
     window.closeMobileSidebar = () => toggleSidebar(false);
   </script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 
 <body>
@@ -5560,10 +5562,10 @@
   <!-- HEADER -->
   <!-- MOBILE MENU SIDE DRAWER -->
   <div id="mob-menu-overlay" onclick="closeMobileSidebar()"></div>
-  <div id="mob-menu">
-    <a href="index.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('home');closeMobileSidebar()">Home</a>
-    <a href="shop.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('shop');closeMobileSidebar()">Shop</a>
-    <a href="mangoes.html" class="mob-menu-item" onclick="event.preventDefault(); filterBycat('Mangoes');closeMobileSidebar()">Mangoes</a>
+    <div id="mob-menu">
+    <a href="index.html" class="mob-menu-item" data-page="home">Home</a>
+    <a href="shop.html" class="mob-menu-item" data-page="shop">Shop</a>
+    <a href="mangoes.html" class="mob-menu-item" data-page="mangoes">Mangoes</a>
     <div class="mob-menu-item" onclick="toggleMobCat(this)">
       Categories
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;">
@@ -5573,9 +5575,9 @@
     <div id="mob-drawer-cats" style="display:none; padding-left: 20px;">
       <div id="mob-cat-list"></div>
     </div>
-    <a href="track.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('track');closeMobileSidebar()">Track Order</a>
-    <a href="contact.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('contact');closeMobileSidebar()">Contact</a>
-    <a href="corporate.html" class="mob-menu-item" onclick="event.preventDefault(); showPage('corporate');closeMobileSidebar()">Corporate</a>
+    <a href="track.html" class="mob-menu-item" data-page="track">Track Order</a>
+    <a href="contact.html" class="mob-menu-item" data-page="contact">Contact</a>
+    <a href="corporate.html" class="mob-menu-item" data-page="corporate">Corporate</a>
   </div>
 
   <header id="header">
@@ -5592,7 +5594,7 @@
         <img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily" class="logo-img">
       </div>
 
-      <nav class="desktop-nav" id="desktop-nav">
+            <nav class="desktop-nav" id="desktop-nav">
         <a href="index.html" data-page="home">Home</a>
         <a href="shop.html" data-page="shop">Shop</a>
         <a href="mangoes.html" data-page="mangoes">Mangoes</a>
@@ -6869,10 +6871,16 @@
           const list = window.products || [];
           let variants;
 
-          // ₹ Prefer direct ID lookup (fast, accurate, no name-matching bugs)
+          // Robust direct ID lookup
           if (variantIds && variantIds.length > 0) {
             const idSet = new Set(variantIds.map(Number));
-            variants = list.filter(p => idSet.has(Number(p.id)));
+            const matched = list.find(p => idSet.has(Number(p.id)) && !p.isCustomBox);
+            if (matched) {
+              const targetProductId = matched.productId;
+              variants = list.filter(p => idSet.has(Number(p.id)) && p.productId === targetProductId && !p.isCustomBox);
+            } else {
+              variants = [];
+            }
           } else {
             // Fallback: name-based matching
             variants = list.filter(p => {
@@ -7068,7 +7076,7 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/app.js?v=5.9"></script>
-  <!-- BOTTOM NAVIGATION BAR -->
+      <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
       <div class="mob-nav-item" onclick="window.location.href='index.html'">
@@ -7079,9 +7087,9 @@
         <iconify-icon icon="solar:bag-bold-duotone"></iconify-icon>
         <span>Shop</span>
       </div>
-      <div class="mob-nav-item" onclick="window.location.href='https://www.Farmmily.com'">
-        <iconify-icon icon="solar:globus-bold-duotone"></iconify-icon>
-        <span>Website</span>
+      <div class="mob-nav-item active" onclick="window.location.href='track.html'">
+        <iconify-icon icon="solar:map-point-search-bold-duotone"></iconify-icon>
+        <span>Track</span>
       </div>
       <div class="mob-nav-item" onclick="window.open('https://wa.me/917358952051', '_blank')" style="color: #25d366 !important;">
         <iconify-icon icon="solar:chat-round-dots-bold-duotone"></iconify-icon>

@@ -2274,7 +2274,9 @@ function handleRawProducts(data) {
     'alph': 'https://drive.google.com/thumbnail?id=1fqvfeJycwREQawje_WRYdZf7rXYgDuoe&sz=w1000',
     'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000',
     'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000',
-    'custom': 'assets/side-01.png'
+    'custom': 'assets/side-01.png',
+    'multifloral honey': 'assets/multifloral_honey.png',
+    'wild forest honey': 'assets/wild_forest_honey.png'
   };
 
   const allProds = (data || []).map(p => {
@@ -2294,9 +2296,14 @@ function handleRawProducts(data) {
       }
     }
 
-    if (!img) {
-      for (const k in assetMap) if (low.includes(k)) img = assetMap[k];
+    // Check assetMap overrides first, or if no valid DB image
+    for (const k in assetMap) {
+      if (low.includes(k)) {
+        img = assetMap[k];
+        break;
+      }
     }
+
     const categoryList = window.cats || (typeof cats !== 'undefined' ? cats : []);
     const category = categoryList.find(c => c.id === p.category_id)?.name || 'Products';
 
@@ -2349,7 +2356,12 @@ function handleRawProducts(data) {
     if (!grouped[baseName]) {
       grouped[baseName] = { ...p, name: baseName, variants: [] };
     }
-    grouped[baseName].variants.push(p);
+    // Deduplicate by wt — skip if this size already exists in the group
+    const existingWts = new Set(grouped[baseName].variants.map(v => (v.wt || '').toLowerCase().trim()));
+    const pWtKey = (p.wt || '').toLowerCase().trim();
+    if (!existingWts.has(pWtKey)) {
+      grouped[baseName].variants.push(p);
+    }
   });
 
   Object.values(grouped).forEach(g => {
@@ -2373,7 +2385,9 @@ function handleDynamicProducts(data) {
     'alph': 'https://drive.google.com/thumbnail?id=1fqvfeJycwREQawje_WRYdZf7rXYgDuoe&sz=w1000',
     'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000',
     'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000',
-    'custom': 'assets/side-01.png'
+    'custom': 'assets/side-01.png',
+    'multifloral honey': 'assets/multifloral_honey.png',
+    'wild forest honey': 'assets/wild_forest_honey.png'
   };
   const flatVariants = [];
   const groupedProducts = {};
@@ -2393,15 +2407,14 @@ function handleDynamicProducts(data) {
     let img = product.image_url;
     if (img && img.includes('unsplash.com')) img = null;
 
-    // If no valid DB image, check assetMap for defaults
-    if (!img) {
-      for (const k in assetMap) {
-        if (low.includes(k)) {
-          img = assetMap[k];
-          break;
-        }
+    // Check assetMap overrides first, or if no valid DB image
+    for (const k in assetMap) {
+      if (low.includes(k)) {
+        img = assetMap[k];
+        break;
       }
     }
+
 
     // Ultimate fallback if still no image
     if (!img) img = 'assets/placeholder.png';
@@ -2516,7 +2529,14 @@ function handleDynamicProducts(data) {
       }];
     }
 
-    variants.forEach(variant => flatVariants.push(variant));
+    // Deduplicate flatVariants by unique variant ID (prevent same variant from appearing twice)
+    const seenVariantIds = new Set(flatVariants.map(v => v.id));
+    variants.forEach(variant => {
+      if (!seenVariantIds.has(variant.id)) {
+        seenVariantIds.add(variant.id);
+        flatVariants.push(variant);
+      }
+    });
 
     let baseName = product.name
       .replace(/\(.*\)/g, '')
@@ -2531,7 +2551,15 @@ function handleDynamicProducts(data) {
     if (!groupedProducts[baseName]) {
       groupedProducts[baseName] = { ...variants[0], name: cap(baseName), variants: [] };
     }
-    variants.forEach(v => groupedProducts[baseName].variants.push({ ...v, name: cap(baseName) }));
+    // Deduplicate by wt label — don't add a size that already exists in this group
+    const existingWts = new Set(groupedProducts[baseName].variants.map(v => (v.wt || '').toLowerCase().trim()));
+    variants.forEach(v => {
+      const wtKey = (v.wt || '').toLowerCase().trim();
+      if (!existingWts.has(wtKey)) {
+        existingWts.add(wtKey);
+        groupedProducts[baseName].variants.push({ ...v, name: cap(baseName) });
+      }
+    });
   });
 
   Object.values(groupedProducts).forEach(g => {
@@ -2562,11 +2590,11 @@ function handleDynamicProducts(data) {
       return false;
     }
     
-    // Honey, Ghee, Powders, Spices: 200g and 500g ONLY
-    const isSmallProduct = catLow.includes('honey') || catLow.includes('ghee') || catLow.includes('powder') || catLow.includes('spice') || lowName.includes('honey') || lowName.includes('ghee');
+    // Honey, Ghee, Powders, Spices, Beverages: Allow standard sizes (100g, 200g, 250g, 500g, 1kg, 250ml, 500ml, 1L, 5kg)
+    const isSmallProduct = catLow.includes('honey') || catLow.includes('ghee') || catLow.includes('powder') || catLow.includes('spice') || catLow.includes('beverage') || lowName.includes('honey') || lowName.includes('ghee') || lowName.includes('coffee');
     if (isSmallProduct) {
-      // Allow 200g, 250g, 500g (common small sizes)
-      const isS = /\b200\s*g\b/i.test(wt) || /\b250\s*g\b/i.test(wt) || /\b500\s*g\b/i.test(wt) || /\b200\s*gram\b/i.test(wt) || /\b500\s*gram\b/i.test(wt);
+      const isS = /\b(100|200|250|500)\s*(g|ml|gram|grams|ml|mliter|mliters)\b/i.test(wt) || 
+                  /\b(1|2|5)\s*(kg|l|litre|litres|kilo|kilograms)\b/i.test(wt);
       const key = `${lowName}-${wt}`;
       if (isS && !sV.has(key)) {
         sV.add(key);

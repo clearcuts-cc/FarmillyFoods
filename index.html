@@ -1797,20 +1797,22 @@
       transform: translateY(-100%)
     }
 
-    #mob-nav {
+        #mob-nav {
       display: none;
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 9500;
-      background: #fff;
-      border-top: 1px solid #f1f5f9;
-      padding: 6px 0 10px;
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.04);
-      border-radius: 0;
-      max-width: none;
-      margin: 0;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 9000;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(25px) saturate(200%);
+      -webkit-backdrop-filter: blur(25px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 0;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+      border-radius: 30px;
+      max-width: 500px;
+      margin: 0 auto;
       transform: translateY(0);
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -1842,33 +1844,40 @@
     }
 
     .mob-nav-item {
-      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
+      gap: 4px;
       color: #64748b;
       cursor: pointer;
+      flex: 1;
       position: relative;
-      transition: all 0.2s ease;
-      padding: 4px 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 6px 0;
+      border-radius: 20px;
     }
 
     .mob-nav-item.active {
-      color: var(--primary);
+      color: #059669; /* Emerald 600 */
     }
 
-    .mob-nav-item iconify-icon {
-      font-size: 24px;
+    .mob-nav-item.active::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 48px;
+      height: 100%;
+      background: #f0fdf4;
+      border-radius: 16px;
+      z-index: -1;
+      animation: navBubble 0.3s ease forwards;
     }
 
-    .mob-nav-item span {
-      font-size: 11px;
-      font-weight: 600;
+    @keyframes navBubble {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
-
-    /* NAV BUBBLE REMOVED AS PER USER REQUEST */
 
     .mob-nav-item iconify-icon {
       font-size: 24px;
@@ -1876,13 +1885,13 @@
     }
 
     .mob-nav-item.active iconify-icon {
-      transform: translateY(-2px);
+      transform: translateY(-2px) scale(1.1);
     }
 
     .mob-nav-item span {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.1px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
       transition: all 0.3s ease;
     }
 
@@ -1890,6 +1899,7 @@
       font-weight: 800;
       color: #064e3b;
     }
+
 
     .hamburger {
       display: none;
@@ -5747,7 +5757,7 @@
   <!-- HEADER -->
   <!-- MOBILE MENU SIDE DRAWER -->
   <div id="mob-menu-overlay" onclick="closeMobileSidebar()"></div>
-  <div id="mob-menu">
+    <div id="mob-menu">
     <a href="index.html" class="mob-menu-item" data-page="home">Home</a>
     <a href="shop.html" class="mob-menu-item" data-page="shop">Shop</a>
     <a href="mangoes.html" class="mob-menu-item" data-page="mangoes">Mangoes</a>
@@ -5779,8 +5789,8 @@
         <img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily" class="logo-img">
       </div>
 
-      <nav class="desktop-nav" id="desktop-nav">
-        <a href="index.html" data-page="home">Home</a>
+            <nav class="desktop-nav" id="desktop-nav">
+        <a href="index.html" data-page="home" class="active">Home</a>
         <a href="shop.html" data-page="shop">Shop</a>
         <a href="mangoes.html" data-page="mangoes">Mangoes</a>
         <div class="cat-drop-wrap" style="position:relative; display:flex; align-items:center; height:100%"
@@ -6043,6 +6053,32 @@
                   <span style="font-size: 11px; color: #166534; margin-left: 2px; opacity: 0.8;">/kg</span>
                 </div>
                 <div style="font-size:11px; color:#6b7280; font-weight:600; margin-top:6px;">Total: ₹447 for 3 kg</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WEBSITE LINK CARD -->
+          <div class="premium-mango-card" onclick="window.open('https://www.Farmmily.com', '_blank')" style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px dashed #059669; cursor: pointer; transition: all 0.3s ease;">
+            <div class="m-img-wrap" style="background: #e6f4ea; display: flex; align-items: center; justify-content: center; height: 180px; position: relative;">
+              <iconify-icon icon="solar:globus-bold-duotone" style="font-size: 80px; color: #059669;"></iconify-icon>
+              <div class="m-add-btn-image" style="background: #059669; color: #fff;">
+                VISIT
+              </div>
+            </div>
+            <div class="m-info" style="display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
+              <div>
+                <div class="m-top-row">
+                  <div class="m-wt-tag" style="background: #059669; color: #fff;">Official</div>
+                  <div class="m-stats">
+                    <div class="m-stars">★★★★★</div>
+                  </div>
+                </div>
+                <h3 class="m-title" style="color: #064e3b; margin-top: 8px;">Explore Our Website</h3>
+                <span class="m-subtitle" style="display: block; margin-top: 4px; font-size: 12px; color: #047857;">Pure natural, farm to family products</span>
+              </div>
+              <div style="font-size: 12px; color: #059669; font-weight: 700; margin-top: 12px; display: flex; align-items: center; gap: 4px;">
+                <span>Go to Farmmily.com</span>
+                <iconify-icon icon="solar:arrow-right-up-bold-duotone" style="font-size: 16px;"></iconify-icon>
               </div>
             </div>
           </div>
@@ -7768,7 +7804,13 @@
           // Robust direct ID lookup
           if (variantIds && variantIds.length > 0) {
             const idSet = new Set(variantIds.map(Number));
-            variants = list.filter(p => idSet.has(Number(p.id)));
+            const matched = list.find(p => idSet.has(Number(p.id)) && !p.isCustomBox);
+            if (matched) {
+              const targetProductId = matched.productId;
+              variants = list.filter(p => idSet.has(Number(p.id)) && p.productId === targetProductId && !p.isCustomBox);
+            } else {
+              variants = [];
+            }
           } else {
             // Fallback: Name-based matching
             variants = list.filter(p => {
@@ -8054,7 +8096,7 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/app.js?v=5.9"></script>
-  <!-- BOTTOM NAVIGATION BAR -->
+    <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
       <div class="mob-nav-item active" onclick="window.location.href='index.html'">
@@ -8065,7 +8107,7 @@
         <iconify-icon icon="solar:bag-bold-duotone"></iconify-icon>
         <span>Shop</span>
       </div>
-      <div class="mob-nav-item" onclick="showPage('track')">
+      <div class="mob-nav-item" onclick="window.location.href='track.html'">
         <iconify-icon icon="solar:map-point-search-bold-duotone"></iconify-icon>
         <span>Track</span>
       </div>

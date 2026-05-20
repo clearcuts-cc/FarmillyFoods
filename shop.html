@@ -1756,7 +1756,7 @@
       transform: translateY(-100%)
     }
 
-    #mob-nav {
+            #mob-nav {
       display: none;
       position: fixed;
       bottom: 12px;
@@ -1858,6 +1858,7 @@
       font-weight: 800;
       color: #064e3b;
     }
+
 
     .hamburger {
       display: none;
@@ -5524,6 +5525,7 @@
     window.openMobileSidebar = () => toggleSidebar(true);
     window.closeMobileSidebar = () => toggleSidebar(false);
   </script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 
 <body>
@@ -5584,7 +5586,7 @@
   <!-- HEADER -->
   <!-- MOBILE MENU SIDE DRAWER -->
   <div id="mob-menu-overlay" onclick="closeMobileSidebar()"></div>
-  <div id="mob-menu">
+    <div id="mob-menu">
     <a href="index.html" class="mob-menu-item" data-page="home">Home</a>
     <a href="shop.html" class="mob-menu-item" data-page="shop">Shop</a>
     <a href="mangoes.html" class="mob-menu-item" data-page="mangoes">Mangoes</a>
@@ -5616,7 +5618,7 @@
         <img loading="lazy" decoding="async" src="assets/farmmily logo.png" alt="Farmmily" class="logo-img">
       </div>
 
-      <nav class="desktop-nav" id="desktop-nav">
+            <nav class="desktop-nav" id="desktop-nav">
         <a href="index.html" data-page="home">Home</a>
         <a href="shop.html" data-page="shop" class="active">Shop</a>
         <a href="mangoes.html" data-page="mangoes">Mangoes</a>
@@ -5628,9 +5630,9 @@
             <!-- Categories rendered here -->
           </div>
         </div>
-        <a href="/corporate" data-page="corporate" onclick="event.preventDefault(); showPage('corporate')">Corporate</a>
-        <a href="/track" data-page="track" onclick="event.preventDefault(); showPage('track')">Tracking</a>
-        <a href="/contact" data-page="contact" onclick="event.preventDefault(); showPage('contact')">Contact</a>
+        <a href="corporate.html" data-page="corporate">Corporate</a>
+        <a href="track.html" data-page="track">Tracking</a>
+        <a href="contact.html" data-page="contact">Contact</a>
       </nav>
 
       <div class="nav-search-wrap">
@@ -6915,7 +6917,13 @@
           // Robust direct ID lookup
           if (variantIds && variantIds.length > 0) {
             const idSet = new Set(variantIds.map(Number));
-            variants = list.filter(p => idSet.has(Number(p.id)));
+            const matched = list.find(p => idSet.has(Number(p.id)) && !p.isCustomBox);
+            if (matched) {
+              const targetProductId = matched.productId;
+              variants = list.filter(p => idSet.has(Number(p.id)) && p.productId === targetProductId && !p.isCustomBox);
+            } else {
+              variants = [];
+            }
           } else {
             // Fallback: Name-based matching
             variants = list.filter(p => {
@@ -7206,7 +7214,7 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/app.js?v=5.9"></script>
-  <!-- BOTTOM NAVIGATION BAR -->
+      <!-- BOTTOM NAVIGATION BAR -->
   <nav id="mob-nav">
     <div class="mob-nav-inner">
       <div class="mob-nav-item" onclick="window.location.href='index.html'">
@@ -7217,9 +7225,9 @@
         <iconify-icon icon="solar:bag-bold-duotone"></iconify-icon>
         <span>Shop</span>
       </div>
-      <div class="mob-nav-item" onclick="window.location.href='https://www.Farmmily.com'">
-        <iconify-icon icon="solar:globus-bold-duotone"></iconify-icon>
-        <span>Website</span>
+      <div class="mob-nav-item" onclick="window.location.href='track.html'">
+        <iconify-icon icon="solar:map-point-search-bold-duotone"></iconify-icon>
+        <span>Track</span>
       </div>
       <div class="mob-nav-item" onclick="window.open('https://wa.me/917358952051', '_blank')" style="color: #25d366 !important;">
         <iconify-icon icon="solar:chat-round-dots-bold-duotone"></iconify-icon>
