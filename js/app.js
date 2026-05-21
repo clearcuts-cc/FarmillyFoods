@@ -2275,8 +2275,8 @@ function handleRawProducts(data) {
     'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000',
     'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000',
     'custom': 'assets/side-01.png',
-    'multifloral honey': 'assets/multifloral_honey.png',
-    'wild forest honey': 'assets/wild_forest_honey.png'
+    'multifloral honey': 'https://drive.google.com/thumbnail?id=1TpDoYmQbNydp5FMTikyflxOcwd6Rr5we&sz=w1000',
+    'wild forest honey': 'https://drive.google.com/thumbnail?id=10a1NwArCnXMAoTuwb3Nqm6j5595facT1&sz=w1000'
   };
 
   const allProds = (data || []).map(p => {
@@ -2308,7 +2308,7 @@ function handleRawProducts(data) {
     const category = categoryList.find(c => c.id === p.category_id)?.name || 'Products';
 
     return {
-      id: p.id, name: cap(p.name), price: price,
+      id: Number(p.id) + 1000000, name: cap(p.name), price: price,
       originalPrice: p.original_price ? Number(p.original_price) : null,
       wt: p.weight,
       img: img || 'assets/placeholder.png', inStock: p.in_stock, cat: category,
@@ -2386,8 +2386,8 @@ function handleDynamicProducts(data) {
     'bang': 'https://drive.google.com/thumbnail?id=193aZyliqZiPnm6ZDzLnzFX3DgpK6EfgU&sz=w1000',
     'sent': 'https://drive.google.com/thumbnail?id=1GfhzRIHm-CU-hIwkvgxOP-EUlbt_S319&sz=w1000',
     'custom': 'assets/side-01.png',
-    'multifloral honey': 'assets/multifloral_honey.png',
-    'wild forest honey': 'assets/wild_forest_honey.png'
+    'multifloral honey': 'https://drive.google.com/thumbnail?id=1TpDoYmQbNydp5FMTikyflxOcwd6Rr5we&sz=w1000',
+    'wild forest honey': 'https://drive.google.com/thumbnail?id=10a1NwArCnXMAoTuwb3Nqm6j5595facT1&sz=w1000'
   };
   const flatVariants = [];
   const groupedProducts = {};
@@ -2428,7 +2428,7 @@ function handleDynamicProducts(data) {
       const selectionPool = variants.filter(v => v.label && v.label.startsWith('VarietyPool:'));
 
       const customProduct = {
-        id: product.id,
+        id: Number(product.id) + 1000000,
         name: cap(product.name),
         rawName: product.name,
         price: boxSizes[0]?.price || 0,
@@ -2487,26 +2487,13 @@ function handleDynamicProducts(data) {
         };
       });
 
-    // Filter variants to only 3kg and 5kg for heritage varieties as per user request
-    const varieties = ['imam', 'alph', 'bang', 'sent'];
-    if (varieties.some(varName => low.includes(varName))) {
-      const sW = new Set();
-      variants = variants.filter(v => {
-        const wt = (v.wt || '').toLowerCase().trim();
-        const isM = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
-        if (isM && !sW.has(wt)) {
-          sW.add(wt);
-          return true;
-        }
-        return false;
-      });
-    }
+
 
     if (!variants.length) {
       const pPrice = Number(product.price || 0);
       const pOrig = Number(product.original_price || 0);
       variants = [{
-        id: product.id,
+        id: Number(product.id) + 1000000,
         variantId: product.id,
         productId: product.id,
         name: cap(product.name),
@@ -2528,6 +2515,39 @@ function handleDynamicProducts(data) {
         isFeatured: product.is_featured
       }];
     }
+
+    // Apply specific size filters as requested by user
+    const isMango = ['imam', 'alph', 'bang', 'sent'].some(k => low.includes(k)) || category === 'Mangoes' || low.includes('mango');
+    const isHoney = low.includes('honey') || category.toLowerCase().includes('honey') || low.includes('multifloral');
+    const isJaggery = low.includes('jaggery') || category.toLowerCase().includes('jaggery');
+
+    variants = variants.filter(v => {
+      const wt = (v.wt || '').toLowerCase().replace(/\s+g/g, 'g').replace(/\s+kg/g, 'kg').trim();
+      
+      if (isMango) {
+        return /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
+      }
+      
+      if (isHoney || isJaggery) {
+        return /\b250\s*g\b/i.test(wt) || /\b500\s*g\b/i.test(wt) || /\b250\s*gram\b/i.test(wt) || /\b500\s*gram\b/i.test(wt);
+      }
+      
+      // Default: Remove 10kg/15kg as per previous rules unless specifically allowed
+      if (/\b10\s*kg\b/i.test(wt) || /\b15\s*kg\b/i.test(wt)) return false;
+      
+      return true;
+    });
+
+    // Fix database entry errors where 500g was accidentally given the 3kg price
+    variants.forEach(v => {
+      const wt = (v.wt || '').toLowerCase().replace(/\s+g/g, 'g').replace(/\s+kg/g, 'kg').trim();
+      if (low.includes('signature') && low.includes('honey')) {
+        if (/\b500\s*g\b/i.test(wt) && Number(v.price) > 1000) {
+          v.price = 449; // Correct rate for 500g
+          if (v.originalPrice) v.originalPrice = 599;
+        }
+      }
+    });
 
     // Deduplicate flatVariants by unique variant ID (prevent same variant from appearing twice)
     const seenVariantIds = new Set(flatVariants.map(v => v.id));
@@ -2570,43 +2590,17 @@ function handleDynamicProducts(data) {
     g.inStock = g.variants.some(v => v.inStock);
   });
 
-  // Filter variants based on category as per user request
+  // Filter variants to remove duplicates with exact same name and weight
   const sV = new Set();
-  const heritageVarieties = ['imam', 'alph', 'bang', 'sent'];
   const filteredVariants = flatVariants.filter(v => {
     const lowName = (v.name || '').toLowerCase();
-    const catLow = (v.cat || '').toLowerCase();
     const wt = (v.wt || '').toLowerCase().trim();
-    
-    // Mangoes: 3kg and 5kg ONLY
-    const isMango = heritageVarieties.some(k => lowName.includes(k)) || catLow.includes('mango');
-    if (isMango) {
-      const isM = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
-      const key = `${lowName}-${wt}`;
-      if (isM && !sV.has(key)) {
-        sV.add(key);
-        return true;
-      }
-      return false;
+    const key = `${lowName}-${wt}`;
+    if (!sV.has(key)) {
+      sV.add(key);
+      return true;
     }
-    
-    // Honey, Ghee, Powders, Spices, Beverages: Allow standard sizes (100g, 200g, 250g, 500g, 1kg, 250ml, 500ml, 1L, 5kg)
-    const isSmallProduct = catLow.includes('honey') || catLow.includes('ghee') || catLow.includes('powder') || catLow.includes('spice') || catLow.includes('beverage') || lowName.includes('honey') || lowName.includes('ghee') || lowName.includes('coffee');
-    if (isSmallProduct) {
-      const isS = /\b(100|200|250|500)\s*(g|ml|gram|grams|ml|mliter|mliters)\b/i.test(wt) || 
-                  /\b(1|2|5)\s*(kg|l|litre|litres|kilo|kilograms)\b/i.test(wt);
-      const key = `${lowName}-${wt}`;
-      if (isS && !sV.has(key)) {
-        sV.add(key);
-        return true;
-      }
-      return false;
-    }
-
-    // Default: Remove any 10kg/15kg regardless of category if they aren't explicitly allowed
-    if (/\b10\s*kg\b/i.test(wt) || /\b15\s*kg\b/i.test(wt)) return false;
-
-    return true;
+    return false;
   });
 
   window.products = filteredVariants;

@@ -5673,8 +5673,7 @@
       </div>
     </div>
   </header>
-
-
+  
   <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3"
       stroke-linecap="round" stroke-linejoin="round">
@@ -6919,8 +6918,7 @@
             const idSet = new Set(variantIds.map(Number));
             const matched = list.find(p => idSet.has(Number(p.id)) && !p.isCustomBox);
             if (matched) {
-              const targetProductId = matched.productId;
-              variants = list.filter(p => idSet.has(Number(p.id)) && p.productId === targetProductId && !p.isCustomBox);
+              variants = list.filter(p => idSet.has(Number(p.id)) && !p.isCustomBox);
             } else {
               variants = [];
             }
@@ -6948,17 +6946,7 @@
           const isMango = isHeritage || variants.some(v => v.cat === 'Mangoes');
 
           if (isMango) {
-            const seenWeights = new Set();
-            variants = variants.filter(v => {
-              const wt = (v.wt || '').toLowerCase().trim();
-              // Strict match: avoid 15kg matching 5kg
-              const isMatch = /\b3\s*kg\b/i.test(wt) || /\b5\s*kg\b/i.test(wt);
-              if (isMatch && !seenWeights.has(wt)) {
-                seenWeights.add(wt);
-                return true;
-              }
-              return false;
-            });
+            
           }
 
           options.innerHTML = variants.map(v => {

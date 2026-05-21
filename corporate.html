@@ -6941,8 +6941,7 @@
             const idSet = new Set(variantIds.map(Number));
             const matched = list.find(p => idSet.has(Number(p.id)) && !p.isCustomBox);
             if (matched) {
-              const targetProductId = matched.productId;
-              variants = list.filter(p => idSet.has(Number(p.id)) && p.productId === targetProductId && !p.isCustomBox);
+              variants = list.filter(p => idSet.has(Number(p.id)) && !p.isCustomBox);
             } else {
               variants = [];
             }
